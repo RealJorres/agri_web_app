@@ -75,6 +75,7 @@ _Done 2026-10-26._
 Commits: `feat(locations): ...`, `feat(catalog): ...`, `feat(catalog): seed commands`.
 
 ## M4 — Registry + farms
+_Done 2026-10-26. Harvest (production app) moved to M5._
 1. `registry`: `Farmer` (name parts, `full_name_raw`, `normalized_name` + GIN trigram index, sex,
    birth_year, `rsbsa_no` partial-unique, contact_no, home_barangay, consent_at/by, status),
    `Association` (+ normalized name), `AssociationMember` (partial-unique pair).

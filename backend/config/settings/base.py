@@ -36,6 +36,9 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.locations",
     "apps.catalog",
+    "apps.audit",
+    "apps.registry",
+    "apps.farms",
 ]
 
 MIDDLEWARE = [
@@ -45,6 +48,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.audit.context.AuditContextMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # Must be last (django-axes).
@@ -109,6 +113,13 @@ PRIVATE_MEDIA_ROOT = Path(env("PRIVATE_MEDIA_ROOT", default=str(BASE_DIR / "priv
 IMPORT_FILE_RETENTION_DAYS = env.int("IMPORT_FILE_RETENTION_DAYS", default=30)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+# Audit IPs: number of trusted reverse proxies in front of Django (0 = use REMOTE_ADDR).
+AUDIT_TRUSTED_PROXY_COUNT = env.int("TRUSTED_PROXY_COUNT", default=0)
+
+# Duplicate-farmer detection on pg_trgm similarity (ADR-0007).
+DUPLICATE_WARN_SIMILARITY = env.float("DUPLICATE_WARN_SIMILARITY", default=0.85)
+DUPLICATE_SUGGEST_SIMILARITY = env.float("DUPLICATE_SUGGEST_SIMILARITY", default=0.6)
 
 REDIS_URL = env("REDIS_URL")
 
@@ -182,7 +193,7 @@ AXES_RESET_ON_SUCCESS = True
 # Key of the credentials dict passed to authenticate() (accounts.services.login).
 AXES_USERNAME_FORM_FIELD = "username"
 AXES_LOCKOUT_CALLABLE = "apps.accounts.views.lockout_response"
-AXES_IPWARE_PROXY_COUNT = env.int("AXES_PROXY_COUNT", default=0)
+AXES_IPWARE_PROXY_COUNT = AUDIT_TRUSTED_PROXY_COUNT
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "agri-dms API",

@@ -14,6 +14,8 @@ from rest_framework.request import Request
 from apps.accounts.roles import Cap
 from apps.accounts.selectors import Scope, get_scope
 
+from .exceptions import DomainError
+
 _REQUEST_ATTR = "_agri_scope"
 
 
@@ -89,15 +91,68 @@ class ScopedQuerySetMixin:
     scope_municipality_path: str | None = None
     scope_program_path: str | None = None
     scope_capability: Cap = Cap.VIEW_RECORDS
-    request: Request
 
     def get_queryset(self) -> QuerySet[Any]:
         queryset: QuerySet[Any] = super().get_queryset()  # type: ignore[misc]
         return scope_queryset(
             queryset,
-            scope_for(self.request),
+            scope_for(self.request),  # type: ignore[attr-defined]
             self.scope_capability,
             barangay_path=self.scope_barangay_path,
             municipality_path=self.scope_municipality_path,
             program_path=self.scope_program_path,
+        )
+
+
+def can_reach(
+    scope: Scope,
+    capability: Cap,
+    *,
+    barangay: Any = None,
+    municipality_id: Any = None,
+    program_id: Any = None,
+) -> bool:
+    """In-memory twin of scope_q for writes: may the user act on a target located in
+    ``barangay`` (or ``municipality_id``) and belonging to ``program_id``?"""
+    if barangay is not None:
+        municipality_id = barangay.municipality_id
+    for grant in scope.grants_with(capability):
+        if (
+            grant.program_id is not None
+            and program_id is not None
+            and grant.program_id != program_id
+        ):
+            continue
+        if grant.barangay_ids and barangay is not None:
+            if barangay.pk in grant.barangay_ids:
+                return True
+            continue
+        if grant.municipality_id is not None:
+            if municipality_id is not None and grant.municipality_id == municipality_id:
+                return True
+            continue
+        if grant.barangay_ids:
+            continue  # barangay-limited grant, target has no barangay
+        return True
+    return False
+
+
+def require_reach(
+    scope: Scope,
+    capability: Cap,
+    *,
+    field: str,
+    barangay: Any = None,
+    municipality_id: Any = None,
+    program_id: Any = None,
+) -> None:
+    """Raise a 403 DomainError naming ``field`` when the target is outside the user's scope."""
+    if not can_reach(
+        scope, capability, barangay=barangay, municipality_id=municipality_id, program_id=program_id
+    ):
+        raise DomainError(
+            "out_of_scope",
+            "This is outside your assignment.",
+            {field: ["Outside your assigned area or program."]},
+            status_code=403,
         )
