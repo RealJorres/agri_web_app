@@ -142,9 +142,12 @@ def test_transition_matrix(action, status, who, people, stand):
 
 @pytest.mark.parametrize(
     ("status", "action", "who"),
-    [(S.SUBMITTED, "return", "validator"), (S.VALIDATED, "return", "coordinator"),
-     (S.APPROVED, "reopen", "coordinator")],
-)  # fmt: skip
+    [
+        (S.SUBMITTED, "return", "validator"),
+        (S.VALIDATED, "return", "coordinator"),
+        (S.APPROVED, "reopen", "coordinator"),
+    ],
+)
 def test_return_and_reopen_require_comment(status, action, who, people, stand):
     record = record_with_counts(counts={"FRUITING": 10}, crop_stand=stand, status=status)
     fn = services.return_record if action == "return" else services.reopen

@@ -62,12 +62,32 @@ MATERIAL_SOURCES: list[dict[str, Any]] = [
 ]
 
 UNITS: list[dict[str, Any]] = [
-    {"code": "KG", "name": "Kilogram", "kind": "mass", "to_base": Decimal(1),
-     "aliases": ["kg", "kgs", "kilo", "kilos", "kl", "kls"]},
-    {"code": "SACK", "name": "Sack", "kind": "container", "to_base": None,
-     "aliases": ["sack", "sacks", "sako"]},
-    {"code": "HA", "name": "Hectare", "kind": "area", "to_base": Decimal(1),
-     "aliases": ["ha", "hectare", "hectares"]},
-    {"code": "TREE", "name": "Tree", "kind": "count", "to_base": Decimal(1),
-     "aliases": ["tree", "trees"]},
-]  # fmt: skip
+    {
+        "code": "KG",
+        "name": "Kilogram",
+        "kind": "mass",
+        "to_base": Decimal(1),
+        "aliases": ["kg", "kgs", "kilo", "kilos", "kl", "kls"],
+    },
+    {
+        "code": "SACK",
+        "name": "Sack",
+        "kind": "container",
+        "to_base": None,
+        "aliases": ["sack", "sacks", "sako"],
+    },
+    {
+        "code": "HA",
+        "name": "Hectare",
+        "kind": "area",
+        "to_base": Decimal(1),
+        "aliases": ["ha", "hectare", "hectares"],
+    },
+    {
+        "code": "TREE",
+        "name": "Tree",
+        "kind": "count",
+        "to_base": Decimal(1),
+        "aliases": ["tree", "trees"],
+    },
+]

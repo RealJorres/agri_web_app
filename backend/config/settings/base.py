@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "apps.farms",
     "apps.surveys",
     "apps.production",
+    "apps.imports",
 ]
 
 MIDDLEWARE = [
@@ -135,6 +136,9 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
+CELERY_BEAT_SCHEDULE = {
+    "purge-import-files": {"task": "apps.imports.tasks.purge_import_files", "schedule": 24 * 3600},
+}
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOW_CREDENTIALS = True

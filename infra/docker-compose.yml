@@ -50,7 +50,8 @@ services:
 
   worker:
     <<: *backend
-    command: celery -A config worker -l info
+    # -B runs the beat scheduler in the same process (dev only; one worker).
+    command: celery -A config worker -B -l info
 
   frontend:
     build:

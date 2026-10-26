@@ -57,7 +57,7 @@ def survey_round(towns):
             survey_round=r,
             status=status,
         )
-    return r  # fmt: skip
+    return r
 
 
 def as_table(rows):
@@ -124,8 +124,11 @@ def test_home_stats(survey_round, towns):
     assert cacao_stats["total"] == 100 + 525 + 625 + 1250
     assert cacao_stats["total_area_ha"] == Decimal("4.00")
     assert [s["code"] for s in cacao_stats["stages"]] == [
-        "SEEDLING", "VEGETATIVE", "FLOWERING", "FRUITING",
-    ]  # fmt: skip
+        "SEEDLING",
+        "VEGETATIVE",
+        "FLOWERING",
+        "FRUITING",
+    ]
 
 
 def test_rounds_for_filters_by_program():
@@ -177,7 +180,7 @@ def test_outlier_needs_minimum_sample(towns):
         counts={"FRUITING": 10_000}, crop_stand=stand_in(towns["Gasan"]), survey_round=r
     )
 
-    assert rules.check_outlier(big, list(big.stage_counts.all())) == []  # fmt: skip
+    assert rules.check_outlier(big, list(big.stage_counts.all())) == []
 
 
 def test_duplicate_farmer_warning_lists_ids_not_names(towns):

@@ -22,3 +22,7 @@ records by hand.
 
 **Consequences of 1.** The DoD check works right after import; the human approval is the import
 commit itself (confirmed by the user on the preview screen). Reopen still works per §8.
+
+**Amendment (2026-10-26, ADR-0013 §6).** The historical round is created open and not auto-closed:
+rows below the TOTAL row become draft records that must remain editable. Approved imported records
+are locked when the coordinator closes the round.

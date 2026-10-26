@@ -198,10 +198,16 @@ class HomeStatsView(APIView):
     permission_classes = [HasCapability]
     read_capability = Cap.VIEW_AGGREGATES
 
-    @extend_schema(responses=inline_serializer("HomeStats", {
-        "farmers": serializers.IntegerField(), "farms": serializers.IntegerField(),
-        "commodities": serializers.ListField(child=serializers.DictField()),
-    }))  # fmt: skip
+    @extend_schema(
+        responses=inline_serializer(
+            "HomeStats",
+            {
+                "farmers": serializers.IntegerField(),
+                "farms": serializers.IntegerField(),
+                "commodities": serializers.ListField(child=serializers.DictField()),
+            },
+        )
+    )
     def get(self, request: Request) -> Response:
         if not scope_for(request).can(Cap.VIEW_AGGREGATES):
             raise DomainError("forbidden", "Not allowed.", status_code=403)

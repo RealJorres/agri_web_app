@@ -129,10 +129,14 @@ def check_duplicate_farmer(farmer: Farmer) -> list[Issue]:
             "possible_duplicate_farmer",
             "This farmer may already be registered. Review and merge if they are the same person.",
             "farmer",
-            {"candidates": [{"id": str(c.farmer.pk), "similarity": c.similarity, "reason": c.reason}
-                            for c in candidates]},
+            {
+                "candidates": [
+                    {"id": str(c.farmer.pk), "similarity": c.similarity, "reason": c.reason}
+                    for c in candidates
+                ]
+            },
         )
-    ]  # fmt: skip
+    ]
 
 
 def evaluate(record: InventoryRecord) -> list[Issue]:

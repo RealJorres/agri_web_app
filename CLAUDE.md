@@ -90,7 +90,11 @@ Tests needing the real workbook are marked `@pytest.mark.real_data` and auto-ski
   (`condition=Q(deleted_at__isnull=True)`).
 - Catalog-driven, not crop-specific: never hard-code "cacao", stage codes or 625 outside seeds,
   the legacy-import adapter, and tests.
-- Factories (`factory_boy`) use Faker with fixed seeds and obviously synthetic data.
+- Factories (`factory_boy`) use obviously synthetic data (surnames "Sample<n>").
+- `apps/imports` is split by step: `uploads.py` (file safety), `normalizers.py` (pure cell
+  parsers), `legacy_cacao_2023.py` (reader), `legacy_plan.py` (plan + reconciliation, read-only),
+  `template.py` (clean template), `exports.py`, `services.py` (job lifecycle + legacy commit).
+  The synthetic workbook in `apps/imports/tests/legacy_fixture.py` mirrors every §3 defect.
 - Frontend: feature folders own their pages/components/hooks/api; shared UI in `components/ui`;
   server state only in TanStack Query; forms with RHF + Zod; no `any`; access token in memory only.
 - Write an ADR (`docs/decisions/NNNN-title.md`) for any significant or brief-deviating decision.

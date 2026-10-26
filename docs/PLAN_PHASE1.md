@@ -116,6 +116,7 @@ _Done 2026-10-26. Audit app landed in M4; Harvest (production) added here. Expor
 Commits: `feat(surveys): models and rules`, `feat(surveys): workflow services`, `feat(surveys): api`.
 
 ## M6 — Imports
+_Done 2026-10-26 against the brief spec + synthetic workbook; real-file inspection (step 0) and acceptance tests pending the file. Exports added here._
 0. **Inspect the real workbook** (read-only, openpyxl `read_only=True, data_only=False` and a second
    pass with `data_only=True`) and report differences from brief §3 without printing personal data
    (counts, column headers, formula strings, row numbers only).
