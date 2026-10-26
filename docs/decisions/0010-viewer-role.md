@@ -1,5 +1,5 @@
 # ADR-0010: Viewer role gets aggregate endpoints only
-Status: **Proposed** · 2026-10-26
+Status: Accepted · 2026-10-26 (approved by product owner)
 
 **Context.** §7 says viewers use aggregated endpoints only *and* that serializers drop personal fields
 for viewers. Doing both means maintaining redacted variants of every record-level serializer.

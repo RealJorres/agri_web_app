@@ -1,5 +1,5 @@
 # ADR-0005: PSGC codes are never invented
-Status: **Proposed — needs PSGC file from the PAO** · 2026-10-26
+Status: Accepted · 2026-10-26 (approved by product owner)
 
 **Context.** The brief makes `municipality.psgc_code` unique (non-null) but also says "do not invent
 PSGC codes", and no PSGC file is in `data/reference/` yet. M3 must still seed the 6 municipalities.

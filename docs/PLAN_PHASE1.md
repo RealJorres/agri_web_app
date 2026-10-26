@@ -1,6 +1,6 @@
 # Phase 0 + Phase 1 implementation plan
 
-Status: **awaiting approval** · 2026-10-26. Each milestone ends with `make lint && make test` green and
+Status: **approved** 2026-10-26 (recommendations for open decisions 1–5 accepted). Each milestone ends with `make lint && make test` green and
 one or more conventional commits. Open decisions are listed at the end; they block only the
 milestone named.
 

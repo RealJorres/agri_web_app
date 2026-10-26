@@ -1,5 +1,5 @@
 # ADR-0003: Status of records imported from the 2023 legacy workbook
-Status: **Proposed — needs product-owner decision** · 2026-10-26
+Status: Accepted · 2026-10-26 (approved by product owner)
 
 **Context.** Two brief requirements conflict:
 - Rule 2.1 / §11: summaries are computed over **approved** records.

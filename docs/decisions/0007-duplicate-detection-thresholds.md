@@ -1,5 +1,5 @@
 # ADR-0007: Configurable duplicate-farmer thresholds
-Status: **Proposed** · 2026-10-26
+Status: Accepted · 2026-10-26 (approved by product owner)
 
 **Context.** The brief sets "likely duplicate" at pg_trgm similarity ≥ 0.85. pg_trgm scores for common
 Filipino name variants are usually lower (e.g. "Ma. Luisa Reyes" vs "Maria Luisa Reyes" scores roughly
