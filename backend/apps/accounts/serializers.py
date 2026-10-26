@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .models import User, UserAssignment
@@ -57,6 +58,7 @@ class MeSerializer(serializers.ModelSerializer[User]):
     def get_capabilities(self, obj: User) -> list[str]:
         return sorted(str(c) for c in get_scope(obj).capabilities)
 
+    @extend_schema_field(AssignmentSerializer(many=True))
     def get_assignments(self, obj: User) -> list[dict[str, object]]:
         qs = obj.assignments.select_related("municipality", "program").prefetch_related("barangays")
         return AssignmentSerializer(qs, many=True).data  # type: ignore[return-value]

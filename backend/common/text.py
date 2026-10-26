@@ -17,3 +17,8 @@ def normalize_name(value: str | None) -> str:
     decomposed = unicodedata.normalize("NFKD", value or "")
     without_accents = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
     return collapse_spaces(_NON_WORD.sub(" ", without_accents.lower()).replace("_", " "))
+
+
+def normalize_code(value: str | None) -> str:
+    """Key for catalog codes/aliases: 'BR 25', 'br25 ' -> 'BR25'; 'DA- RFO', 'DA_RFO' -> 'DARFO'."""
+    return normalize_name(value).replace(" ", "").upper()

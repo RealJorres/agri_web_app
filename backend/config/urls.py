@@ -7,6 +7,8 @@ from common.views import HealthView
 
 api_v1: list[URLPattern | URLResolver] = [
     path("", include("apps.accounts.urls")),
+    path("", include("apps.locations.urls")),
+    path("", include("apps.catalog.urls")),
 ]
 
 urlpatterns = [

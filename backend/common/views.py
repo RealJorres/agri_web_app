@@ -4,13 +4,25 @@ import redis
 from django.conf import settings
 from django.db import connection
 from drf_spectacular.utils import extend_schema, inline_serializer
-from rest_framework import serializers
+from rest_framework import serializers, viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.accounts.roles import Cap
+
+from .permissions import HasCapability
+
 logger = logging.getLogger(__name__)
+
+
+class ReferenceViewSet(viewsets.ReadOnlyModelViewSet):  # type: ignore[type-arg]
+    """Non-personal reference data (locations, catalog): readable by every role, unpaginated."""
+
+    permission_classes = [HasCapability]
+    read_capability = Cap.VIEW_AGGREGATES
+    pagination_class = None
 
 
 def _check_database() -> bool:

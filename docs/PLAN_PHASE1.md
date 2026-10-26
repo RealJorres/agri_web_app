@@ -56,6 +56,7 @@ need them as FKs); M3 adds their seeds, admin polish and APIs._
 Commits: `feat(common): base model and scoping`, `feat(accounts): users roles assignments`, `feat(accounts): jwt cookie auth`.
 
 ## M3 — Locations + catalog
+_Done 2026-10-26._
 1. `locations`: `Municipality`, `Barangay` (+ `normalized_name`, unique (municipality, normalized_name)),
    PSGC nullable (ADR-0005). `common/text.py` normalizer shared with imports.
 2. `catalog`: `Program`, `Commodity` (measure_type, spacing_m, plants_per_ha, attributes_schema

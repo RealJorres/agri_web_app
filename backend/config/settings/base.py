@@ -101,6 +101,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Read-only mount with data/raw (workbooks) and data/reference (PSGC). Never committed.
+DATA_DIR = Path(env("DATA_DIR", default="/data"))
+
 # Uploaded workbooks and error reports contain personal data: private storage only (ADR-0009).
 PRIVATE_MEDIA_ROOT = Path(env("PRIVATE_MEDIA_ROOT", default=str(BASE_DIR / "private_media")))
 IMPORT_FILE_RETENTION_DAYS = env.int("IMPORT_FILE_RETENTION_DAYS", default=30)
