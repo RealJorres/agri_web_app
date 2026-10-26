@@ -87,7 +87,7 @@ class FarmViewSet(AuditTrailMixin, ServiceModelViewSet):
         services.delete_farm(actor=self.actor, farm=instance)
 
     @extend_schema(request=CropStandWriteSerializer, responses=CropStandSerializer(many=True))
-    @action(detail=True, methods=["get", "post"], url_path="crop-stands")
+    @action(detail=True, methods=["get", "post"], url_path="crop-stands", pagination_class=None)
     def crop_stands(self, request: Request, pk: str | None = None) -> Response:
         farm = self.get_object()
         context = self.get_serializer_context()
@@ -140,7 +140,7 @@ class CropStandViewSet(AuditTrailMixin, ServiceModelViewSet):
         services.delete_crop_stand(actor=self.actor, stand=instance)
 
     @extend_schema(request=PlantingWriteSerializer, responses=PlantingSerializer(many=True))
-    @action(detail=True, methods=["get", "post"])
+    @action(detail=True, methods=["get", "post"], pagination_class=None)
     def plantings(self, request: Request, pk: str | None = None) -> Response:
         stand = self.get_object()
         if request.method == "GET":
@@ -154,7 +154,7 @@ class CropStandViewSet(AuditTrailMixin, ServiceModelViewSet):
         return Response(PlantingSerializer(planting).data, status=status.HTTP_201_CREATED)
 
     @extend_schema(request=HarvestSerializer, responses=HarvestSerializer(many=True))
-    @action(detail=True, methods=["get", "post"])
+    @action(detail=True, methods=["get", "post"], pagination_class=None)
     def harvests(self, request: Request, pk: str | None = None) -> Response:
         stand = self.get_object()
         if request.method == "GET":

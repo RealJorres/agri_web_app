@@ -1,10 +1,12 @@
 from typing import Any
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.catalog.models import Commodity, GrowthStage
 from apps.farms.models import CropStand
 from common.scoping import scope_for
+from common.serializers import RefSerializer
 from common.viewsets import PersonalFieldsMixin
 
 from . import services
@@ -32,16 +34,19 @@ class SurveyRoundSerializer(serializers.ModelSerializer[SurveyRound]):
         extra_kwargs: dict[str, dict[str, Any]] = {"name": {"validators": []}}
 
 
+class StageRefSerializer(serializers.Serializer[Any]):
+    id = serializers.UUIDField()
+    code = serializers.CharField()
+    label = serializers.CharField()  # type: ignore[assignment]  # shadows Field.label in stubs
+    sort_order = serializers.IntegerField()
+
+
 class StageCountSerializer(serializers.ModelSerializer[StageCount]):
-    growth_stage = serializers.SerializerMethodField()
+    growth_stage = StageRefSerializer(read_only=True)
 
     class Meta:
         model = StageCount
         fields = ["growth_stage", "count", "area_ha"]
-
-    def get_growth_stage(self, obj: StageCount) -> dict[str, Any]:
-        s = obj.growth_stage
-        return {"id": str(s.pk), "code": s.code, "label": s.label, "sort_order": s.sort_order}
 
 
 class StageCountInputSerializer(serializers.Serializer[Any]):
@@ -63,10 +68,27 @@ class CommentSerializer(serializers.ModelSerializer[WorkflowComment]):
         return obj.author.get_full_name() or obj.author.email
 
 
+class _StandRef(serializers.Serializer[Any]):
+    id = serializers.UUIDField()
+    commodity = serializers.CharField()
+    commodity_name = serializers.CharField()
+
+
+class _FarmRef(serializers.Serializer[Any]):
+    id = serializers.UUIDField()
+    barangay = serializers.CharField()
+    municipality = serializers.CharField()
+
+
+class _FarmerRef(serializers.Serializer[Any]):
+    id = serializers.UUIDField()
+    display_name = serializers.CharField()
+
+
 class InventoryRecordSerializer(PersonalFieldsMixin, serializers.ModelSerializer[InventoryRecord]):
     personal_fields = ("farmer",)
 
-    survey_round = serializers.SerializerMethodField()
+    survey_round = RefSerializer(read_only=True)
     crop_stand = serializers.SerializerMethodField()
     farm = serializers.SerializerMethodField()
     farmer = serializers.SerializerMethodField()
@@ -94,14 +116,14 @@ class InventoryRecordSerializer(PersonalFieldsMixin, serializers.ModelSerializer
             "updated_at",
             "allowed_actions",
         ]
+        read_only_fields = fields
 
-    def get_survey_round(self, obj: InventoryRecord) -> dict[str, str]:
-        return {"id": str(obj.survey_round_id), "name": obj.survey_round.name}
-
+    @extend_schema_field(_StandRef)
     def get_crop_stand(self, obj: InventoryRecord) -> dict[str, str]:
         c = obj.crop_stand.commodity
         return {"id": str(obj.crop_stand_id), "commodity": c.code, "commodity_name": c.name}
 
+    @extend_schema_field(_FarmRef)
     def get_farm(self, obj: InventoryRecord) -> dict[str, Any]:
         farm = obj.crop_stand.farm
         return {
@@ -110,10 +132,12 @@ class InventoryRecordSerializer(PersonalFieldsMixin, serializers.ModelSerializer
             "municipality": farm.barangay.municipality.name,
         }
 
+    @extend_schema_field(_FarmerRef)
     def get_farmer(self, obj: InventoryRecord) -> dict[str, str]:
         farmer = obj.crop_stand.farm.farmer
         return {"id": str(farmer.pk), "display_name": farmer.display_name}
 
+    @extend_schema_field(StageCountSerializer(many=True))
     def get_counts(self, obj: InventoryRecord) -> list[dict[str, Any]]:
         counts = sorted(obj.stage_counts.all(), key=lambda c: c.growth_stage.sort_order)
         return StageCountSerializer(counts, many=True).data  # type: ignore[return-value]
@@ -170,3 +194,33 @@ class RoundProgressSerializer(serializers.Serializer[Any]):
     validated = serializers.IntegerField()
     approved = serializers.IntegerField()
     locked = serializers.IntegerField()
+
+
+class _Ref(serializers.Serializer[Any]):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+
+
+class _CommodityRef(_Ref):
+    code = serializers.CharField()
+
+
+class HomeStageSerializer(serializers.Serializer[Any]):
+    code = serializers.CharField()
+    label = serializers.CharField()  # type: ignore[assignment]  # shadows Field.label in stubs
+    count = serializers.IntegerField()
+    area_ha = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
+class HomeCommoditySerializer(serializers.Serializer[Any]):
+    commodity = _CommodityRef()
+    round = _Ref()
+    stages = HomeStageSerializer(many=True)
+    total = serializers.IntegerField()
+    total_area_ha = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
+class HomeStatsSerializer(serializers.Serializer[Any]):
+    farmers = serializers.IntegerField()
+    farms = serializers.IntegerField()
+    commodities = HomeCommoditySerializer(many=True)

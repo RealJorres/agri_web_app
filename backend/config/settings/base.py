@@ -212,6 +212,8 @@ SPECTACULAR_SETTINGS = {
         "FarmerStatusEnum": "apps.registry.models.FarmerStatus",
         "RoundStatusEnum": "apps.surveys.models.RoundStatus",
         "RecordStatusEnum": "apps.surveys.models.RecordStatus",
+        "ImportKindEnum": "apps.imports.models.ImportKind",
+        "ImportStatusEnum": "apps.imports.models.ImportStatus",
     },
 }
 

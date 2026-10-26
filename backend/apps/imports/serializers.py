@@ -29,6 +29,7 @@ class ImportJobSerializer(serializers.ModelSerializer[ImportJob]):
             "has_error_report",
             "summary",
         ]
+        read_only_fields = fields
 
     def get_uploaded_by(self, obj: ImportJob) -> str:
         return obj.uploaded_by.get_full_name() or obj.uploaded_by.email

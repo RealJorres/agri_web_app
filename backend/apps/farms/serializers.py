@@ -5,9 +5,17 @@ from rest_framework import serializers
 
 from apps.catalog.models import Commodity, MaterialSource, Variety
 from apps.locations.models import Barangay
+from common.serializers import CodeRefSerializer, RefSerializer
 from common.viewsets import PersonalFieldsMixin
 
 from .models import CropStand, Farm, Planting
+
+LONLAT_SCHEMA = {
+    "type": "object",
+    "properties": {"lon": {"type": "number"}, "lat": {"type": "number"}},
+    "required": ["lon", "lat"],
+    "nullable": True,
+}
 
 
 class PlantingSerializer(serializers.ModelSerializer[Planting]):
@@ -22,6 +30,7 @@ class PlantingSerializer(serializers.ModelSerializer[Planting]):
     class Meta:
         model = Planting
         fields = ["id", "crop_stand", "year_planted", "source", "qty_planted", "notes", "varieties"]
+        read_only_fields = fields
 
 
 class PlantingWriteSerializer(serializers.ModelSerializer[Planting]):
@@ -38,15 +47,13 @@ class PlantingWriteSerializer(serializers.ModelSerializer[Planting]):
 
 
 class CropStandSerializer(serializers.ModelSerializer[CropStand]):
-    commodity = serializers.SerializerMethodField()
+    commodity = CodeRefSerializer(read_only=True)
     plantings = PlantingSerializer(many=True, read_only=True)
 
     class Meta:
         model = CropStand
         fields = ["id", "farm", "commodity", "spacing_m", "attributes", "plantings"]
-
-    def get_commodity(self, obj: CropStand) -> dict[str, str]:
-        return {"id": str(obj.commodity_id), "code": obj.commodity.code, "name": obj.commodity.name}
+        read_only_fields = fields
 
 
 class CropStandWriteSerializer(serializers.ModelSerializer[CropStand]):
@@ -67,8 +74,9 @@ class FarmSerializer(PersonalFieldsMixin, serializers.ModelSerializer[Farm]):
     personal_fields = (*Farm.PERSONAL_FIELDS, "farmer_name")
 
     farmer_name = serializers.CharField(source="farmer.display_name", read_only=True)
-    barangay = serializers.SerializerMethodField()
-    municipality = serializers.SerializerMethodField()
+    barangay = RefSerializer(read_only=True)
+    municipality = RefSerializer(source="barangay.municipality", read_only=True)
+    tenure = serializers.CharField(read_only=True)  # "" when not recorded
     location = serializers.SerializerMethodField()
     crop_stands = CropStandSerializer(many=True, read_only=True)
 
@@ -87,28 +95,16 @@ class FarmSerializer(PersonalFieldsMixin, serializers.ModelSerializer[Farm]):
             "location_raw",
             "crop_stands",
         ]
+        read_only_fields = fields
 
-    def get_barangay(self, obj: Farm) -> dict[str, str]:
-        return {"id": str(obj.barangay_id), "name": obj.barangay.name}
-
-    def get_municipality(self, obj: Farm) -> dict[str, str]:
-        m = obj.barangay.municipality
-        return {"id": str(m.pk), "name": m.name}
-
+    @extend_schema_field(LONLAT_SCHEMA)
     def get_location(self, obj: Farm) -> dict[str, float] | None:
         if obj.location is None:
             return None
         return {"lon": obj.location.x, "lat": obj.location.y}
 
 
-@extend_schema_field(
-    {
-        "type": "object",
-        "properties": {"lon": {"type": "number"}, "lat": {"type": "number"}},
-        "required": ["lon", "lat"],
-        "nullable": True,
-    }
-)
+@extend_schema_field(LONLAT_SCHEMA)
 class LonLatField(serializers.Field[Any, Any, Any, Any]):
     """{"lon": 121.9, "lat": 13.4} <-> Point (WGS84), limited to the Philippines' bounding box."""
 

@@ -10,6 +10,7 @@ from apps.accounts.models import User
 from apps.accounts.roles import Cap
 
 from .permissions import HasCapability
+from .schema import ServiceAutoSchema
 from .scoping import ScopedQuerySetMixin, scope_for
 
 
@@ -36,6 +37,7 @@ class ServiceModelViewSet(ScopedQuerySetMixin, viewsets.ModelViewSet):  # type: 
     """
 
     permission_classes = [HasCapability]
+    schema = ServiceAutoSchema()
     write_serializer_class: type[serializers.Serializer[Any]] | None = None
     ordering = None  # keep the queryset's own order (e.g. best search match first)
 

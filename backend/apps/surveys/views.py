@@ -21,6 +21,7 @@ from . import selectors, services
 from .models import InventoryRecord, RecordStatus, StageCount, SurveyRound
 from .serializers import (
     CommentSerializer,
+    HomeStatsSerializer,
     InventoryRecordSerializer,
     InventoryRecordUpdateSerializer,
     InventoryRecordWriteSerializer,
@@ -67,13 +68,13 @@ class SurveyRoundViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet[
         return Response({"locked": locked})
 
     @extend_schema(responses=RoundProgressSerializer(many=True))
-    @action(detail=True, methods=["get"])
+    @action(detail=True, methods=["get"], pagination_class=None)
     def progress(self, request: Request, pk: str | None = None) -> Response:
         rows = selectors.round_progress(self.get_object(), scope_for(request))
         return Response(RoundProgressSerializer(rows, many=True).data)
 
     @extend_schema(responses=StageTotalSerializer(many=True))
-    @action(detail=True, methods=["get"])
+    @action(detail=True, methods=["get"], pagination_class=None)
     def totals(self, request: Request, pk: str | None = None) -> Response:
         """Official totals per municipality and stage (approved/locked records only)."""
         rows = selectors.stage_totals(self.get_object(), scope_for(request))
@@ -188,7 +189,7 @@ class InventoryRecordViewSet(AuditTrailMixin, ServiceModelViewSet):
         return self._run(request, services.reopen)
 
     @extend_schema(responses=CommentSerializer(many=True))
-    @action(detail=True, methods=["get"])
+    @action(detail=True, methods=["get"], pagination_class=None)
     def comments(self, request: Request, pk: str | None = None) -> Response:
         record = self.get_object()
         return Response(CommentSerializer(record.comments.select_related("author"), many=True).data)
@@ -198,17 +199,8 @@ class HomeStatsView(APIView):
     permission_classes = [HasCapability]
     read_capability = Cap.VIEW_AGGREGATES
 
-    @extend_schema(
-        responses=inline_serializer(
-            "HomeStats",
-            {
-                "farmers": serializers.IntegerField(),
-                "farms": serializers.IntegerField(),
-                "commodities": serializers.ListField(child=serializers.DictField()),
-            },
-        )
-    )
+    @extend_schema(responses=HomeStatsSerializer)
     def get(self, request: Request) -> Response:
         if not scope_for(request).can(Cap.VIEW_AGGREGATES):
             raise DomainError("forbidden", "Not allowed.", status_code=403)
-        return Response(selectors.home_stats(scope_for(request)))
+        return Response(HomeStatsSerializer(selectors.home_stats(scope_for(request))).data)

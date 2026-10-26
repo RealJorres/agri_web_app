@@ -1,4 +1,5 @@
 from django.db.models import Prefetch
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -29,7 +30,8 @@ class CommodityViewSet(ReferenceViewSet):
     serializer_class = CommoditySerializer
     filterset_fields = ["program"]
 
-    @action(detail=True, methods=["get"], serializer_class=GrowthStageSerializer)
+    @extend_schema(responses=GrowthStageSerializer(many=True))
+    @action(detail=True, methods=["get"], pagination_class=None)
     def stages(self, request: Request, pk: str | None = None) -> Response:
         commodity: Commodity = self.get_object()
         return Response(GrowthStageSerializer(selectors.stages_for(commodity), many=True).data)

@@ -3,25 +3,19 @@ from typing import Any
 from rest_framework import serializers
 
 from apps.locations.models import Barangay
+from common.serializers import RefSerializer
 from common.viewsets import PersonalFieldsMixin
 
 from .models import Association, AssociationMember, Farmer
-
-
-def _place(barangay: Barangay) -> dict[str, Any]:
-    m = barangay.municipality
-    return {
-        "barangay": {"id": str(barangay.pk), "name": barangay.name},
-        "municipality": {"id": str(m.pk), "name": m.name},
-    }
 
 
 class FarmerSerializer(PersonalFieldsMixin, serializers.ModelSerializer[Farmer]):
     personal_fields = (*Farmer.PERSONAL_FIELDS, "display_name")
 
     display_name = serializers.CharField(read_only=True)
-    home_barangay = serializers.SerializerMethodField()
-    municipality = serializers.SerializerMethodField()
+    sex = serializers.CharField(read_only=True)  # "" when not recorded
+    home_barangay = RefSerializer(read_only=True)
+    municipality = RefSerializer(source="home_barangay.municipality", read_only=True)
     has_consent = serializers.SerializerMethodField()
 
     class Meta:
@@ -46,26 +40,19 @@ class FarmerSerializer(PersonalFieldsMixin, serializers.ModelSerializer[Farmer])
             "created_at",
             "updated_at",
         ]
-
-    def get_home_barangay(self, obj: Farmer) -> dict[str, str]:
-        return _place(obj.home_barangay)["barangay"]
-
-    def get_municipality(self, obj: Farmer) -> dict[str, str]:
-        return _place(obj.home_barangay)["municipality"]
+        read_only_fields = fields
 
     def get_has_consent(self, obj: Farmer) -> bool:
         return obj.consent_at is not None
 
 
 class MembershipSerializer(serializers.ModelSerializer[AssociationMember]):
-    association = serializers.SerializerMethodField()
+    association = RefSerializer(read_only=True)
 
     class Meta:
         model = AssociationMember
         fields = ["id", "association", "role", "since"]
-
-    def get_association(self, obj: AssociationMember) -> dict[str, str]:
-        return {"id": str(obj.association_id), "name": obj.association.name}
+        read_only_fields = fields
 
 
 class FarmerDetailSerializer(FarmerSerializer):

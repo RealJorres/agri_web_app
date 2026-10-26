@@ -1,6 +1,8 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from common.serializers import CodeRefSerializer, RefSerializer
+
 from .models import User, UserAssignment
 from .selectors import get_scope
 
@@ -12,24 +14,14 @@ class LoginSerializer(serializers.Serializer[None]):
 
 class AssignmentSerializer(serializers.ModelSerializer[UserAssignment]):
     role_label = serializers.CharField(source="get_role_display", read_only=True)
-    municipality = serializers.SerializerMethodField()
-    program = serializers.SerializerMethodField()
-    barangays = serializers.SerializerMethodField()
+    municipality = RefSerializer(read_only=True, allow_null=True)
+    program = CodeRefSerializer(read_only=True, allow_null=True)
+    barangays = RefSerializer(many=True, read_only=True)
 
     class Meta:
         model = UserAssignment
         fields = ["id", "role", "role_label", "municipality", "program", "barangays"]
-
-    def get_municipality(self, obj: UserAssignment) -> dict[str, str] | None:
-        m = obj.municipality
-        return {"id": str(m.pk), "name": m.name} if m else None
-
-    def get_program(self, obj: UserAssignment) -> dict[str, str] | None:
-        p = obj.program
-        return {"id": str(p.pk), "code": p.code, "name": p.name} if p else None
-
-    def get_barangays(self, obj: UserAssignment) -> list[dict[str, str]]:
-        return [{"id": str(b.pk), "name": b.name} for b in obj.barangays.all()]
+        read_only_fields = fields
 
 
 class MeSerializer(serializers.ModelSerializer[User]):

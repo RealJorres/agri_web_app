@@ -51,6 +51,7 @@ class FarmerViewSet(AuditTrailMixin, ServiceModelViewSet):
             )
         return queryset
 
+    @extend_schema(responses=FarmerDetailSerializer)
     def retrieve(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         farmer = self.get_object()
         return Response(FarmerDetailSerializer(farmer, context=self.get_serializer_context()).data)
@@ -79,7 +80,7 @@ class FarmerViewSet(AuditTrailMixin, ServiceModelViewSet):
         ],
         responses=DuplicateCandidateSerializer(many=True),
     )
-    @action(detail=False, methods=["get"])
+    @action(detail=False, methods=["get"], pagination_class=None)
     def duplicates(self, request: Request) -> Response:
         """Possible duplicates for the live warning on the farmer form (ADR-0007)."""
         params = request.query_params
