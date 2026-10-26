@@ -33,6 +33,8 @@ from .normalizers import (
 )
 
 ASSOC_AUTO, ASSOC_REVIEW = 90, 75
+# Placeholder for rows with no BARANGAY and no FARM LOCATION (unverified, never a PSGC code).
+UNRECORDED_BARANGAY = "(Barangay not recorded)"
 
 
 @dataclass
@@ -202,11 +204,19 @@ def build_plan(
                 raw, town, varieties.resolve, sources.resolve, matcher, review, tally
             )
             if not planned.home_barangay:
+                # The row still counts in the official totals (brief §3): keep it, flag it, and
+                # file it under FARM LOCATION or an explicit placeholder (ADR-0013 §10).
                 planned.missing.append("barangay")
+                planned.home_barangay = planned.farm_barangay or UNRECORDED_BARANGAY
+                planned.farm_barangay = planned.farm_barangay or UNRECORDED_BARANGAY
                 review.append(
-                    _review(raw, "missing_barangay", "No barangay: imported as incomplete.")
+                    _review(
+                        raw,
+                        "missing_barangay",
+                        f"BARANGAY is empty: filed under '{planned.home_barangay}'. "
+                        "Correct the farmer's barangay.",
+                    )
                 )
-                planned.incomplete = True
             for choice in planned.associations:
                 if choice.decision == "review":
                     review.append(
@@ -435,6 +445,14 @@ def reconcile(workbook: LegacyWorkbook, commodity: Commodity) -> dict[str, Any]:
                     f"{sheet.municipality} {stage}: TOTAL row {workbook_value:,} vs farmer rows "
                     f"{computed:,} ({cell['diff_workbook']:+,}){detail}"
                 )
+            uncovered = _uncovered_rows(sheet, stage)
+            cell["uncovered_rows"] = uncovered
+            if uncovered and not cell["diff_workbook"]:
+                differences.append(
+                    f"{sheet.municipality} {stage}: {cell['formula']} does not cover rows "
+                    f"{_ranges(uncovered)} (no effect on the current values, but new entries there "
+                    "would not be totalled)"
+                )
             if cell["diff_summary"] and cell["diff_summary"] != cell["diff_workbook"]:
                 differences.append(
                     f"{sheet.municipality} {stage}: SUMMARY {summary_value:,} vs farmer rows "
@@ -470,6 +488,16 @@ def _skipped_rows(sheet: LegacySheet, stage: str) -> list[int]:
         return []
     with_values = [r.row for r in sheet.above_total if parse_count(r.counts.get(stage)).value]
     return [r for r in with_values if r not in set(total.covered_rows)]
+
+
+def _uncovered_rows(sheet: LegacySheet, stage: str) -> list[int]:
+    """Data rows (above TOTAL) that the stage's SUM formula leaves out, with or without values."""
+    total = sheet.totals.get(stage)
+    if total is None or not total.formula or not sheet.above_total:
+        return []
+    covered = set(total.covered_rows)
+    first, last = sheet.above_total[0].row, sheet.above_total[-1].row
+    return [r for r in range(first, last + 1) if r not in covered]
 
 
 def _ranges(rows: list[int]) -> str:

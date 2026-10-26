@@ -33,3 +33,8 @@ one planting per batch, many varieties per planting, and one material source per
    `approve` (in practice a system admin); template imports need `run_imports` and create
    `submitted` records that enter the normal MAO review queue. The CLI (`make import-legacy`) runs
    as the system account and is audited as such.
+10. *Empty BARANGAY (added 2026-10-27 after inspecting the real file):* 6 named rows above the
+    TOTAL row have no BARANGAY but do count in the official 81,712. They are imported as approved
+    records, filed under FARM LOCATION when it is filled, else under an unverified placeholder
+    barangay "(Barangay not recorded)" in that municipality, with `flags.missing` and a review item
+    so the PAO can correct them. Municipal and provincial totals stay exact; no barangay is invented.

@@ -83,6 +83,8 @@ class TestPreview:
         assert any(
             "Santa Cruz SEEDLING" in d and "skips rows 16-18" in d for d in rec["differences"]
         )
+        # Mogpog's single-cell SUM also leaves out rows 14-15: reported as fragile.
+        assert by_town["Mogpog"]["stages"]["FLOWERING"]["uncovered_rows"] == [14, 15]
         for town, totals in truth.true_totals.items():
             assert [by_town[town]["stages"][s]["computed"] for s in STAGES] == totals
         province_true = sum(sum(t) for t in truth.true_totals.values())
@@ -175,6 +177,15 @@ class TestCommit:
         carlos = Farm.objects.get(farmer__last_name="Samplegas", farmer__first_name="Carlos")
         assert carlos.barangay.name == "Synthetic Tabionan"  # no site matched -> home barangay
         assert carlos.location_raw == "Pulong Parang/Masalukot"
+
+        placeholder = Farmer.objects.get(last_name="Samplenobrgy").home_barangay
+        assert (placeholder.name, placeholder.is_verified) == ("(Barangay not recorded)", False)
+        assert (
+            Farmer.objects.get(last_name="Samplefarmloc").home_barangay.name == "Synthetic Poctoy"
+        )
+        flagged = InventoryRecord.objects.get(crop_stand__farm__farmer__last_name="Samplenobrgy")
+        assert flagged.status == RecordStatus.APPROVED
+        assert "barangay" in flagged.flags["missing"]
 
         lito_planting = Planting.objects.get(crop_stand__farm__farmer__first_name="Lito")
         assert lito_planting.source is None

@@ -14,7 +14,10 @@ from apps.imports.models import ImportKind, ImportStatus
 
 from .conftest import upload_of
 
-REAL_FILE = Path("/data/raw/cacao_production_data_as_of_july_2023.xlsx")
+# The PAO's file name varies ("cacao production data as of july, 2023.xlsx"); match loosely.
+REAL_FILE = next(
+    iter(sorted(Path("/data/raw").glob("*cacao*2023*.xlsx"))), Path("/data/raw/missing.xlsx")
+)
 STAGES = ["SEEDLING", "VEGETATIVE", "FLOWERING", "FRUITING"]
 TRUE_TOTALS = {
     "Boac": [30, 3_205, 1_365, 2_475],
@@ -75,6 +78,8 @@ def test_mogpog_single_cell_flowering_total(previewed):
     mogpog = next(m for m in rec["municipalities"] if m["municipality"] == "Mogpog")
 
     assert mogpog["stages"]["FLOWERING"]["formula"].upper() == "=SUM(L28)"
+    assert mogpog["stages"]["FLOWERING"]["uncovered_rows"]  # fragile even though totals agree
+    assert any("Mogpog FLOWERING" in d and "does not cover" in d for d in rec["differences"])
 
 
 def test_commit_gives_official_total_81712(previewed, admin):

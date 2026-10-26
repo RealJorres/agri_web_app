@@ -190,6 +190,8 @@ SHEETS: list[Sheet] = [
         [
             Row("Tess Sampletor", "Synthetic Poctoy", ("1,200", 30, 0, 0), date_planted=42736),
             Row("Juan A. Samplecruz", "Synthetic Poctoy", (0, 0, 0, 1)),  # same name, other town
+            Row("Nora Samplenobrgy", "", (0, 10, 0, 5)),  # BARANGAY empty, still counts
+            Row("Ben Samplefarmloc", "", (0, 0, 0, 7), farm_location="Synthetic Poctoy"),
         ],
     ),
 ]
@@ -314,7 +316,9 @@ def build_legacy_workbook(path: Path) -> Expected:
     truth = expected()
     for i, spec in enumerate(SHEETS):
         row = 7 + i
-        summary.cell(row=row, column=1, value=spec.town.upper())
+        summary.cell(
+            row=row, column=1, value=f"{spec.town.upper()}, MARINDUQUE"
+        )  # as in the real file
         summary.cell(row=row, column=2, value=len(spec.rows))
         for s in range(4):
             trees = truth.workbook_totals[spec.town][s]

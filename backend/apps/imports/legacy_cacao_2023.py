@@ -114,6 +114,7 @@ class LegacyWorkbook:
 
 # --- Formula evaluation -------------------------------------------------------------------------
 
+_PROVINCE_SUFFIX = re.compile(r"\s+marinduque$")
 _SUM = re.compile(r"^=\s*SUM\((?P<args>[^()]*)\)\s*$", re.IGNORECASE)
 _REF = re.compile(r"^\$?([A-Z]{1,3})\$?(\d+)(?::\$?([A-Z]{1,3})\$?(\d+))?$", re.IGNORECASE)
 
@@ -378,7 +379,8 @@ def read_summary(
     for r in range(label_row + 1, len(rows) + 1):
         values = rows[r - 1]
         label = next((clean_text(v) for v in values if isinstance(v, str) and clean_text(v)), "")
-        key = normalize_name(label)
+        # Rows are labelled "BOAC, MARINDUQUE" in the real file: drop the province suffix.
+        key = _PROVINCE_SUFFIX.sub("", normalize_name(label))
         if key not in wanted:
             continue
         area: dict[str, float] = {}
