@@ -93,6 +93,7 @@ _Done 2026-10-26. Harvest (production app) moved to M5._
 Commits: `feat(audit): append-only audit log`, `feat(registry): ...`, `feat(farms): ...`.
 
 ## M5 — Surveys, workflow, audit
+_Done 2026-10-26. Audit app landed in M4; Harvest (production) added here. Exports moved to M6._
 1. `surveys`: `SurveyRound`, `InventoryRecord` (status, version, actors/timestamps, flags), `StageCount`
    (CheckConstraints ≥ 0; unique pair), `WorkflowComment`.
 2. `surveys/rules.py`: pure validation functions returning `Issue(level=error|warning, code, field, msg)`

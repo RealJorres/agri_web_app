@@ -9,6 +9,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.audit.views import AuditTrailMixin
+from apps.production import services as production
+from apps.production.serializers import HarvestSerializer
 from apps.registry.selectors import farmers_for
 from common.exceptions import DomainError
 from common.scoping import scope_for
@@ -150,6 +152,19 @@ class CropStandViewSet(AuditTrailMixin, ServiceModelViewSet):
             actor=self.actor, stand=stand, data=data, varieties=data.pop("varieties", [])
         )
         return Response(PlantingSerializer(planting).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(request=HarvestSerializer, responses=HarvestSerializer(many=True))
+    @action(detail=True, methods=["get", "post"])
+    def harvests(self, request: Request, pk: str | None = None) -> Response:
+        stand = self.get_object()
+        if request.method == "GET":
+            return Response(HarvestSerializer(stand.harvests.all(), many=True).data)
+        serializer = HarvestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        harvest = production.create_harvest(
+            actor=self.actor, stand=stand, data=serializer.validated_data
+        )
+        return Response(HarvestSerializer(harvest).data, status=status.HTTP_201_CREATED)
 
 
 class PlantingViewSet(ServiceModelViewSet):

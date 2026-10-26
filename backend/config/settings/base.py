@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "apps.audit",
     "apps.registry",
     "apps.farms",
+    "apps.surveys",
+    "apps.production",
 ]
 
 MIDDLEWARE = [
@@ -202,6 +204,11 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": "/api/v1",
     "COMPONENT_SPLIT_REQUEST": True,
+    "ENUM_NAME_OVERRIDES": {
+        "FarmerStatusEnum": "apps.registry.models.FarmerStatus",
+        "RoundStatusEnum": "apps.surveys.models.RoundStatus",
+        "RecordStatusEnum": "apps.surveys.models.RecordStatus",
+    },
 }
 
 # Logs must never contain request bodies or personal data.

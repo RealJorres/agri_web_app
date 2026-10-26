@@ -7,6 +7,7 @@ from apps.accounts.tests.factories import user_with_role
 from apps.farms.tests.factories import CropStandFactory, FarmFactory, PlantingFactory
 from apps.locations.tests.factories import BarangayFactory
 from apps.registry.tests.factories import AssociationFactory, FarmerFactory
+from apps.surveys.tests.factories import record_with_counts
 
 from .permission_matrix import OTHER, OWN, Endpoint, make_actor
 
@@ -51,6 +52,25 @@ ENDPOINTS: list[Endpoint] = [
         name="crop-stands",
         list_url="/api/v1/crop-stands",
         detail_url=lambda obj: f"/api/v1/crop-stands/{obj.pk}",
+        make=lambda barangay: CropStandFactory(
+            farm__barangay=barangay, farm__farmer__home_barangay=barangay
+        ),
+    ),
+    Endpoint(
+        name="inventory-records",
+        list_url="/api/v1/inventory-records",
+        detail_url=lambda obj: f"/api/v1/inventory-records/{obj.pk}",
+        make=lambda barangay: record_with_counts(
+            counts={"FRUITING": 1},
+            crop_stand=CropStandFactory(
+                farm__barangay=barangay, farm__farmer__home_barangay=barangay
+            ),
+        ),
+    ),
+    Endpoint(
+        name="crop-stand harvests",
+        list_url=None,
+        detail_url=lambda obj: f"/api/v1/crop-stands/{obj.pk}/harvests",
         make=lambda barangay: CropStandFactory(
             farm__barangay=barangay, farm__farmer__home_barangay=barangay
         ),
