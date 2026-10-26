@@ -10,6 +10,7 @@ import { RequireAuth, RequireCapability } from './guards'
 
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'))
 const HomePage = lazy(() => import('@/features/home/HomePage'))
+const DashboardPage = lazy(() => import('@/features/analytics/DashboardPage'))
 const FarmersPage = lazy(() => import('@/features/farmers/FarmersPage'))
 const FarmerDetailPage = lazy(() => import('@/features/farmers/FarmerDetailPage'))
 const FarmerFormPage = lazy(() => import('@/features/farmers/FarmerFormPage'))
@@ -33,6 +34,7 @@ export const routes: RouteObject[] = [
         element: <AppShell />,
         children: [
           { index: true, element: page(<HomePage />) },
+          { path: 'dashboard', element: page(<DashboardPage />) },
           {
             path: 'farmers',
             element: (

@@ -2354,7 +2354,9 @@ export interface operations {
     };
     analytics_rounds_distribution_retrieve: {
         parameters: {
-            query?: never;
+            query?: {
+                municipality?: string;
+            };
             header?: never;
             path: {
                 id: string;
@@ -2375,7 +2377,9 @@ export interface operations {
     };
     analytics_rounds_overview_retrieve: {
         parameters: {
-            query?: never;
+            query?: {
+                municipality?: string;
+            };
             header?: never;
             path: {
                 id: string;

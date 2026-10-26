@@ -150,6 +150,18 @@ def test_validator_sees_only_own_municipality(world, municipalities):
     ]
 
 
+def test_municipality_filter_applies_to_overview_and_distribution(world, municipalities):
+    scope = get_scope(user_with_role(Role.VIEWER))
+    gasan = municipalities["Gasan"].pk
+
+    data = selectors.overview(world["new"], scope, municipality=gasan)
+    dist = selectors.distribution(world["new"], scope, municipality=gasan)
+
+    assert (data["trees"], data["records"]) == (750, 2)
+    assert data["change"]["trees"] == 750 - 400  # previous round compared within Gasan too
+    assert dist["stands"] == 2
+
+
 def test_trends_oldest_first(world):
     points = selectors.trends(cacao(), get_scope(user_with_role(Role.VIEWER)))
 

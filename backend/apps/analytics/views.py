@@ -35,10 +35,25 @@ class _AnalyticsView(APIView):
         return get_object_or_404(rounds_for(scope_for(request)).select_related("commodity"), pk=pk)
 
 
+class _MunicipalityQuery(serializers.Serializer[Any]):
+    municipality = serializers.UUIDField(required=False)
+
+
+MUNICIPALITY_PARAM = OpenApiParameter("municipality", OpenApiTypes.UUID)
+
+
+def _municipality(request: Request) -> Any:
+    query = _MunicipalityQuery(data=request.query_params)
+    query.is_valid(raise_exception=True)
+    return query.validated_data.get("municipality")
+
+
 class OverviewView(_AnalyticsView):
-    @extend_schema(responses=OverviewSerializer)
+    @extend_schema(parameters=[MUNICIPALITY_PARAM], responses=OverviewSerializer)
     def get(self, request: Request, pk: str) -> Response:
-        data = selectors.overview(self.round(request, pk), scope_for(request))
+        data = selectors.overview(
+            self.round(request, pk), scope_for(request), municipality=_municipality(request)
+        )
         return Response(OverviewSerializer(data).data)
 
 
@@ -68,9 +83,11 @@ class BreakdownView(_AnalyticsView):
 
 
 class DistributionView(_AnalyticsView):
-    @extend_schema(responses=DistributionSerializer)
+    @extend_schema(parameters=[MUNICIPALITY_PARAM], responses=DistributionSerializer)
     def get(self, request: Request, pk: str) -> Response:
-        data = selectors.distribution(self.round(request, pk), scope_for(request))
+        data = selectors.distribution(
+            self.round(request, pk), scope_for(request), municipality=_municipality(request)
+        )
         return Response(DistributionSerializer(data).data)
 
 

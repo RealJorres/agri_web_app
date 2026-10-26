@@ -28,6 +28,7 @@ _Done 2026-10-27._
    KPI math on synthetic data; the real file gives 81,712 in the views too (real_data).
 
 ## P2-M2 — Dashboards (frontend, Apache ECharts)
+_Done 2026-10-27; checked in Chrome on the real data (360 px width not verified: window could not be resized)._
 Overview dashboard (KPI tiles, stage mix, by-municipality stacked bars, trend line), municipality
 drill-down to barangays, distributions. Every chart has an accessible data table and CSV download;
 colour-blind-safe palette; works at 360 px. Charts are lazy-loaded so other pages stay light.

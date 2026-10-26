@@ -94,24 +94,27 @@ def _totals(survey_round: SurveyRound, scope: Scope, **filters: Any) -> Totals:
     )
 
 
-def previous_round(survey_round: SurveyRound, scope: Scope) -> SurveyRound | None:
+def previous_round(survey_round: SurveyRound, scope: Scope, **filters: Any) -> SurveyRound | None:
     """The latest earlier round of the same commodity with official data in scope."""
     earlier = SurveyRound.objects.filter(
         commodity=survey_round.commodity, as_of_date__lt=survey_round.as_of_date
     ).order_by("-as_of_date")
     for candidate in earlier:
-        if fact_rows(scope, survey_round=candidate).exists():
+        if fact_rows(scope, survey_round=candidate, **filters).exists():
             return candidate
     return None
 
 
-def overview(survey_round: SurveyRound, scope: Scope) -> dict[str, Any]:
+def overview(
+    survey_round: SurveyRound, scope: Scope, *, municipality: UUID | None = None
+) -> dict[str, Any]:
+    filters: dict[str, Any] = {"municipality_id": municipality} if municipality else {}
     stages = list(
         GrowthStage.objects.filter(commodity=survey_round.commodity).order_by("sort_order")
     )
-    current = _totals(survey_round, scope)
-    prev_round = previous_round(survey_round, scope)
-    prev = _totals(prev_round, scope) if prev_round else None
+    current = _totals(survey_round, scope, **filters)
+    prev_round = previous_round(survey_round, scope, **filters)
+    prev = _totals(prev_round, scope, **filters) if prev_round else None
 
     def delta(now: float | int | None, before: float | int | None) -> float | int | None:
         if prev is None or now is None or before is None:
@@ -220,9 +223,12 @@ def trends(
     return out
 
 
-def distribution(survey_round: SurveyRound, scope: Scope) -> dict[str, Any]:
+def distribution(
+    survey_round: SurveyRound, scope: Scope, *, municipality: UUID | None = None
+) -> dict[str, Any]:
     """Farm sizes (trees per record), planting years and varieties of official stands in scope."""
-    facts = fact_rows(scope, survey_round=survey_round)
+    filters: dict[str, Any] = {"municipality_id": municipality} if municipality else {}
+    facts = fact_rows(scope, survey_round=survey_round, **filters)
     sizes = []
     for low, high in FARM_SIZE_BUCKETS:
         bucket = facts.filter(trees__gte=low)
