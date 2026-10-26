@@ -30,6 +30,213 @@
                 }
             }
         },
+        "/api/v1/analytics/rounds/{id}/breakdown": {
+            "get": {
+                "operationId": "analytics_rounds_breakdown_list",
+                "description": "Aggregates only: every role with view_aggregates, rows limited to the caller's scope.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "level",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "barangay",
+                                "municipality"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "municipality",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/BreakdownRow"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/rounds/{id}/distribution": {
+            "get": {
+                "operationId": "analytics_rounds_distribution_retrieve",
+                "description": "Aggregates only: every role with view_aggregates, rows limited to the caller's scope.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Distribution"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/rounds/{id}/overview": {
+            "get": {
+                "operationId": "analytics_rounds_overview_retrieve",
+                "description": "Aggregates only: every role with view_aggregates, rows limited to the caller's scope.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Overview"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/status": {
+            "get": {
+                "operationId": "analytics_status_retrieve",
+                "description": "Aggregates only: every role with view_aggregates, rows limited to the caller's scope.",
+                "tags": [
+                    "analytics"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RefreshStatus"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/trends": {
+            "get": {
+                "operationId": "analytics_trends_list",
+                "description": "Aggregates only: every role with view_aggregates, rows limited to the caller's scope.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "commodity",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "municipality",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/TrendPoint"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/associations": {
             "get": {
                 "operationId": "associations_list",
@@ -5357,6 +5564,54 @@
                     ""
                 ]
             },
+            "BreakdownRow": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "trees": {
+                        "type": "integer"
+                    },
+                    "area_ha": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,12}(?:\\.\\d{0,2})?$",
+                        "nullable": true
+                    },
+                    "farmers": {
+                        "type": "integer"
+                    },
+                    "records": {
+                        "type": "integer"
+                    },
+                    "bearing_share": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "stages": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "area_ha",
+                    "bearing_share",
+                    "farmers",
+                    "id",
+                    "name",
+                    "records",
+                    "stages",
+                    "trees"
+                ]
+            },
             "CloseResult": {
                 "type": "object",
                 "properties": {
@@ -5576,6 +5831,46 @@
                 },
                 "required": [
                     "commodity"
+                ]
+            },
+            "Distribution": {
+                "type": "object",
+                "properties": {
+                    "farm_sizes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/_Bucket"
+                        }
+                    },
+                    "planting_years": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/_Year"
+                        }
+                    },
+                    "planting_year_unknown": {
+                        "type": "integer"
+                    },
+                    "varieties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/_Variety"
+                        }
+                    },
+                    "variety_unknown": {
+                        "type": "integer"
+                    },
+                    "stands": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "farm_sizes",
+                    "planting_year_unknown",
+                    "planting_years",
+                    "stands",
+                    "varieties",
+                    "variety_unknown"
                 ]
             },
             "DuplicateCandidate": {
@@ -6942,6 +7237,72 @@
                     "name"
                 ]
             },
+            "Overview": {
+                "type": "object",
+                "properties": {
+                    "round": {
+                        "$ref": "#/components/schemas/Ref"
+                    },
+                    "previous_round": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Ref"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "trees": {
+                        "type": "integer"
+                    },
+                    "area_ha": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,12}(?:\\.\\d{0,2})?$",
+                        "nullable": true
+                    },
+                    "farmers": {
+                        "type": "integer"
+                    },
+                    "records": {
+                        "type": "integer"
+                    },
+                    "bearing_trees": {
+                        "type": "integer"
+                    },
+                    "bearing_share": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "trees_per_farm": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "stages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/_Stage"
+                        }
+                    },
+                    "change": {
+                        "$ref": "#/components/schemas/_Change"
+                    }
+                },
+                "required": [
+                    "area_ha",
+                    "bearing_share",
+                    "bearing_trees",
+                    "change",
+                    "farmers",
+                    "previous_round",
+                    "records",
+                    "round",
+                    "stages",
+                    "trees",
+                    "trees_per_farm"
+                ]
+            },
             "PaginatedAssociationList": {
                 "type": "object",
                 "required": [
@@ -7663,6 +8024,23 @@
                     "name"
                 ]
             },
+            "RefreshStatus": {
+                "type": "object",
+                "properties": {
+                    "refreshed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "duration_ms": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "duration_ms",
+                    "refreshed_at"
+                ]
+            },
             "RoleEnum": {
                 "enum": [
                     "system_admin",
@@ -7953,6 +8331,43 @@
                     }
                 }
             },
+            "TrendPoint": {
+                "type": "object",
+                "properties": {
+                    "round": {
+                        "$ref": "#/components/schemas/Ref"
+                    },
+                    "as_of_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "trees": {
+                        "type": "integer"
+                    },
+                    "farmers": {
+                        "type": "integer"
+                    },
+                    "bearing_share": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "stages": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "as_of_date",
+                    "bearing_share",
+                    "farmers",
+                    "round",
+                    "stages",
+                    "trees"
+                ]
+            },
             "TypeEnum": {
                 "enum": [
                     "farmers_association",
@@ -8064,6 +8479,44 @@
                     "name"
                 ]
             },
+            "_Bucket": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "farms": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "farms",
+                    "label"
+                ]
+            },
+            "_Change": {
+                "type": "object",
+                "properties": {
+                    "trees": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "farmers": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "bearing_share": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "bearing_share",
+                    "farmers",
+                    "trees"
+                ]
+            },
             "_CommodityRef": {
                 "type": "object",
                 "properties": {
@@ -8136,6 +8589,41 @@
                     "name"
                 ]
             },
+            "_Stage": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "is_bearing": {
+                        "type": "boolean"
+                    },
+                    "trees": {
+                        "type": "integer"
+                    },
+                    "area_ha": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,12}(?:\\.\\d{0,2})?$",
+                        "nullable": true
+                    },
+                    "change": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "area_ha",
+                    "change",
+                    "code",
+                    "is_bearing",
+                    "label",
+                    "trees"
+                ]
+            },
             "_StandRef": {
                 "type": "object",
                 "properties": {
@@ -8154,6 +8642,40 @@
                     "commodity",
                     "commodity_name",
                     "id"
+                ]
+            },
+            "_Variety": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "stands": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "stands"
+                ]
+            },
+            "_Year": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "stands": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "stands",
+                    "year"
                 ]
             }
         },

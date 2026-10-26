@@ -9,6 +9,7 @@ from django.db import IntegrityError, transaction
 from apps.accounts.models import User
 from apps.accounts.roles import Cap
 from apps.accounts.selectors import Scope, get_scope
+from apps.analytics.services import schedule_refresh
 from apps.audit import services as audit
 from apps.catalog.models import Commodity, Variety
 from apps.catalog.services import validate_attributes
@@ -69,6 +70,8 @@ def update_farm(*, actor: User, farm: Farm, data: Mapping[str, Any]) -> Farm:
     old, new = audit.changes(before, audit.snapshot(farm, FARM_FIELDS), Farm.PERSONAL_FIELDS)
     if new:
         audit.record(actor=actor, action="farm.update", obj=farm, before=old, after=new)
+    if "barangay" in new:
+        schedule_refresh()  # totals are grouped by the farm's barangay
     return farm
 
 

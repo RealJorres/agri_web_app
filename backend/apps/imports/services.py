@@ -18,6 +18,7 @@ from django.utils import timezone
 from apps.accounts.models import User
 from apps.accounts.roles import Cap, Role
 from apps.accounts.selectors import Grant, Scope, get_scope
+from apps.analytics.services import schedule_refresh
 from apps.audit import services as audit
 from apps.audit.context import current_meta
 from apps.audit.models import AuditLog
@@ -173,6 +174,7 @@ def commit_job(
 
                 result = template.commit(job, actor)
             audit.record(actor=actor, action="import.commit", obj=job, after=result)
+            schedule_refresh()
             summary = {**job.summary, "commit": result}
             _set_status(
                 job,

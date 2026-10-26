@@ -86,3 +86,11 @@ def test_commit_gives_official_total_81712(previewed, admin):
     job = services.commit_job(job=previewed, actor=admin)
 
     assert job.summary["commit"]["official_total"] == 81_712
+
+    from django.db.models import Sum
+
+    from apps.analytics.models import StageTotal
+    from apps.analytics.services import refresh_views
+
+    refresh_views()
+    assert StageTotal.objects.aggregate(t=Sum("trees"))["t"] == 81_712  # dashboards agree

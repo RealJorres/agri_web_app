@@ -21,6 +21,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analytics/rounds/{id}/breakdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Aggregates only: every role with view_aggregates, rows limited to the caller's scope. */
+        get: operations["analytics_rounds_breakdown_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/rounds/{id}/distribution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Aggregates only: every role with view_aggregates, rows limited to the caller's scope. */
+        get: operations["analytics_rounds_distribution_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/rounds/{id}/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Aggregates only: every role with view_aggregates, rows limited to the caller's scope. */
+        get: operations["analytics_rounds_overview_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Aggregates only: every role with view_aggregates, rows limited to the caller's scope. */
+        get: operations["analytics_status_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/trends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Aggregates only: every role with view_aggregates, rows limited to the caller's scope. */
+        get: operations["analytics_trends_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/associations": {
         parameters: {
             query?: never;
@@ -1227,6 +1312,21 @@ export interface components {
         };
         /** @enum {unknown} */
         BlankEnum: "";
+        BreakdownRow: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            trees: number;
+            /** Format: decimal */
+            area_ha: string | null;
+            farmers: number;
+            records: number;
+            /** Format: double */
+            bearing_share: number | null;
+            stages: {
+                [key: string]: number;
+            };
+        };
         CloseResult: {
             locked: number;
         };
@@ -1288,6 +1388,14 @@ export interface components {
             /** Format: decimal */
             spacing_m?: string | null;
             attributes?: unknown;
+        };
+        Distribution: {
+            farm_sizes: components["schemas"]["_Bucket"][];
+            planting_years: components["schemas"]["_Year"][];
+            planting_year_unknown: number;
+            varieties: components["schemas"]["_Variety"][];
+            variety_unknown: number;
+            stands: number;
         };
         DuplicateCandidate: {
             /** Format: uuid */
@@ -1671,6 +1779,22 @@ export interface components {
             name: string;
             psgc_code?: string | null;
         };
+        Overview: {
+            round: components["schemas"]["Ref"];
+            previous_round: components["schemas"]["Ref"] | null;
+            trees: number;
+            /** Format: decimal */
+            area_ha: string | null;
+            farmers: number;
+            records: number;
+            bearing_trees: number;
+            /** Format: double */
+            bearing_share: number | null;
+            /** Format: double */
+            trees_per_farm: number | null;
+            stages: components["schemas"]["_Stage"][];
+            change: components["schemas"]["_Change"];
+        };
         PaginatedAssociationList: {
             /** @example 123 */
             count: number;
@@ -1954,6 +2078,11 @@ export interface components {
             readonly id: string;
             readonly name: string;
         };
+        RefreshStatus: {
+            /** Format: date-time */
+            refreshed_at: string | null;
+            duration_ms: number;
+        };
         /**
          * @description * `system_admin` - System admin
          *     * `provincial_head` - Provincial head
@@ -2056,6 +2185,18 @@ export interface components {
         TransitionRequest: {
             comment?: string;
         };
+        TrendPoint: {
+            round: components["schemas"]["Ref"];
+            /** Format: date */
+            as_of_date: string;
+            trees: number;
+            farmers: number;
+            /** Format: double */
+            bearing_share: number | null;
+            stages: {
+                [key: string]: number;
+            };
+        };
         /**
          * @description * `farmers_association` - Farmers association
          *     * `cooperative` - Cooperative
@@ -2103,6 +2244,16 @@ export interface components {
             code: string;
             name: string;
         };
+        _Bucket: {
+            label: string;
+            farms: number;
+        };
+        _Change: {
+            trees: number | null;
+            farmers: number | null;
+            /** Format: double */
+            bearing_share: number | null;
+        };
         _CommodityRef: {
             /** Format: uuid */
             id: string;
@@ -2125,11 +2276,29 @@ export interface components {
             id: string;
             name: string;
         };
+        _Stage: {
+            code: string;
+            label: string;
+            is_bearing: boolean;
+            trees: number;
+            /** Format: decimal */
+            area_ha: string | null;
+            change: number | null;
+        };
         _StandRef: {
             /** Format: uuid */
             id: string;
             commodity: string;
             commodity_name: string;
+        };
+        _Variety: {
+            code: string;
+            name: string;
+            stands: number;
+        };
+        _Year: {
+            year: number;
+            stands: number;
         };
     };
     responses: never;
@@ -2155,6 +2324,113 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    analytics_rounds_breakdown_list: {
+        parameters: {
+            query?: {
+                level?: "barangay" | "municipality";
+                municipality?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BreakdownRow"][];
+                };
+            };
+        };
+    };
+    analytics_rounds_distribution_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Distribution"];
+                };
+            };
+        };
+    };
+    analytics_rounds_overview_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Overview"];
+                };
+            };
+        };
+    };
+    analytics_status_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefreshStatus"];
+                };
+            };
+        };
+    };
+    analytics_trends_list: {
+        parameters: {
+            query: {
+                commodity: string;
+                municipality?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrendPoint"][];
                 };
             };
         };

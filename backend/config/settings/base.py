@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "apps.surveys",
     "apps.production",
     "apps.imports",
+    "apps.analytics",
 ]
 
 MIDDLEWARE = [
@@ -139,6 +140,8 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 CELERY_BEAT_SCHEDULE = {
     "purge-import-files": {"task": "apps.imports.tasks.purge_import_files", "schedule": 24 * 3600},
+    # Safety net; normal refreshes are triggered by the services that change official numbers.
+    "refresh-analytics": {"task": "apps.analytics.tasks.refresh_analytics", "schedule": 24 * 3600},
 }
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])

@@ -14,6 +14,7 @@ PAO's layouts, harvest UI, offline PWA field app. Each milestone ends with tests
 | 5 | Answers to the import review list (K18, K19, "PS", KI→K1, association matches) | any time | review list stays open |
 
 ## P2-M1 — Analytics core (backend)
+_Done 2026-10-27._
 1. Two PostgreSQL materialized views over approved/locked records (ADR-0014): `analytics_stage_totals`
    (round × barangay × stage: trees, area, records, farmers) and `analytics_record_facts` (one row per
    official record: round, barangay, farmer, total trees, bearing trees). Read through unmanaged models.

@@ -11,6 +11,7 @@ from django.utils import timezone
 from apps.accounts.models import User
 from apps.accounts.roles import Cap
 from apps.accounts.selectors import get_scope
+from apps.analytics.services import schedule_refresh
 from apps.audit import services as audit
 from apps.locations.models import Barangay
 from common.exceptions import DomainError
@@ -236,6 +237,7 @@ def merge_farmers(*, actor: User, target: Farmer, duplicate: Farmer) -> MergeRes
         "conflicts": result.conflicts,
     }
     audit.record(actor=actor, action="farmer.merge", obj=target, after=summary)
+    schedule_refresh()  # farmer counts change
     audit.record(
         actor=actor, action="farmer.merged_into", obj=duplicate, after={"target": str(target.pk)}
     )

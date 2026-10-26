@@ -14,6 +14,7 @@ api_v1: list[URLPattern | URLResolver] = [
     path("", include("apps.surveys.urls")),
     path("", include("apps.production.urls")),
     path("", include("apps.imports.urls")),
+    path("", include("apps.analytics.urls")),
 ]
 
 urlpatterns = [

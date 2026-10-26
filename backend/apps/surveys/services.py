@@ -17,6 +17,7 @@ from django.utils import timezone
 from apps.accounts.models import User
 from apps.accounts.roles import Cap
 from apps.accounts.selectors import Scope, get_scope
+from apps.analytics.services import schedule_refresh
 from apps.audit import services as audit
 from apps.audit.context import current_meta
 from apps.audit.models import AuditLog
@@ -27,6 +28,7 @@ from common.scoping import can_reach, require_reach
 
 from . import rules
 from .models import (
+    OFFICIAL_STATUSES,
     InventoryRecord,
     RecordStatus,
     RoundStatus,
@@ -186,6 +188,7 @@ def close_round(*, actor: User, survey_round: SurveyRound) -> int:
     audit.record(
         actor=actor, action="round.close", obj=survey_round, after={"locked": len(to_lock)}
     )
+    schedule_refresh()
     return len(to_lock)
 
 
@@ -395,6 +398,8 @@ def _transition(
         WorkflowComment.objects.create(
             inventory_record=record, author=actor, action=action.split("_")[0], body=comment
         )
+    if {before["status"], record.status} & set(OFFICIAL_STATUSES):
+        schedule_refresh()  # official numbers changed (ADR-0014)
     audit.record(
         actor=actor,
         action=f"inventory.{action.split('_')[0]}",
