@@ -20,7 +20,14 @@ export default tseslint.config(
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
+      // `onClick={() => setOpen(true)}` is idiomatic React; still flag void in other positions.
+      '@typescript-eslint/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
     },
+  },
+  {
+    // Route table: lazy page components are declared, not exported; HMR is irrelevant here.
+    files: ['src/app/routes.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
   },
   {
     files: ['**/*.js'],

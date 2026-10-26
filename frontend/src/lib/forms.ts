@@ -1,0 +1,30 @@
+import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
+
+import { ApiError } from '@/lib/api/client'
+
+/** Copy server field errors onto the form; returns the message for errors without a field. */
+export function applyServerErrors<T extends FieldValues>(
+  error: unknown,
+  setError: UseFormSetError<T>,
+  known: readonly string[],
+): string | null {
+  if (!(error instanceof ApiError)) return 'Something went wrong. Please try again.'
+  let unplaced = false
+  for (const [field, messages] of Object.entries(error.fields)) {
+    const name = field.split('.')[0] ?? field
+    if (known.includes(name)) {
+      setError(name as Path<T>, { type: 'server', message: messages.join(' ') })
+    } else {
+      unplaced = true
+    }
+  }
+  return unplaced || Object.keys(error.fields).length === 0 ? error.message : null
+}
+
+export function errorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    const details = Object.values(error.fields).flat()
+    return details.length ? `${error.message} ${details.join(' ')}` : error.message
+  }
+  return 'Something went wrong. Please try again.'
+}

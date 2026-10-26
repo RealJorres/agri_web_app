@@ -1,3 +1,6 @@
+# Git Bash on Windows rewrites /container/paths passed to docker.exe; keep them as written.
+export MSYS_NO_PATHCONV := 1
+
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 API     := $(COMPOSE) run --rm api
 WEB     := $(COMPOSE) run --rm --no-deps frontend

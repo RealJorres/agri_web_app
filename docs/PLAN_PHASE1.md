@@ -151,6 +151,7 @@ _Done 2026-10-26 against the brief spec + synthetic workbook; real-file inspecti
 Commits: `feat(imports): normalizers`, `feat(imports): legacy adapter`, `feat(imports): pipeline and reconciliation`, `feat(imports): template`, `feat(imports): celery tasks and api`.
 
 ## M7 — Frontend
+_Done 2026-10-26; verified in Chrome against the dev stack (login, reload, imports, filters)._
 1. `lib/api` generated client (ADR-0011), auth store (access token in memory, silent refresh on load,
    single-flight refresh on 401), `RequireAuth` + role-aware routes; formatters (numbers, dates, ha).
 2. `components/ui`: Button, Input/Select/Combobox fields (RHF-wired), DataTable (TanStack Table,

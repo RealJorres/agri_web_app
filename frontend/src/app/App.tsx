@@ -1,11 +1,22 @@
-// Placeholder shell; replaced by the router, providers and layout in M7.
+import { QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router'
+
+import { ToastProvider } from '@/components/ui/toast'
+import { AuthProvider } from '@/lib/auth/AuthProvider'
+
+import { makeQueryClient, routes } from './routes'
+
 export function App() {
+  const [queryClient] = useState(makeQueryClient)
+  const [router] = useState(() => createBrowserRouter(routes))
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-2 px-4">
-      <h1 className="text-2xl font-semibold text-slate-900">agri-dms</h1>
-      <p className="text-slate-700">
-        Marinduque Provincial Agriculture Office data management system
-      </p>
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <ToastProvider>
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </ToastProvider>
+    </QueryClientProvider>
   )
 }
