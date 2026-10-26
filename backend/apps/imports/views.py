@@ -62,6 +62,8 @@ class ImportJobViewSet(
     def get_queryset(self) -> QuerySet[ImportJob]:
         """Admins see every job; others see their own (summaries hold personal data)."""
         queryset = ImportJob.objects.select_related("uploaded_by")
+        if getattr(self, "swagger_fake_view", False):
+            return queryset.none()  # schema generation runs without a real user
         if scope_for(self.request).can(Cap.ADMIN):
             return queryset
         return queryset.filter(uploaded_by=self.request.user)

@@ -28,6 +28,7 @@ class Farmer(BaseModel):
         "last_name",
         "suffix",
         "full_name_raw",
+        "normalized_name",  # derived from the name, so just as personal
         "sex",
         "birth_year",
         "rsbsa_no",

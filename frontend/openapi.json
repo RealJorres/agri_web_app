@@ -3152,8 +3152,10 @@
                         "in": "path",
                         "name": "id",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         },
+                        "description": "A UUID string identifying this import job.",
                         "required": true
                     }
                 ],
@@ -3187,8 +3189,10 @@
                         "in": "path",
                         "name": "id",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         },
+                        "description": "A UUID string identifying this import job.",
                         "required": true
                     }
                 ],
@@ -3231,8 +3235,10 @@
                         "in": "path",
                         "name": "id",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         },
+                        "description": "A UUID string identifying this import job.",
                         "required": true
                     }
                 ],

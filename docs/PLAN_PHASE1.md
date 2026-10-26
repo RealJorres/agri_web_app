@@ -167,6 +167,7 @@ _Done 2026-10-26; verified in Chrome against the dev stack (login, reload, impor
 Commits per feature (`feat(web): ...`).
 
 ## M8 — Hardening and docs
+_Done 2026-10-26._
 1. Security checklist §12 audit: throttles (login, import), CORS allow-list, CSRF, prod settings (HSTS,
    SSL redirect, secure cookies, `SECURE_PROXY_SSL_HEADER`), CSP header for the SPA, upload limits,
    `manage.py check --deploy` clean in CI, `pip-audit` + `npm audit` in CI, gitleaks secret scan.

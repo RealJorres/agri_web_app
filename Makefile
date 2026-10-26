@@ -7,7 +7,7 @@ WEB     := $(COMPOSE) run --rm --no-deps frontend
 
 .DEFAULT_GOAL := help
 .PHONY: help env up down logs build migrate makemigrations seed seed-demo import-legacy \
-        test test-backend test-frontend lint lint-backend lint-frontend fmt schema shell superuser
+        test test-backend test-frontend coverage docs lint lint-backend lint-frontend fmt schema shell superuser
 
 help: ## List targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -48,6 +48,9 @@ test: test-backend test-frontend ## Run all tests
 test-backend:
 	$(API) pytest
 
+coverage: ## Backend tests + the 85% gate on services/selectors/permissions/scoping (DoD)
+	$(API) sh -c "pytest && coverage report --include='*/services.py,*/selectors.py,*/permissions.py,common/scoping.py,apps/surveys/rules.py' --fail-under=85"
+
 test-frontend:
 	$(WEB) npm test
 
@@ -64,8 +67,11 @@ fmt: ## Auto-format backend and frontend
 	$(WEB) npm run format
 
 schema: ## Export OpenAPI schema and regenerate the frontend client types
-	$(COMPOSE) run --rm -T api python manage.py spectacular --validate > frontend/openapi.json
+	$(COMPOSE) run --rm -T api python manage.py spectacular --validate --format openapi-json \n		--settings=config.settings.test > frontend/openapi.json
 	$(WEB) npm run gen:api
+
+docs: ## Regenerate docs/data-dictionary.md from the models
+	$(COMPOSE) run --rm -T api python manage.py data_dictionary > docs/data-dictionary.md
 
 shell: ## Django shell
 	$(API) python manage.py shell

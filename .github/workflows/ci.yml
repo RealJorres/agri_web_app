@@ -29,6 +29,15 @@ jobs:
             exit 1
           fi
 
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks (full history)
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.24.0 detect --source /repo --redact --no-banner
+
   backend:
     runs-on: ubuntu-latest
     defaults:
@@ -70,6 +79,21 @@ jobs:
       - run: uv run mypy
       - run: uv run python manage.py makemigrations --check --dry-run --settings=config.settings.test
       - run: uv run pytest
+      - name: Coverage gate on business logic (Definition of Done)
+        run: uv run coverage report --include='*/services.py,*/selectors.py,*/permissions.py,common/scoping.py,apps/surveys/rules.py' --fail-under=85
+      - name: Deploy checklist with production settings
+        env:
+          DJANGO_SECRET_KEY: ci-${{ github.run_id }}-0123456789abcdefghijklmnopqrstuvwxyz0123456789
+          DJANGO_ALLOWED_HOSTS: agri.example.gov.ph
+        run: uv run python manage.py check --deploy --fail-level WARNING --settings=config.settings.prod --tag security
+      - name: OpenAPI schema committed for the frontend is up to date (ADR-0011)
+        run: |
+          uv run python manage.py spectacular --validate --format openapi-json --settings=config.settings.test > /tmp/openapi.json
+          diff -q /tmp/openapi.json ../frontend/openapi.json || (echo "::error::Run make schema and commit frontend/openapi.json" && exit 1)
+      - name: Known vulnerabilities in Python dependencies
+        run: |
+          uv export --frozen --no-hashes --format requirements-txt > /tmp/requirements.txt
+          uvx pip-audit --strict -r /tmp/requirements.txt
 
   frontend:
     runs-on: ubuntu-latest
@@ -89,3 +113,5 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
+      - name: Known vulnerabilities in npm dependencies (high and above)
+        run: npm audit --omit=dev --audit-level=high

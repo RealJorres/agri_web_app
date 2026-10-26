@@ -56,6 +56,14 @@ def test_prod_requires_secret_key():
     assert "DJANGO_SECRET_KEY" in result.stderr
 
 
+def test_prod_rejects_short_or_dev_keys():
+    for key in ("short", "dev-only-insecure-key-change-me-0123456789abcdef0123456789"):
+        result = run_probe({**PROD_ENV, "DJANGO_SECRET_KEY": key})
+
+        assert result.returncode != 0
+        assert "at least 50 characters" in result.stderr
+
+
 def test_prod_requires_allowed_hosts():
     env = {k: v for k, v in PROD_ENV.items() if k != "DJANGO_ALLOWED_HOSTS"}
 
