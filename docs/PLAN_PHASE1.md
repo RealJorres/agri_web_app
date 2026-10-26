@@ -13,6 +13,7 @@ milestone named.
       `pip install uv` optional for IDE type-checking.
 
 ## M1 — Scaffold
+_Done 2026-10-26._
 1. `.gitattributes` (LF), `.editorconfig`, root `Makefile`, `.env.example`, `README.md` stub.
 2. `backend/pyproject.toml` (uv, Python 3.12 pinned, deps from brief §4; dev group: pytest,
    pytest-django, pytest-cov, factory_boy, ruff, mypy, django-stubs, djangorestframework-stubs).
@@ -33,6 +34,8 @@ milestone named.
 Commits: `chore: scaffold backend`, `chore: scaffold frontend`, `chore(infra): docker compose and makefile`, `ci: add github actions`.
 
 ## M2 — Accounts, auth, scoping
+_Done 2026-10-26. Note: the `Municipality`, `Barangay` and `Program` models were created here (assignments
+need them as FKs); M3 adds their seeds, admin polish and APIs._
 1. `common/models.py`: `BaseModel` (UUID pk, created/updated at/by, soft delete; managers — ADR-0006),
    `common/exceptions.py` `DomainError`.
 2. `accounts`: custom `User` (email login, Argon2 first in `PASSWORD_HASHERS`), `Role` choices,

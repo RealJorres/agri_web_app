@@ -21,6 +21,7 @@ not new code.
    Out-of-scope objects return **404**, not 403.
 4. **Business rules live in `services.py`** (writes) and `selectors.py` (reads) — never in views,
    serializers, model `save()`, or signals. Views are thin: parse → call service → serialize.
+   (Only mechanical derived columns such as `normalized_name` may be set in `save()`.)
 5. **Audit log** every state change, approval, delete, merge and personal-data export
    (`apps.audit.services.record(...)`, called from services, inside the same transaction).
 6. **No secrets in code.** Settings read env vars via django-environ; keep `.env.example` current.
@@ -81,8 +82,10 @@ Tests needing the real workbook are marked `@pytest.mark.real_data` and auto-ski
   violations (rendered as `{code, message, fields}`).
 - Workflow state changes only via `apps.surveys.services` transition functions — status is
   read-only in serializers; no generic PATCH of `status`.
-- Every viewset inherits `ScopedQuerySetMixin`; every new endpoint gets a row in the
-  permission-matrix test (`backend/tests/test_permission_matrix.py`).
+- Every record-level viewset inherits `ScopedQuerySetMixin` (set `scope_barangay_path` /
+  `scope_municipality_path` / `scope_program_path`) and uses `common.permissions.HasCapability`
+  (capabilities in `apps/accounts/roles.py`, never role-name checks). Every new endpoint gets an
+  `Endpoint` row in `backend/tests/test_permission_matrix.py`.
 - Soft-deleted rows are excluded by the default manager; uniqueness constraints are partial
   (`condition=Q(deleted_at__isnull=True)`).
 - Catalog-driven, not crop-specific: never hard-code "cacao", stage codes or 625 outside seeds,

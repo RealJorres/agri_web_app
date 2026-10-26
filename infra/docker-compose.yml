@@ -2,7 +2,7 @@ name: agri-dms
 
 x-backend: &backend
   image: agri-dms-backend:dev
-  pull_policy: build
+  pull_policy: never
   build:
     context: ../backend
   env_file: ../.env
