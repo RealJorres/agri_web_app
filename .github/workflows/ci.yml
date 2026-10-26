@@ -66,7 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install GeoDjango system libraries
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gdal-bin libproj-dev
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gdal-bin libproj-dev libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 fonts-dejavu-core
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.13.5"

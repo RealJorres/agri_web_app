@@ -341,6 +341,40 @@ What one source row created. Makes re-importing the same file a no-op (brief §1
 
 Constraints: `uniq_import_row`
 
+## `reports_reportsettings` (reports.reportsettings)
+
+Single row (id=1) edited in Django admin: the letterhead on every official report.
+
+| Field | Type | Null | PII | Notes |
+|---|---|---|---|---|
+| `letterhead` | Text |  |  | One line per row. |
+| `program_line` | Char(200) |  |  |  |
+| `logo` | File |  |  |  |
+
+## `reports_signatory` (reports.signatory)
+
+A signature block on a report, e.g. "Prepared by:" / name / title (ADR-0015).
+
+| Field | Type | Null | PII | Notes |
+|---|---|---|---|---|
+| `report_kind` | Char(20) |  |  | one of: summary, municipal_list |
+| `order` | PositiveSmallInteger |  |  |  |
+| `caption` | Char(60) |  |  | e.g. "Prepared by:", "Noted:" |
+| `name` | Char(120) |  |  |  |
+| `title` | Char(160) |  |  |  |
+
+## `reports_reportsignoff` (reports.reportsignoff)
+
+The provincial head's sign-off: who, when, and a hash of the report's content.
+
+| Field | Type | Null | PII | Notes |
+|---|---|---|---|---|
+| `survey_round` | FK → surveys.surveyround |  |  |  |
+| `report_kind` | Char(20) |  |  | one of: summary, municipal_list |
+| `content_sha256` | Char(64) |  |  |  |
+| `signed_by` | FK → accounts.user |  |  |  |
+| `signed_at` | DateTime |  |  |  |
+
 ## `audit_auditlog` (audit.auditlog)
 
 Append-only (ORM guard here + database trigger in migration 0002).

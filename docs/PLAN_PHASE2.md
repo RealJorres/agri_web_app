@@ -12,6 +12,7 @@ PAO's layouts, harvest UI, offline PWA field app. Each milestone ends with tests
 | 3 | Signatory names and titles per report | P2-M3 | configured in Django admin, not in code (ADR-0015) |
 | 4 | Sack weight (kg) for cacao harvests, wet vs dried | P2-M4 | sacks reported separately from kg (no guessing) |
 | 5 | Answers to the import review list (K18, K19, "PS", KI→K1, association matches) | any time | review list stays open |
+| 6 | Rule for "No. of farmers" on the summary (2023 sheet is inconsistent: 209 vs 206; see ADR-0015) | P2-M3 sign-off | distinct farmers with at least one tree counted |
 
 ## P2-M1 — Analytics core (backend)
 _Done 2026-10-27._
@@ -34,6 +35,7 @@ drill-down to barangays, distributions. Every chart has an accessible data table
 colour-blind-safe palette; works at 360 px. Charts are lazy-loaded so other pages stay light.
 
 ## P2-M3 — Official reports
+_Done 2026-10-27. Farmer-count rule awaits PAO confirmation (input 6)._
 Report settings in admin (letterhead lines, logo, signatories with titles and order, per report).
 Excel (openpyxl) and PDF (WeasyPrint) for: the provincial summary (2023 SUMMARY layout: farmers, area
 by stage, population by stage, totals, 625/ha note, signatory blocks) and the municipal farmer list

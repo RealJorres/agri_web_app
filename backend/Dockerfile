@@ -9,9 +9,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_COMPILE_BYTECODE=1 \
     PATH="/opt/venv/bin:$PATH"
 
-# GeoDjango needs GDAL, GEOS and PROJ shared libraries.
+# GeoDjango needs GDAL, GEOS and PROJ; WeasyPrint (PDF reports) needs Pango/HarfBuzz and a font.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends binutils gdal-bin libproj-dev \
+       libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd --create-home --uid 1000 app \

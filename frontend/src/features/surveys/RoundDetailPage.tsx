@@ -13,6 +13,8 @@ import { useAuth } from '@/lib/auth/context'
 import { errorMessage } from '@/lib/forms'
 import { formatDate, formatHectares, formatNumber } from '@/lib/format'
 
+import { ReportsPanel } from './ReportsPanel'
+
 export default function RoundDetailPage() {
   const { id = '' } = useParams()
   const { can } = useAuth()
@@ -195,6 +197,15 @@ export default function RoundDetailPage() {
             </div>
           )}
         </Card>
+        <ReportsPanel
+          roundId={id}
+          roundName={r.name}
+          closed={r.status === 'closed'}
+          municipalities={(progress.data ?? []).map((p) => ({
+            id: p.municipality_id,
+            name: p.municipality,
+          }))}
+        />
       </div>
       <Dialog
         open={confirming}

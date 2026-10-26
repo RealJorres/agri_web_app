@@ -1,0 +1,34 @@
+{% extends "reports/_base.html" %}
+{% load humanize %}
+{% block title %}{{ c.municipality }} - {{ c.round.name }}{% endblock %}
+{% block body %}
+<h1>{{ c.commodity|upper }} POPULATION DATA IN THE MUNICIPALITY OF {{ c.municipality|upper }}</h1>
+<p class="sub">as of {{ c.round.as_of }}</p>
+{% if not c.final %}<p class="draft">DRAFT - the round is still open; figures may change.</p>{% endif %}
+<table>
+  <thead>
+    <tr>
+      <th>No.</th><th>Name of farmer</th><th>Barangay</th><th>Farm location</th><th>Association</th>
+      <th>Contact no.</th><th>Variety</th><th>Date planted</th><th>Source</th>
+      {% for s in c.stages %}<th>{{ s }}</th>{% endfor %}
+      <th>Remarks</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in c.rows %}
+    <tr>
+      <td class="num">{{ r.no }}</td><td>{{ r.name }}</td><td>{{ r.barangay }}</td><td>{{ r.farm_location }}</td>
+      <td>{{ r.association }}</td><td>{{ r.contact }}</td><td>{{ r.variety }}</td><td>{{ r.planted }}</td>
+      <td>{{ r.source }}</td>
+      {% for n in r.counts %}<td class="num">{% if n is not None %}{{ n|intcomma }}{% endif %}</td>{% endfor %}
+      <td>{{ r.remarks }}</td>
+    </tr>
+    {% endfor %}
+    <tr class="total">
+      <td></td><td>TOTAL</td><td colspan="7"></td>
+      {% for t in c.totals %}<td class="num">{{ t|intcomma }}</td>{% endfor %}
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

@@ -35,3 +35,7 @@ frontend/coverage/
 Thumbs.db
 .idea/
 .vscode/
+
+# runtime / build output
+backend/celerybeat-schedule*
+*.tsbuildinfo

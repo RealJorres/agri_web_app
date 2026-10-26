@@ -32,6 +32,7 @@ class Cap(StrEnum):
     RUN_IMPORTS = "run_imports"
     MERGE_FARMERS = "merge_farmers"
     EXPORT_PERSONAL_DATA = "export_personal_data"
+    SIGN_REPORTS = "sign_reports"  # final sign-off on official reports (provincial head)
     ADMIN = "admin"
 
 
@@ -39,7 +40,7 @@ _READ = {Cap.VIEW_AGGREGATES, Cap.VIEW_RECORDS, Cap.VIEW_PERSONAL_DATA}
 
 ROLE_CAPABILITIES: dict[str, frozenset[Cap]] = {
     Role.SYSTEM_ADMIN: frozenset(Cap),
-    Role.PROVINCIAL_HEAD: frozenset(_READ | {Cap.EXPORT_PERSONAL_DATA}),
+    Role.PROVINCIAL_HEAD: frozenset(_READ | {Cap.EXPORT_PERSONAL_DATA, Cap.SIGN_REPORTS}),
     Role.PROGRAM_COORDINATOR: frozenset(
         _READ
         | {

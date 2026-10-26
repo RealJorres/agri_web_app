@@ -4835,6 +4835,189 @@
                 }
             }
         },
+        "/api/v1/reports/rounds/{id}/municipal-list.{fmt}": {
+            "get": {
+                "operationId": "reports_rounds_municipal_list._retrieve",
+                "description": "Farmer-level list: personal data, so it needs export_personal_data and is audited.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "fmt",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "municipality",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            },
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/reports/rounds/{id}/sign-off": {
+            "get": {
+                "operationId": "reports_rounds_sign_off_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/_Signoff"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "reports_rounds_sign_off_create",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/_Signoff"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/reports/rounds/{id}/summary.{fmt}": {
+            "get": {
+                "operationId": "reports_rounds_summary._retrieve",
+                "description": "The provincial summary (aggregates only), scoped to the caller's assignment.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "fmt",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            },
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/stats/home": {
             "get": {
                 "operationId": "stats_home_retrieve",
@@ -8240,6 +8423,15 @@
                     "stage_label"
                 ]
             },
+            "StateEnum": {
+                "enum": [
+                    "unsigned",
+                    "signed",
+                    "superseded"
+                ],
+                "type": "string",
+                "description": "* `unsigned` - unsigned\n* `signed` - signed\n* `superseded` - superseded"
+            },
             "SurveyRound": {
                 "type": "object",
                 "properties": {
@@ -8603,6 +8795,37 @@
                 "required": [
                     "id",
                     "name"
+                ]
+            },
+            "_Signoff": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "$ref": "#/components/schemas/StateEnum"
+                    },
+                    "signed_by": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "signed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "content_sha256": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "current_sha256": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "content_sha256",
+                    "current_sha256",
+                    "signed_at",
+                    "signed_by",
+                    "state"
                 ]
             },
             "_Stage": {

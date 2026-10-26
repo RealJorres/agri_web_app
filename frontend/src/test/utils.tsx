@@ -21,6 +21,7 @@ export const ALL_CAPS: Capability[] = [
   'run_imports',
   'merge_farmers',
   'export_personal_data',
+  'sign_reports',
   'admin',
 ]
 

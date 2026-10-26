@@ -1086,6 +1086,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/rounds/{id}/municipal-list.{fmt}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Farmer-level list: personal data, so it needs export_personal_data and is audited. */
+        get: operations["reports_rounds_municipal_list._retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/rounds/{id}/sign-off": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["reports_rounds_sign_off_retrieve"];
+        put?: never;
+        post: operations["reports_rounds_sign_off_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/rounds/{id}/summary.{fmt}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The provincial summary (aggregates only), scoped to the caller's assignment. */
+        get: operations["reports_rounds_summary._retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/stats/home": {
         parameters: {
             query?: never;
@@ -2148,6 +2198,13 @@ export interface components {
             /** Format: decimal */
             area_ha: string | null;
         };
+        /**
+         * @description * `unsigned` - unsigned
+         *     * `signed` - signed
+         *     * `superseded` - superseded
+         * @enum {string}
+         */
+        StateEnum: "unsigned" | "signed" | "superseded";
         SurveyRound: {
             /** Format: uuid */
             readonly id: string;
@@ -2275,6 +2332,14 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+        };
+        _Signoff: {
+            state: components["schemas"]["StateEnum"];
+            signed_by: string | null;
+            /** Format: date-time */
+            signed_at: string | null;
+            content_sha256: string | null;
+            current_sha256: string;
         };
         _Stage: {
             code: string;
@@ -4751,6 +4816,96 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Program"];
+                };
+            };
+        };
+    };
+    "reports_rounds_municipal_list._retrieve": {
+        parameters: {
+            query: {
+                municipality: string;
+            };
+            header?: never;
+            path: {
+                fmt: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
+    reports_rounds_sign_off_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["_Signoff"];
+                };
+            };
+        };
+    };
+    reports_rounds_sign_off_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["_Signoff"];
+                };
+            };
+        };
+    };
+    "reports_rounds_summary._retrieve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fmt: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                    "application/pdf": string;
                 };
             };
         };

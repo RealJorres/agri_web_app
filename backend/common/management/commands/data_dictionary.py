@@ -14,6 +14,7 @@ APP_ORDER = [
     "surveys",
     "production",
     "imports",
+    "reports",
     "audit",
 ]
 BASE_FIELDS = {

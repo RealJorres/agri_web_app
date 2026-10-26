@@ -67,7 +67,8 @@ fmt: ## Auto-format backend and frontend
 	$(WEB) npm run format
 
 schema: ## Export OpenAPI schema and regenerate the frontend client types
-	$(COMPOSE) run --rm -T api python manage.py spectacular --validate --format openapi-json \n		--settings=config.settings.test > frontend/openapi.json
+	$(COMPOSE) run --rm -T api python manage.py spectacular --validate --format openapi-json \
+		--settings=config.settings.test > frontend/openapi.json
 	$(WEB) npm run gen:api
 
 docs: ## Regenerate docs/data-dictionary.md from the models

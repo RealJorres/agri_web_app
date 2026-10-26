@@ -16,6 +16,7 @@ export type Capability =
   | 'run_imports'
   | 'merge_farmers'
   | 'export_personal_data'
+  | 'sign_reports'
   | 'admin'
 
 export interface AuthState {

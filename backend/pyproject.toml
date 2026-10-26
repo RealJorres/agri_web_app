@@ -21,6 +21,8 @@ dependencies = [
     "rapidfuzz>=3.10",
     "jsonschema>=4.23",
     "django-stubs-ext>=5.1",
+    "weasyprint>=63",
+    "pillow>=11",
 ]
 
 [dependency-groups]
@@ -67,7 +69,7 @@ check_untyped_defs = true
 ignore_missing_imports = false
 
 [[tool.mypy.overrides]]
-module = ["environ.*", "axes.*", "corsheaders.*", "django_filters.*", "openpyxl.*", "rapidfuzz.*", "factory.*", "jsonschema.*", "pandas.*"]
+module = ["environ.*", "axes.*", "corsheaders.*", "django_filters.*", "openpyxl.*", "rapidfuzz.*", "factory.*", "jsonschema.*", "pandas.*", "weasyprint.*"]
 ignore_missing_imports = true
 
 # Business logic is held to the strictest standard.

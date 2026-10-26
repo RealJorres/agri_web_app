@@ -1,0 +1,45 @@
+{% extends "reports/_base.html" %}
+{% load humanize %}
+{% block title %}Summary - {{ c.round.name }}{% endblock %}
+{% block body %}
+<h1>SUMMARY OF {{ c.commodity|upper }} POPULATION DATA IN THE PROVINCE OF MARINDUQUE</h1>
+<p class="sub">as of {{ c.round.as_of }}</p>
+{% if not c.final %}<p class="draft">DRAFT - the round is still open; figures may change.</p>{% endif %}
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">Municipality / Province</th>
+      <th rowspan="2">No. of farmers</th>
+      <th colspan="{{ c.stages|length }}">Area planted (ha)</th>
+      <th rowspan="2">Total area (ha)</th>
+      <th colspan="{{ c.stages|length }}">Plant population</th>
+      <th rowspan="2">Total plant population</th>
+    </tr>
+    <tr>
+      {% for s in c.stages %}<th>{{ s }}</th>{% endfor %}
+      {% for s in c.stages %}<th>{{ s }}</th>{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in c.rows %}
+    <tr>
+      <td class="town">{{ r.municipality|upper }}, MARINDUQUE</td>
+      <td class="num">{{ r.farmers|intcomma }}</td>
+      {% for a in r.area %}<td class="num">{{ a }}</td>{% endfor %}
+      <td class="num">{{ r.area_total }}</td>
+      {% for t in r.trees %}<td class="num">{{ t|intcomma }}</td>{% endfor %}
+      <td class="num">{{ r.trees_total|intcomma }}</td>
+    </tr>
+    {% endfor %}
+    <tr class="total">
+      <td>TOTAL</td>
+      <td class="num">{{ c.total.farmers|intcomma }}</td>
+      {% for a in c.total.area %}<td class="num">{{ a }}</td>{% endfor %}
+      <td class="num">{{ c.total.area_total }}</td>
+      {% for t in c.total.trees %}<td class="num">{{ t|intcomma }}</td>{% endfor %}
+      <td class="num">{{ c.total.trees_total|intcomma }}</td>
+    </tr>
+  </tbody>
+</table>
+{% if c.density_note %}<p class="note">NOTE: {{ c.density_note }}</p>{% endif %}
+{% endblock %}

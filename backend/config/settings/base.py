@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.gis",
     "django.contrib.postgres",
+    "django.contrib.humanize",
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     "apps.production",
     "apps.imports",
     "apps.analytics",
+    "apps.reports",
 ]
 
 MIDDLEWARE = [
