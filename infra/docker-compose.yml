@@ -1,0 +1,73 @@
+name: agri-dms
+
+x-backend: &backend
+  image: agri-dms-backend:dev
+  pull_policy: build
+  build:
+    context: ../backend
+  env_file: ../.env
+  volumes:
+    - ../backend:/app
+    # Source workbooks / PSGC file, read-only inside containers (gitignored on the host).
+    - ../data:/data:ro
+    - private_media:/var/lib/agri/private
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    <<: *backend
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  worker:
+    <<: *backend
+    command: celery -A config worker -l info
+
+  frontend:
+    build:
+      context: ../frontend
+    environment:
+      API_PROXY_TARGET: http://api:8000
+      # Bind mounts from Windows hosts do not emit file events; poll instead.
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ../frontend:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "127.0.0.1:5173:5173"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  private_media:
+  frontend_node_modules:
