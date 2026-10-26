@@ -1,0 +1,37 @@
+# --- Personal data (RA 10173). Never commit. ---
+data/raw/
+data/reference/
+media/
+backend/media/
+*.xlsx
+*.xls
+*.csv
+!backend/apps/imports/templates/**/*.xlsx
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.egg-info/
+
+# --- Node ---
+node_modules/
+frontend/dist/
+frontend/coverage/
+
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
