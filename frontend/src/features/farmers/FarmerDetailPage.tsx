@@ -16,6 +16,7 @@ import {
 import { SelectInput, TextInput } from '@/components/ui/fields'
 import { LoadingBlock } from '@/components/ui/Spinner'
 import { useToast } from '@/components/ui/useToast'
+import { HarvestList } from '@/features/harvests/HarvestList'
 import { useAuth } from '@/lib/auth/context'
 import { errorMessage } from '@/lib/forms'
 import { formatDate, formatDateTime, formatNumber } from '@/lib/format'
@@ -183,6 +184,7 @@ function Farms({ farmerId }: { farmerId: string }) {
               ) : (
                 <p className="mt-1 text-sm text-muted">No planting details.</p>
               )}
+              <HarvestList standId={stand.id} />
             </div>
           ))}
         </li>

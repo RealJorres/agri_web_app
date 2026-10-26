@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analytics/harvests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Reported harvests per municipality (ADR-0018). Not part of the review workflow. */
+        get: operations["analytics_harvests_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analytics/rounds/{id}/breakdown": {
         parameters: {
             query?: never;
@@ -1617,6 +1634,12 @@ export interface components {
             buyer?: string;
             raw_text?: string;
         };
+        HarvestSummary: {
+            year: number | null;
+            years: number[];
+            undated_excluded: number;
+            rows: components["schemas"]["_HarvestRow"][];
+        };
         Health: {
             status: string;
             checks: {
@@ -2328,6 +2351,28 @@ export interface components {
             id: string;
             display_name: string;
         };
+        _HarvestKg: {
+            /** Format: decimal */
+            wet_beans: string;
+            /** Format: decimal */
+            dried_beans: string;
+            /** Format: decimal */
+            pods: string;
+            /** Format: decimal */
+            unknown: string;
+        };
+        _HarvestRow: {
+            /** Format: uuid */
+            municipality_id: string;
+            municipality: string;
+            harvests: number;
+            farmers: number;
+            kg: components["schemas"]["_HarvestKg"];
+            /** Format: decimal */
+            sacks: string;
+            other_entries: number;
+            estimated_dates: number;
+        };
         _Ref: {
             /** Format: uuid */
             id: string;
@@ -2389,6 +2434,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    analytics_harvests_retrieve: {
+        parameters: {
+            query?: {
+                commodity?: string;
+                year?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HarvestSummary"];
                 };
             };
         };

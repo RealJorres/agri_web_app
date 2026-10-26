@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router'
 import { Alert, EmptyState, PageHeader } from '@/components/ui/display'
 import { SelectInput } from '@/components/ui/fields'
 import { LoadingBlock } from '@/components/ui/Spinner'
+import { HarvestSummaryCard } from '@/features/harvests/HarvestSummaryCard'
 import type { Schemas } from '@/lib/api/client'
 import { errorMessage } from '@/lib/forms'
 import { formatDateTime, formatHectares, formatNumber } from '@/lib/format'
@@ -112,6 +113,9 @@ export default function DashboardPage() {
           {distribution.data ? <Distributions data={distribution.data} /> : null}
         </div>
       )}
+      <div className="mt-6">
+        <HarvestSummaryCard commodity={round?.commodity} town={town?.name} />
+      </div>
     </>
   )
 }

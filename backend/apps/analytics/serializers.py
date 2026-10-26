@@ -82,3 +82,28 @@ class DistributionSerializer(serializers.Serializer[Any]):
 class RefreshStatusSerializer(serializers.Serializer[Any]):
     refreshed_at = serializers.DateTimeField(allow_null=True)
     duration_ms = serializers.IntegerField()
+
+
+class _HarvestKg(serializers.Serializer[Any]):
+    wet_beans = serializers.DecimalField(max_digits=14, decimal_places=3)
+    dried_beans = serializers.DecimalField(max_digits=14, decimal_places=3)
+    pods = serializers.DecimalField(max_digits=14, decimal_places=3)
+    unknown = serializers.DecimalField(max_digits=14, decimal_places=3)
+
+
+class _HarvestRow(serializers.Serializer[Any]):
+    municipality_id = serializers.UUIDField()
+    municipality = serializers.CharField()
+    harvests = serializers.IntegerField()
+    farmers = serializers.IntegerField()
+    kg = _HarvestKg()
+    sacks = serializers.DecimalField(max_digits=14, decimal_places=3)
+    other_entries = serializers.IntegerField()
+    estimated_dates = serializers.IntegerField()
+
+
+class HarvestSummarySerializer(serializers.Serializer[Any]):
+    year = serializers.IntegerField(allow_null=True)
+    years = serializers.ListField(child=serializers.IntegerField())
+    undated_excluded = serializers.IntegerField()
+    rows = _HarvestRow(many=True)

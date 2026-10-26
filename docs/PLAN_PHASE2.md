@@ -44,6 +44,7 @@ signed report can always be regenerated identically; provincial-head **sign-off*
 and a SHA-256 of the generated file (no totals stored).
 
 ## P2-M4 — Harvest UI
+_Done 2026-10-27 (ADR-0018). Sack weight still awaits the PAO (input 4)._
 Harvests on the crop-stand page (list/add/edit), harvest summary per municipality (kg; sacks
 separately until a sack weight is configured), date-estimated flag visible.
 

@@ -30,6 +30,49 @@
                 }
             }
         },
+        "/api/v1/analytics/harvests": {
+            "get": {
+                "operationId": "analytics_harvests_retrieve",
+                "description": "Reported harvests per municipality (ADR-0018). Not part of the review workflow.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "commodity",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "year",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "tags": [
+                    "analytics"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HarvestSummary"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/analytics/rounds/{id}/breakdown": {
             "get": {
                 "operationId": "analytics_rounds_breakdown_list",
@@ -6699,6 +6742,36 @@
                     "unit"
                 ]
             },
+            "HarvestSummary": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "years": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "undated_excluded": {
+                        "type": "integer"
+                    },
+                    "rows": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/_HarvestRow"
+                        }
+                    }
+                },
+                "required": [
+                    "rows",
+                    "undated_excluded",
+                    "year",
+                    "years"
+                ]
+            },
             "Health": {
                 "type": "object",
                 "properties": {
@@ -8779,6 +8852,79 @@
                 "required": [
                     "display_name",
                     "id"
+                ]
+            },
+            "_HarvestKg": {
+                "type": "object",
+                "properties": {
+                    "wet_beans": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,11}(?:\\.\\d{0,3})?$"
+                    },
+                    "dried_beans": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,11}(?:\\.\\d{0,3})?$"
+                    },
+                    "pods": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,11}(?:\\.\\d{0,3})?$"
+                    },
+                    "unknown": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,11}(?:\\.\\d{0,3})?$"
+                    }
+                },
+                "required": [
+                    "dried_beans",
+                    "pods",
+                    "unknown",
+                    "wet_beans"
+                ]
+            },
+            "_HarvestRow": {
+                "type": "object",
+                "properties": {
+                    "municipality_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "municipality": {
+                        "type": "string"
+                    },
+                    "harvests": {
+                        "type": "integer"
+                    },
+                    "farmers": {
+                        "type": "integer"
+                    },
+                    "kg": {
+                        "$ref": "#/components/schemas/_HarvestKg"
+                    },
+                    "sacks": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,11}(?:\\.\\d{0,3})?$"
+                    },
+                    "other_entries": {
+                        "type": "integer"
+                    },
+                    "estimated_dates": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "estimated_dates",
+                    "farmers",
+                    "harvests",
+                    "kg",
+                    "municipality",
+                    "municipality_id",
+                    "other_entries",
+                    "sacks"
                 ]
             },
             "_Ref": {

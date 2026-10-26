@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 
 from apps.accounts.roles import Cap
 from apps.catalog.models import Commodity
+from apps.production import selectors as production_selectors
 from apps.surveys.models import SurveyRound
 from apps.surveys.selectors import rounds_for
 from common.permissions import HasCapability
@@ -19,6 +20,7 @@ from . import selectors, services
 from .serializers import (
     BreakdownRowSerializer,
     DistributionSerializer,
+    HarvestSummarySerializer,
     OverviewSerializer,
     RefreshStatusSerializer,
     TrendPointSerializer,
@@ -125,3 +127,29 @@ class RefreshStatusView(_AnalyticsView):
                 "duration_ms": state.duration_ms if state else 0,
             }
         )
+
+
+class _HarvestQuery(serializers.Serializer[Any]):
+    commodity = serializers.UUIDField(required=False)
+    year = serializers.IntegerField(required=False, min_value=1900, max_value=2200)
+
+
+class HarvestSummaryView(_AnalyticsView):
+    """Reported harvests per municipality (ADR-0018). Not part of the review workflow."""
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("commodity", OpenApiTypes.UUID),
+            OpenApiParameter("year", int),
+        ],
+        responses=HarvestSummarySerializer,
+    )
+    def get(self, request: Request) -> Response:
+        query = _HarvestQuery(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        data = production_selectors.harvest_summary(
+            scope_for(request),
+            commodity=query.validated_data.get("commodity"),
+            year=query.validated_data.get("year"),
+        )
+        return Response(HarvestSummarySerializer(data).data)
