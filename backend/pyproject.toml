@@ -20,6 +20,7 @@ dependencies = [
     "pandas>=2.2",
     "rapidfuzz>=3.10",
     "jsonschema>=4.23",
+    "django-stubs-ext>=5.1",
 ]
 
 [dependency-groups]

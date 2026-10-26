@@ -6,7 +6,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from common.views import HealthView
 
 api_v1: list[URLPattern | URLResolver] = [
-    # App routers are added here per milestone.
+    path("", include("apps.accounts.urls")),
 ]
 
 urlpatterns = [
