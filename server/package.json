@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "dev:memory": "tsx scripts/dev-memory.ts",
+    "create-admin": "tsx scripts/create-admin.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
@@ -20,13 +21,18 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "argon2": "^0.45.2",
+    "cookie-parser": "^1.4.7",
     "express": "^5.3.0",
+    "express-rate-limit": "^8.7.3",
     "helmet": "^8.3.0",
+    "jose": "^6.2.15",
     "mongoose": "^9.11.4",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
     "@types/node": "^22.20.5",
     "@types/supertest": "^7.2.1",

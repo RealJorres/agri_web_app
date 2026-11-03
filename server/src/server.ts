@@ -33,7 +33,12 @@ async function connectWithRetry(): Promise<void> {
   }
 }
 
-const server = createApp({ production }).listen(env.PORT, env.HOST, (error) => {
+const app = createApp({
+  production,
+  trustedProxies: env.TRUSTED_PROXY_COUNT,
+  csrfTrustedOrigins: env.CSRF_TRUSTED_ORIGINS,
+})
+const server = app.listen(env.PORT, env.HOST, (error) => {
   if (error) {
     logger.error('server.listen_failed', safeErrorDetails(error))
     process.exit(1)

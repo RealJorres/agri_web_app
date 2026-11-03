@@ -2,6 +2,15 @@ import { fileURLToPath } from 'node:url'
 
 import { z } from 'zod'
 
+const MIN_SIGNING_KEY_LENGTH = 50
+// Production refuses to start with this value, so it can only ever sign development sessions.
+const DEV_SIGNING_KEY = 'dev-only-insecure-signing-key-0123456789abcdef0123456789'
+
+/** The key for signing tokens. In production, parseEnv has already proved the variable is sound. */
+export function jwtSigningKey(): Uint8Array {
+  return new TextEncoder().encode(process.env.JWT_SIGNING_KEY ?? DEV_SIGNING_KEY)
+}
+
 const schema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -14,18 +23,36 @@ const schema = z
       .string()
       .regex(/^[A-Za-z0-9_-]+$/, 'may only contain letters, digits, _ and -')
       .optional(),
+    JWT_SIGNING_KEY: z.string().optional(),
+    TRUSTED_PROXY_COUNT: z.coerce.number().int().min(0).default(0),
+    CSRF_TRUSTED_ORIGINS: z.string().default(''),
   })
   .superRefine((value, context) => {
+    if (value.NODE_ENV !== 'production') return
     // Development and production must never share a database by accident (ADR-0019).
-    if (value.NODE_ENV === 'production' && !value.MONGODB_DB) {
+    if (!value.MONGODB_DB) {
       context.addIssue({
         code: 'custom',
         path: ['MONGODB_DB'],
         message: 'is required in production',
       })
     }
+    const key = value.JWT_SIGNING_KEY ?? ''
+    if (key.length < MIN_SIGNING_KEY_LENGTH || key.includes('insecure')) {
+      context.addIssue({
+        code: 'custom',
+        path: ['JWT_SIGNING_KEY'],
+        message: `must be a random value of at least ${MIN_SIGNING_KEY_LENGTH} characters in production`,
+      })
+    }
   })
-  .transform((value) => ({ ...value, MONGODB_DB: value.MONGODB_DB ?? 'agri_dev' }))
+  .transform((value) => ({
+    ...value,
+    MONGODB_DB: value.MONGODB_DB ?? 'agri_dev',
+    CSRF_TRUSTED_ORIGINS: value.CSRF_TRUSTED_ORIGINS.split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  }))
 
 export type Env = z.infer<typeof schema>
 

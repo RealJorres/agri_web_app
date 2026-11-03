@@ -69,7 +69,8 @@ pass a browser check with synthetic data.
 ### M8 — Cutover
 Confirm inputs 2 and 3, create production indexes, load `data/raw/` into Atlas, check the totals there, create the
 real admin account. Serve the built frontend from Express with its own CSP and an HTTPS redirect, replacing the old
-web server. Remove `backend/`, `infra/` and the `Makefile`; update `CLAUDE.md`, `README`, `architecture.md`,
+web server. Give the application's database user a custom role with no update or delete right on `audit_logs`, which
+replaces the old Postgres trigger that kept the audit log append-only. Remove `backend/`, `infra/` and the `Makefile`; update `CLAUDE.md`, `README`, `architecture.md`,
 the data dictionary, `.env.example` and CI; merge to `main`.
 **Done when:** the clean-clone instructions work without Docker, and Atlas shows 81,712.
 

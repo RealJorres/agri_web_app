@@ -5,6 +5,7 @@ import { EnvError, parseEnv } from '../src/config/env.js'
 
 const SECRET = 'S3cretPassw0rd'
 const URI = `mongodb+srv://user:${SECRET}@cluster0.example.mongodb.net/`
+const SIGNING_KEY = 'a'.repeat(50)
 
 describe('parseEnv', () => {
   it('applies defaults, including a development database name', () => {
@@ -29,11 +30,27 @@ describe('parseEnv', () => {
   })
 
   it('requires an explicit database name in production', () => {
-    expect(() => parseEnv({ NODE_ENV: 'production', MONGODB_URI: URI })).toThrow(
-      /MONGODB_DB is required in production/,
-    )
-    const env = parseEnv({ NODE_ENV: 'production', MONGODB_URI: URI, MONGODB_DB: 'agri_prod' })
-    expect(env.MONGODB_DB).toBe('agri_prod')
+    const production = { NODE_ENV: 'production', MONGODB_URI: URI, JWT_SIGNING_KEY: SIGNING_KEY }
+    expect(() => parseEnv(production)).toThrow(/MONGODB_DB is required in production/)
+    expect(parseEnv({ ...production, MONGODB_DB: 'agri_prod' }).MONGODB_DB).toBe('agri_prod')
+  })
+
+  it.each([undefined, 'short', `insecure-${'a'.repeat(50)}`])(
+    'requires a strong signing key in production (%#)',
+    (key) => {
+      const settings = { NODE_ENV: 'production', MONGODB_URI: URI, MONGODB_DB: 'agri_prod' }
+      expect(() => parseEnv({ ...settings, JWT_SIGNING_KEY: key })).toThrow(
+        /JWT_SIGNING_KEY must be/,
+      )
+    },
+  )
+
+  it('splits the trusted origins', () => {
+    const env = parseEnv({
+      MONGODB_URI: URI,
+      CSRF_TRUSTED_ORIGINS: 'https://a.test, https://b.test',
+    })
+    expect(env.CSRF_TRUSTED_ORIGINS).toEqual(['https://a.test', 'https://b.test'])
   })
 })
 
