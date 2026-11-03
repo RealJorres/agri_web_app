@@ -73,10 +73,14 @@ export async function createUser(input: {
 export function assignmentProblems(input: {
   role: Role
   municipality: { _id: string; name: string } | null
+  program?: { _id: string } | null
   barangays: readonly Pick<BarangayDoc, 'municipalityId'>[]
 }): ErrorFields {
   const { role, municipality, barangays } = input
   const scopedToBarangays = BARANGAY_SCOPED_ROLES.has(role)
+  if (role === Role.SYSTEM_ADMIN && (municipality || input.program)) {
+    return { role: ['A system admin covers the whole province and every program.'] }
+  }
   if (role === Role.MAO_VALIDATOR && !municipality) {
     return { municipality: ['An MAO validator must be assigned to one municipality.'] }
   }
@@ -145,7 +149,7 @@ export async function createAssignment(input: {
           barangays: ['Not found.'],
         })
       }
-      const problems = assignmentProblems({ role: input.role, municipality, barangays })
+      const problems = assignmentProblems({ role: input.role, municipality, program, barangays })
       if (Object.keys(problems).length > 0) {
         throw new DomainError('invalid_assignment', 'The assignment is not valid.', problems)
       }

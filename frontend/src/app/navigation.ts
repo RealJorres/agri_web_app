@@ -1,10 +1,14 @@
 import {
   BarChart3,
   ClipboardCheck,
+  FileSignature,
   FileUp,
   Home,
   Layers,
   Map as MapIcon,
+  PackageOpen,
+  Sprout,
+  UserCog,
   Users,
   UsersRound,
   type LucideIcon,
@@ -29,4 +33,8 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/rounds', label: 'Survey rounds', icon: Layers, anyOf: ['view_aggregates'] },
   { to: '/review', label: 'Review queue', icon: ClipboardCheck, anyOf: ['validate', 'approve'] },
   { to: '/imports', label: 'Imports', icon: FileUp, anyOf: ['run_imports'] },
+  { to: '/admin/users', label: 'Users', icon: UserCog, anyOf: ['admin'] },
+  { to: '/admin/crops', label: 'Crops', icon: Sprout, anyOf: ['admin'] },
+  { to: '/admin/sources', label: 'Material sources', icon: PackageOpen, anyOf: ['admin'] },
+  { to: '/admin/reports', label: 'Report settings', icon: FileSignature, anyOf: ['admin'] },
 ]

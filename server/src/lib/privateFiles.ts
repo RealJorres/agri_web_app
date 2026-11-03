@@ -22,8 +22,8 @@ function locate(relative: string): string {
 
 /** Saves under a generated name, so nothing from the upload's name reaches the file system. */
 export async function savePrivateFile(
-  folder: 'imports' | 'import-errors',
-  suffix: '.xlsx' | '.csv',
+  folder: 'imports' | 'import-errors' | 'report-logos',
+  suffix: '.xlsx' | '.csv' | '.png' | '.jpg',
   content: Buffer,
 ): Promise<string> {
   const now = new Date()

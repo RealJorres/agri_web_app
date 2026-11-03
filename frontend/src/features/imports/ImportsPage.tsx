@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router'
 
 import { Button } from '@/components/ui/Button'
 import { Alert, Card, EmptyState, PageHeader, StatusBadge } from '@/components/ui/display'
-import { SelectInput } from '@/components/ui/fields'
+import { SelectInput, TextInput } from '@/components/ui/fields'
 import { LoadingBlock } from '@/components/ui/Spinner'
 import { useToast } from '@/components/ui/useToast'
 import { ApiError, authFetch, download, unwrap, api, type Schemas } from '@/lib/api/client'
@@ -21,11 +21,16 @@ const KINDS: { value: Kind; label: string; hint: string }[] = [
     hint: 'One row per farm, downloaded from this page.',
   },
   {
-    value: 'legacy_cacao_2023',
-    label: 'Legacy cacao workbook (2023)',
-    hint: 'The PAO’s July 2023 inventory file. Imported records are approved as historical data.',
+    value: 'legacy_workbook',
+    label: 'Existing crop workbook',
+    hint: 'A filled workbook with one sheet per municipality. Its records are approved as historical data in a new survey round.',
   },
 ]
+// Past jobs can still be of a kind no longer offered for upload.
+const KIND_LABELS: Partial<Record<Kind, string>> = {
+  legacy_cacao_2023: 'Legacy workbook (2023)',
+  ...Object.fromEntries(KINDS.map((kind) => [kind.value, kind.label])),
+}
 
 export default function ImportsPage() {
   const jobs = useQuery({
@@ -62,8 +67,7 @@ export default function ImportsPage() {
                       {j.original_name}
                     </Link>
                     <p className="text-xs text-muted">
-                      {KINDS.find((k) => k.value === j.kind)?.label} · {j.uploaded_by} ·{' '}
-                      {formatDateTime(j.created_at)}
+                      {KIND_LABELS[j.kind]} · {j.uploaded_by} · {formatDateTime(j.created_at)}
                     </p>
                   </div>
                   <StatusBadge status={j.status} />
@@ -82,9 +86,15 @@ function UploadCard() {
   const notify = useToast()
   const [kind, setKind] = useState<Kind>('template')
   const [round, setRound] = useState('')
+  const [crop, setCrop] = useState('')
+  const [roundName, setRoundName] = useState('')
+  const [asOf, setAsOf] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
   const rounds = useRounds({ status: 'open' })
+  const commodities = useCommodities()
+  // The workbook layout holds tree counts, so only tree crops can use it.
+  const treeCrops = commodities.data?.filter((c) => c.measure_type === 'trees')
   const upload = useMutation({
     mutationFn: async () => {
       // Multipart upload: built by hand because openapi-fetch serialises JSON bodies.
@@ -92,6 +102,11 @@ function UploadCard() {
       form.append('file', file as Blob)
       form.append('kind', kind)
       if (kind === 'template' && round) form.append('survey_round', round)
+      if (kind === 'legacy_workbook') {
+        form.append('commodity', crop)
+        form.append('round_name', roundName)
+        form.append('as_of_date', asOf)
+      }
       const response = await authFetch(
         new Request('/api/v1/imports', { method: 'POST', body: form }),
       )
@@ -105,6 +120,10 @@ function UploadCard() {
     setError(null)
     if (!file) {
       setError('Choose a file to upload.')
+      return
+    }
+    if (kind === 'legacy_workbook' && (!crop || !roundName.trim() || !asOf)) {
+      setError('Choose the crop, and name the survey round and its as-of date.')
       return
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -156,6 +175,37 @@ function UploadCard() {
               </option>
             ))}
           </SelectInput>
+        ) : null}
+        {kind === 'legacy_workbook' ? (
+          <>
+            <SelectInput
+              label="Crop"
+              required
+              value={crop}
+              onChange={(e) => setCrop(e.target.value)}
+            >
+              <option value="">Choose…</option>
+              {treeCrops?.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </SelectInput>
+            <TextInput
+              label="New survey round"
+              required
+              placeholder="Inventory - July 2023"
+              value={roundName}
+              onChange={(e) => setRoundName(e.target.value)}
+            />
+            <TextInput
+              label="As of"
+              type="date"
+              required
+              value={asOf}
+              onChange={(e) => setAsOf(e.target.value)}
+            />
+          </>
         ) : null}
         <div className="space-y-1">
           <label htmlFor="import-file" className="block text-sm font-medium">

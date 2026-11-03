@@ -157,7 +157,7 @@ function StatTiles({ overview: o, town }: { overview: Overview; town?: string | 
       className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
     >
       <div className="rounded-lg border border-line bg-surface p-4 shadow-sm sm:col-span-2 lg:col-span-1">
-        <p className="text-sm text-muted">Cacao trees{town ? ` in ${town}` : ''}</p>
+        <p className="text-sm text-muted">Trees{town ? ` in ${town}` : ''}</p>
         <p className="mt-1 text-5xl font-semibold text-ink">{formatNumber(o.trees)}</p>
         <p className="mt-2 text-sm">
           <Delta value={o.change.trees} suffix={vs} />
@@ -178,7 +178,7 @@ function StatTiles({ overview: o, town }: { overview: Overview; town?: string | 
         value={share}
         hint={
           shareChange === null ? (
-            `${formatNumber(o.bearing_trees)} fruiting`
+            `${formatNumber(o.bearing_trees)} in bearing stages`
           ) : (
             <Delta value={shareChange} unit=" pts" suffix={vs} />
           )

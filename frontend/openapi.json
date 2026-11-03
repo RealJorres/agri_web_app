@@ -869,15 +869,15 @@
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "201": {
+                        "description": "",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaginatedMemberList"
+                                    "$ref": "#/components/schemas/Member"
                                 }
                             }
-                        },
-                        "description": ""
+                        }
                     }
                 }
             }
@@ -1707,18 +1707,15 @@
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "201": {
+                        "description": "",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Harvest"
-                                    }
+                                    "$ref": "#/components/schemas/Harvest"
                                 }
                             }
-                        },
-                        "description": ""
+                        }
                     }
                 }
             }
@@ -1819,18 +1816,15 @@
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "201": {
+                        "description": "",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Planting"
-                                    }
+                                    "$ref": "#/components/schemas/Planting"
                                 }
                             }
-                        },
-                        "description": ""
+                        }
                     }
                 }
             }
@@ -3045,18 +3039,15 @@
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "201": {
+                        "description": "",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/CropStand"
-                                    }
+                                    "$ref": "#/components/schemas/CropStand"
                                 }
                             }
-                        },
-                        "description": ""
+                        }
                     }
                 }
             }
@@ -3421,7 +3412,39 @@
                     "content": {
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/UploadRequest"
+                                "type": "object",
+                                "required": [
+                                    "file",
+                                    "kind"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "kind": {
+                                        "$ref": "#/components/schemas/ImportKindEnum"
+                                    },
+                                    "survey_round": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "format": "uuid"
+                                    },
+                                    "commodity": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "format": "uuid"
+                                    },
+                                    "round_name": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "as_of_date": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "format": "date"
+                                    }
+                                }
                             }
                         }
                     },
@@ -5681,6 +5704,1181 @@
                         "description": ""
                     }
                 }
+            }
+        },
+        "/api/v1/admin/users": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_users_list",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "q",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "page_size",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedAdminUserList"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_users_create",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUserRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminUser"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/users/{id}": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_users_retrieve",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminUser"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_users_update",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminUser"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/users/{id}/password": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_users_password",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SetPasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/users/{id}/assignments": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_users_assign",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAssignmentRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminUser"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/users/{id}/assignments/{assignment_id}": {
+            "delete": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_users_unassign",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "assignment_id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/programs": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_programs_create",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateProgramRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Program"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/programs/{id}": {
+            "patch": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_programs_update",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateProgramRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Program"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/commodities": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_commodities_create",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCommodityRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Commodity"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/commodities/{id}": {
+            "patch": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_commodities_update",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCommodityRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Commodity"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/commodities/{id}/usage": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_commodities_usage",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommodityUsage"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/commodities/{id}/stages": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_stages_create",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateStageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminGrowthStage"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_stages_list",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AdminGrowthStage"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/stages/{id}": {
+            "patch": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_stages_update",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateStageRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminGrowthStage"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_stages_delete",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/varieties": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_varieties_create",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateVarietyRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminVariety"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_varieties_list",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "commodity",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AdminVariety"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/varieties/{id}": {
+            "patch": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_varieties_update",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateNamedRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminVariety"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_varieties_delete",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/material-sources": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_sources_create",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSourceRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminMaterialSource"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_sources_list",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AdminMaterialSource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/material-sources/{id}": {
+            "patch": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_sources_update",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateNamedRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AdminMaterialSource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_sources_delete",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/report-settings": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_report_settings_get",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportSettings"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_report_settings_update",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateReportSettingsRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportSettings"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/report-settings/logo": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_report_logo_set",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "required": [
+                                    "file"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportSettings"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_report_logo_remove",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportSettings"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/signatories": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_signatories_list",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Signatory"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_signatories_create",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSignatoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Signatory"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/signatories/{id}": {
+            "patch": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_signatories_update",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSignatoryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Signatory"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "admin"
+                ],
+                "operationId": "admin_signatories_delete",
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
             }
         }
     },
@@ -8429,7 +9627,8 @@
                     },
                     "source": {
                         "type": "string",
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "qty_planted": {
                         "type": "integer",
@@ -9333,6 +10532,605 @@
                 "required": [
                     "stands",
                     "year"
+                ]
+            },
+            "AdminUser": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "first_name": {
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "type": "string"
+                    },
+                    "full_name": {
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "is_superuser": {
+                        "type": "boolean"
+                    },
+                    "last_login_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "assignments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Assignment"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "email",
+                    "first_name",
+                    "last_name",
+                    "full_name",
+                    "is_active",
+                    "is_superuser",
+                    "last_login_at",
+                    "assignments"
+                ]
+            },
+            "PaginatedAdminUserList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "count": {
+                        "type": "integer"
+                    },
+                    "next": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri"
+                    },
+                    "previous": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "uri"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AdminUser"
+                        }
+                    }
+                }
+            },
+            "CommodityUsage": {
+                "type": "object",
+                "properties": {
+                    "crop_stands": {
+                        "type": "integer"
+                    },
+                    "rounds": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "crop_stands",
+                    "rounds"
+                ]
+            },
+            "ReportSettings": {
+                "type": "object",
+                "properties": {
+                    "letterhead": {
+                        "type": "string"
+                    },
+                    "program_line": {
+                        "type": "string"
+                    },
+                    "has_logo": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "letterhead",
+                    "program_line",
+                    "has_logo"
+                ]
+            },
+            "Signatory": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "report_kind": {
+                        "type": "string",
+                        "enum": [
+                            "summary",
+                            "municipal_list"
+                        ]
+                    },
+                    "order": {
+                        "type": "integer"
+                    },
+                    "caption": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "report_kind",
+                    "order",
+                    "caption",
+                    "name",
+                    "title"
+                ]
+            },
+            "CreateUserRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "first_name": {
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ]
+            },
+            "UpdateUserRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "first_name": {
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "SetPasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "password"
+                ]
+            },
+            "CreateAssignmentRequest": {
+                "type": "object",
+                "properties": {
+                    "role": {
+                        "type": "string"
+                    },
+                    "municipality": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                    },
+                    "program": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                    },
+                    "barangays": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                },
+                "required": [
+                    "role"
+                ]
+            },
+            "CreateProgramRequest": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ]
+            },
+            "UpdateProgramRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "CreateCommodityRequest": {
+                "type": "object",
+                "properties": {
+                    "program": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "measure_type": {
+                        "type": "string",
+                        "enum": [
+                            "trees",
+                            "area"
+                        ]
+                    },
+                    "spacing_m": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "plants_per_ha": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "outlier_multiplier": {
+                        "type": "string"
+                    },
+                    "attributes_schema": {
+                        "type": "object",
+                        "additionalProperties": {}
+                    }
+                },
+                "required": [
+                    "program",
+                    "code",
+                    "name",
+                    "measure_type"
+                ]
+            },
+            "UpdateCommodityRequest": {
+                "type": "object",
+                "properties": {
+                    "program": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "measure_type": {
+                        "type": "string",
+                        "enum": [
+                            "trees",
+                            "area"
+                        ]
+                    },
+                    "spacing_m": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "plants_per_ha": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "outlier_multiplier": {
+                        "type": "string"
+                    },
+                    "attributes_schema": {
+                        "type": "object",
+                        "additionalProperties": {}
+                    }
+                }
+            },
+            "CreateStageRequest": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "sort_order": {
+                        "type": "integer"
+                    },
+                    "is_bearing": {
+                        "type": "boolean"
+                    },
+                    "aliases": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "label",
+                    "sort_order"
+                ]
+            },
+            "UpdateStageRequest": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string"
+                    },
+                    "sort_order": {
+                        "type": "integer"
+                    },
+                    "is_bearing": {
+                        "type": "boolean"
+                    },
+                    "aliases": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "CreateVarietyRequest": {
+                "type": "object",
+                "properties": {
+                    "commodity": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "aliases": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "commodity",
+                    "code",
+                    "name"
+                ]
+            },
+            "CreateSourceRequest": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "aliases": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "name"
+                ]
+            },
+            "UpdateNamedRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "aliases": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "UpdateReportSettingsRequest": {
+                "type": "object",
+                "properties": {
+                    "letterhead": {
+                        "type": "string"
+                    },
+                    "program_line": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CreateSignatoryRequest": {
+                "type": "object",
+                "properties": {
+                    "report_kind": {
+                        "type": "string",
+                        "enum": [
+                            "summary",
+                            "municipal_list"
+                        ]
+                    },
+                    "order": {
+                        "type": "integer"
+                    },
+                    "caption": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "report_kind",
+                    "order",
+                    "caption",
+                    "name"
+                ]
+            },
+            "UpdateSignatoryRequest": {
+                "type": "object",
+                "properties": {
+                    "order": {
+                        "type": "integer"
+                    },
+                    "caption": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AdminGrowthStage": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "code": {
+                        "type": "string",
+                        "maxLength": 30
+                    },
+                    "label": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "sort_order": {
+                        "type": "integer",
+                        "maximum": 32767,
+                        "minimum": 0
+                    },
+                    "is_bearing": {
+                        "type": "boolean"
+                    },
+                    "aliases": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "id",
+                    "label",
+                    "sort_order",
+                    "aliases"
+                ]
+            },
+            "AdminVariety": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "commodity": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "code": {
+                        "type": "string",
+                        "maxLength": 30
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "aliases": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "commodity",
+                    "id",
+                    "name",
+                    "aliases"
+                ]
+            },
+            "AdminMaterialSource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "code": {
+                        "type": "string",
+                        "maxLength": 30
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "aliases": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "code",
+                    "id",
+                    "name",
+                    "aliases"
                 ]
             }
         },

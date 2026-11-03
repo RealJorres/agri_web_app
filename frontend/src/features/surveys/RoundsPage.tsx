@@ -156,7 +156,7 @@ function NewRoundDialog({ open, onClose }: { open: boolean; onClose: () => void 
         <TextInput
           label="Name"
           required
-          placeholder="Cacao inventory - June 2026"
+          placeholder="Inventory - June 2026"
           error={errors.name?.message}
           {...register('name')}
         />

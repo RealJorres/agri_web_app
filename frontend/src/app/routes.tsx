@@ -23,8 +23,17 @@ const InventoryEntryPage = lazy(() => import('@/features/surveys/InventoryEntryP
 const ReviewQueuePage = lazy(() => import('@/features/review/ReviewQueuePage'))
 const ImportsPage = lazy(() => import('@/features/imports/ImportsPage'))
 const ImportDetailPage = lazy(() => import('@/features/imports/ImportDetailPage'))
+const UsersPage = lazy(() => import('@/features/admin/UsersPage'))
+const UserDetailPage = lazy(() => import('@/features/admin/UserDetailPage'))
+const CropsPage = lazy(() => import('@/features/admin/CropsPage'))
+const CropDetailPage = lazy(() => import('@/features/admin/CropDetailPage'))
+const SourcesPage = lazy(() => import('@/features/admin/SourcesPage'))
+const ReportSettingsPage = lazy(() => import('@/features/admin/ReportSettingsPage'))
 
 const page = (element: ReactNode) => <Suspense fallback={<LoadingBlock />}>{element}</Suspense>
+const adminPage = (element: ReactNode) => (
+  <RequireCapability anyOf={['admin']}>{page(element)}</RequireCapability>
+)
 
 export const routes: RouteObject[] = [
   { path: '/login', element: page(<LoginPage />) },
@@ -76,6 +85,12 @@ export const routes: RouteObject[] = [
             ),
           },
           { path: 'imports/:id', element: page(<ImportDetailPage />) },
+          { path: 'admin/users', element: adminPage(<UsersPage />) },
+          { path: 'admin/users/:id', element: adminPage(<UserDetailPage />) },
+          { path: 'admin/crops', element: adminPage(<CropsPage />) },
+          { path: 'admin/crops/:id', element: adminPage(<CropDetailPage />) },
+          { path: 'admin/sources', element: adminPage(<SourcesPage />) },
+          { path: 'admin/reports', element: adminPage(<ReportSettingsPage />) },
         ],
       },
     ],

@@ -1368,6 +1368,326 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_users_list"];
+        put?: never;
+        post: operations["admin_users_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_users_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["admin_users_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin_users_password"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin_users_assign"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/assignments/{assignment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["admin_users_unassign"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/programs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin_programs_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/programs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["admin_programs_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/commodities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin_commodities_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/commodities/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["admin_commodities_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/commodities/{id}/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_commodities_usage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/commodities/{id}/stages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_stages_list"];
+        put?: never;
+        post: operations["admin_stages_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/stages/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["admin_stages_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["admin_stages_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/varieties": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_varieties_list"];
+        put?: never;
+        post: operations["admin_varieties_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/varieties/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["admin_varieties_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["admin_varieties_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/material-sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_sources_list"];
+        put?: never;
+        post: operations["admin_sources_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/material-sources/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["admin_sources_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["admin_sources_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/report-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_report_settings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["admin_report_settings_update"];
+        trace?: never;
+    };
+    "/api/v1/admin/report-settings/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["admin_report_logo_set"];
+        delete: operations["admin_report_logo_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/signatories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["admin_signatories_list"];
+        put?: never;
+        post: operations["admin_signatories_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/signatories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["admin_signatories_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["admin_signatories_update"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1791,9 +2111,10 @@ export interface components {
         /**
          * @description * `template` - Clean template
          *     * `legacy_cacao_2023` - Legacy cacao workbook (2023)
+         *     * `legacy_workbook` - Workbook with the legacy layout, for a chosen crop
          * @enum {string}
          */
-        ImportKindEnum: "template" | "legacy_cacao_2023";
+        ImportKindEnum: "template" | "legacy_cacao_2023" | "legacy_workbook";
         /**
          * @description * `uploaded` - Uploaded
          *     * `validating` - Validating
@@ -2201,7 +2522,7 @@ export interface components {
             /** Format: uuid */
             readonly crop_stand: string;
             readonly year_planted: number | null;
-            readonly source: string;
+            readonly source: string | null;
             readonly qty_planted: number | null;
             readonly notes: string;
             readonly varieties: string[];
@@ -2407,6 +2728,11 @@ export interface components {
             kind: components["schemas"]["ImportKindEnum"];
             /** Format: uuid */
             survey_round?: string | null;
+            /** Format: uuid */
+            commodity?: string | null;
+            round_name?: string | null;
+            /** Format: date */
+            as_of_date?: string | null;
         };
         Variety: {
             /** Format: uuid */
@@ -2501,6 +2827,176 @@ export interface components {
         _Year: {
             year: number;
             stands: number;
+        };
+        AdminUser: {
+            /** Format: uuid */
+            id: string;
+            /** Format: email */
+            email: string;
+            first_name: string;
+            last_name: string;
+            full_name: string;
+            is_active: boolean;
+            is_superuser: boolean;
+            /** Format: date-time */
+            last_login_at: string | null;
+            assignments: components["schemas"]["Assignment"][];
+        };
+        PaginatedAdminUserList: {
+            count: number;
+            /** Format: uri */
+            next?: string | null;
+            /** Format: uri */
+            previous?: string | null;
+            results: components["schemas"]["AdminUser"][];
+        };
+        CommodityUsage: {
+            crop_stands: number;
+            rounds: number;
+        };
+        ReportSettings: {
+            letterhead: string;
+            program_line: string;
+            has_logo: boolean;
+        };
+        Signatory: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            report_kind: "summary" | "municipal_list";
+            order: number;
+            caption: string;
+            name: string;
+            title: string;
+        };
+        CreateUserRequest: {
+            email: string;
+            password: string;
+            first_name?: string;
+            last_name?: string;
+        };
+        UpdateUserRequest: {
+            email?: string;
+            first_name?: string;
+            last_name?: string;
+            is_active?: boolean;
+        };
+        SetPasswordRequest: {
+            password: string;
+        };
+        CreateAssignmentRequest: {
+            role: string;
+            /** Format: uuid */
+            municipality?: string | null;
+            /** Format: uuid */
+            program?: string | null;
+            barangays?: string[];
+        };
+        CreateProgramRequest: {
+            code: string;
+            name: string;
+        };
+        UpdateProgramRequest: {
+            name: string;
+        };
+        CreateCommodityRequest: {
+            /** Format: uuid */
+            program: string;
+            code: string;
+            name: string;
+            /** @enum {string} */
+            measure_type: "trees" | "area";
+            spacing_m?: string | null;
+            plants_per_ha?: number | null;
+            outlier_multiplier?: string;
+            attributes_schema?: {
+                [key: string]: unknown;
+            };
+        };
+        UpdateCommodityRequest: {
+            /** Format: uuid */
+            program?: string;
+            name?: string;
+            /** @enum {string} */
+            measure_type?: "trees" | "area";
+            spacing_m?: string | null;
+            plants_per_ha?: number | null;
+            outlier_multiplier?: string;
+            attributes_schema?: {
+                [key: string]: unknown;
+            };
+        };
+        CreateStageRequest: {
+            code: string;
+            label: string;
+            sort_order: number;
+            is_bearing?: boolean;
+            aliases?: string[];
+        };
+        UpdateStageRequest: {
+            label?: string;
+            sort_order?: number;
+            is_bearing?: boolean;
+            aliases?: string[];
+        };
+        CreateVarietyRequest: {
+            /** Format: uuid */
+            commodity: string;
+            code: string;
+            name: string;
+            aliases?: string[];
+        };
+        CreateSourceRequest: {
+            code: string;
+            name: string;
+            aliases?: string[];
+        };
+        UpdateNamedRequest: {
+            name?: string;
+            aliases?: string[];
+        };
+        UpdateReportSettingsRequest: {
+            letterhead?: string;
+            program_line?: string;
+        };
+        CreateSignatoryRequest: {
+            /** @enum {string} */
+            report_kind: "summary" | "municipal_list";
+            order: number;
+            caption: string;
+            name: string;
+            title?: string;
+        };
+        UpdateSignatoryRequest: {
+            order?: number;
+            caption?: string;
+            name?: string;
+            title?: string;
+        };
+        AdminGrowthStage: {
+            /** Format: uuid */
+            readonly id: string;
+            code: string;
+            label: string;
+            sort_order: number;
+            is_bearing?: boolean;
+            aliases: string[];
+        };
+        AdminVariety: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            commodity: string;
+            code: string;
+            name: string;
+            aliases: string[];
+        };
+        AdminMaterialSource: {
+            /** Format: uuid */
+            readonly id: string;
+            code: string;
+            name: string;
+            aliases: string[];
         };
     };
     responses: never;
@@ -2928,12 +3424,12 @@ export interface operations {
             };
         };
         responses: {
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedMemberList"];
+                    "application/json": components["schemas"]["Member"];
                 };
             };
         };
@@ -3397,12 +3893,12 @@ export interface operations {
             };
         };
         responses: {
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Harvest"][];
+                    "application/json": components["schemas"]["Harvest"];
                 };
             };
         };
@@ -3452,12 +3948,12 @@ export interface operations {
             };
         };
         responses: {
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Planting"][];
+                    "application/json": components["schemas"]["Planting"];
                 };
             };
         };
@@ -4028,12 +4524,12 @@ export interface operations {
             };
         };
         responses: {
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CropStand"][];
+                    "application/json": components["schemas"]["CropStand"];
                 };
             };
         };
@@ -4241,7 +4737,18 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "multipart/form-data": components["schemas"]["UploadRequest"];
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    kind: components["schemas"]["ImportKindEnum"];
+                    /** Format: uuid */
+                    survey_round?: string | null;
+                    /** Format: uuid */
+                    commodity?: string | null;
+                    round_name?: string | null;
+                    /** Format: date */
+                    as_of_date?: string | null;
+                };
             };
         };
         responses: {
@@ -5397,6 +5904,726 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Variety"];
+                };
+            };
+        };
+    };
+    admin_users_list: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdminUserList"];
+                };
+            };
+        };
+    };
+    admin_users_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateUserRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUser"];
+                };
+            };
+        };
+    };
+    admin_users_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUser"];
+                };
+            };
+        };
+    };
+    admin_users_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUser"];
+                };
+            };
+        };
+    };
+    admin_users_password: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admin_users_assign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAssignmentRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUser"];
+                };
+            };
+        };
+    };
+    admin_users_unassign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admin_programs_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateProgramRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Program"];
+                };
+            };
+        };
+    };
+    admin_programs_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProgramRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Program"];
+                };
+            };
+        };
+    };
+    admin_commodities_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCommodityRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Commodity"];
+                };
+            };
+        };
+    };
+    admin_commodities_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCommodityRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Commodity"];
+                };
+            };
+        };
+    };
+    admin_commodities_usage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommodityUsage"];
+                };
+            };
+        };
+    };
+    admin_stages_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminGrowthStage"][];
+                };
+            };
+        };
+    };
+    admin_stages_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStageRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminGrowthStage"];
+                };
+            };
+        };
+    };
+    admin_stages_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admin_stages_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStageRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminGrowthStage"];
+                };
+            };
+        };
+    };
+    admin_varieties_list: {
+        parameters: {
+            query?: {
+                commodity?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminVariety"][];
+                };
+            };
+        };
+    };
+    admin_varieties_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateVarietyRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminVariety"];
+                };
+            };
+        };
+    };
+    admin_varieties_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admin_varieties_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNamedRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminVariety"];
+                };
+            };
+        };
+    };
+    admin_sources_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminMaterialSource"][];
+                };
+            };
+        };
+    };
+    admin_sources_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSourceRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminMaterialSource"];
+                };
+            };
+        };
+    };
+    admin_sources_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admin_sources_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNamedRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminMaterialSource"];
+                };
+            };
+        };
+    };
+    admin_report_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportSettings"];
+                };
+            };
+        };
+    };
+    admin_report_settings_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateReportSettingsRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportSettings"];
+                };
+            };
+        };
+    };
+    admin_report_logo_set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportSettings"];
+                };
+            };
+        };
+    };
+    admin_report_logo_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportSettings"];
+                };
+            };
+        };
+    };
+    admin_signatories_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Signatory"][];
+                };
+            };
+        };
+    };
+    admin_signatories_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSignatoryRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Signatory"];
+                };
+            };
+        };
+    };
+    admin_signatories_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    admin_signatories_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSignatoryRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Signatory"];
                 };
             };
         };

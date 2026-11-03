@@ -103,7 +103,7 @@ export async function getProgram(id: string): Promise<ProgramView> {
   return programView(row)
 }
 
-function stageView(row: GrowthStageDoc) {
+export function stageView(row: GrowthStageDoc) {
   return {
     id: row._id,
     code: row.code,
@@ -185,7 +185,7 @@ export async function listCommodityStages(
   return stages.map(stageView)
 }
 
-function varietyView(row: VarietyDoc) {
+export function varietyView(row: VarietyDoc) {
   return { id: row._id, commodity: row.commodityId, code: row.code, name: row.name }
 }
 type VarietyView = ReturnType<typeof varietyView>
@@ -212,7 +212,7 @@ export async function getVariety(id: string): Promise<VarietyView> {
   return varietyView(row)
 }
 
-function sourceView(row: MaterialSourceDoc) {
+export function sourceView(row: MaterialSourceDoc) {
   return { id: row._id, code: row.code, name: row.name }
 }
 type SourceView = ReturnType<typeof sourceView>

@@ -34,7 +34,7 @@ function byId<T extends { _id: string }>(rows: T[]): Map<string, T> {
   return new Map(rows.map((row) => [row._id, row]))
 }
 
-async function assignmentViews(userId: string) {
+export async function assignmentViews(userId: string) {
   const assignments = await UserAssignment.find({ userId }).sort({ role: 1 }).lean()
   const defined = <T>(values: (T | null)[]): T[] => values.filter((value) => value !== null)
   const [municipalities, programs, barangays] = await Promise.all([

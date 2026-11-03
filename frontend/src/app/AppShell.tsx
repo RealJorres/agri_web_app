@@ -54,14 +54,6 @@ export function AppShell() {
           {label}
         </NavLink>
       ))}
-      {can('admin') ? (
-        <a
-          href="/admin/"
-          className="mt-4 rounded-md px-3 py-2 text-sm text-slate-300 hover:bg-brand-800"
-        >
-          Django admin ↗
-        </a>
-      ) : null}
     </nav>
   )
 

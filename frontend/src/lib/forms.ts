@@ -23,7 +23,10 @@ export function applyServerErrors<T extends FieldValues>(
 
 export function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    const details = Object.values(error.fields).flat()
+    // A field's message can repeat the main one, and should not then be shown twice.
+    const details = Object.values(error.fields)
+      .flat()
+      .filter((detail) => detail !== error.message)
     return details.length ? `${error.message} ${details.join(' ')}` : error.message
   }
   return 'Something went wrong. Please try again.'
