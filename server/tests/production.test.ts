@@ -11,6 +11,8 @@ import request from 'supertest'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { createApp } from '../src/app.js'
+import { readPrivateFile } from '../src/lib/privateFiles.js'
+import { DEFAULT_TILE_URL } from '../src/selectors/map.selectors.js'
 import { buildDataDictionary, personalFields } from '../src/lib/dataDictionary.js'
 import { appRolePrivileges, AUDIT_COLLECTION, checkDbRole } from '../src/lib/dbRole.js'
 import { spaCsp } from '../src/middleware/spa.js'
@@ -45,6 +47,7 @@ describe('serving the built app', () => {
       expect(response.headers['content-security-policy']).toContain("script-src 'self'")
       expect(response.headers['cache-control']).toBe('no-cache')
       expect(response.headers['referrer-policy']).toBe('strict-origin-when-cross-origin')
+      expect(response.headers['permissions-policy']).toContain('geolocation=(self)')
     }
   })
 
@@ -92,6 +95,33 @@ describe('serving the built app', () => {
   it('does not serve the app unless told to', async () => {
     const response = await request(createApp({ production: false })).get('/farmers')
     expect(response.status).toBe(404)
+  })
+})
+
+describe('the Netlify configuration', () => {
+  const read = (file: string) =>
+    readFileSync(join(import.meta.dirname, '..', '..', file), 'utf8').replaceAll('\r\n', '\n')
+
+  it('sends the same page policy as this server would', () => {
+    const match = /Content-Security-Policy = "([^"]+)"/u.exec(read('netlify.toml'))
+    expect(match?.[1]).toBe(spaCsp(DEFAULT_TILE_URL))
+    expect(read('netlify.toml')).toContain('geolocation=(self)')
+  })
+
+  it('leaves the secrets out of the Render blueprint', () => {
+    const blueprint = read('render.yaml')
+    for (const key of ['MONGODB_URI', 'JWT_SIGNING_KEY', 'PUBLIC_ORIGIN']) {
+      expect(blueprint).toMatch(new RegExp(`key: ${key}\\n\\s+sync: false`, 'u'))
+    }
+  })
+})
+
+describe('a stored file that has gone', () => {
+  it('answers that it has gone, rather than as a server fault', async () => {
+    await expect(readPrivateFile('imports/2026/01/not-there.xlsx')).rejects.toMatchObject({
+      code: 'file_gone',
+      status: 410,
+    })
   })
 })
 

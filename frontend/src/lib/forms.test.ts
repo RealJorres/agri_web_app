@@ -14,6 +14,10 @@ describe('errorMessage', () => {
     expect(errorMessage(error)).toBe('Some fields are invalid. Required.')
   })
 
+  it.each([502, 503, 504])('says the server is waking up on a %i', (status) => {
+    expect(errorMessage(new ApiError(status, undefined))).toMatch(/waking up/u)
+  })
+
   it('does not repeat a field message that matches the main one', () => {
     const message = 'This image is damaged.'
     const error = new ApiError(400, { code: 'invalid_logo', message, fields: { file: [message] } })

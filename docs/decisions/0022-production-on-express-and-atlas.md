@@ -1,5 +1,5 @@
 # ADR-0022: Production on Express and Atlas
-Status: Accepted · 2026-11-03 (M8)
+Status: Accepted · 2026-11-03 (M8). ADR-0023 moves the frontend to Netlify and the logo into MongoDB.
 
 **Serving.** One Express process serves both the API and the built frontend, so they share an origin
 (ADR-0002) and there is no separate web server to run. API responses keep their strict policy

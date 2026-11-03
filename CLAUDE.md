@@ -61,7 +61,7 @@ npm run dev                     app on the database in .env (that is Atlas: mind
 npm test                        server and frontend tests (never touch Atlas)
 npm run lint                    ESLint, tsc and the Prettier check, on both workspaces
 npm run fmt                     Prettier on both workspaces
-npm run build                   server and frontend; `npm start` then runs production
+npm run build                   server and frontend (deployed to Render and Netlify, ADR-0023)
 npm run gen:api -w frontend     regenerate schema.d.ts after changing frontend/openapi.json
 npm run data-dictionary -w server   regenerate docs/data-dictionary.md after changing a model
 npm run seed -w server          municipalities and catalog [+ PSGC if data/reference/ has it]

@@ -44,7 +44,7 @@ npm run dev
 | `npm test` | server and frontend tests. They never touch the database in `.env` |
 | `npm run lint` | ESLint, type checks and the Prettier check |
 | `npm run fmt` | format everything |
-| `npm run build`, `npm start` | build, then run in production (see `docs/deployment.md`) |
+| `npm run build` | build the server and frontend. Deploying is in `docs/deployment.md` |
 | `npm run seed -w server` | municipalities and the crop catalog, plus PSGC codes if `data/reference/` has the file |
 | `npm run seed-boundaries -w server` | load boundaries from a file the PAO supplies (ADR-0016) |
 | `npm run import-workbook -w server -- <file>` | preview and commit a workbook, printing the reconciliation |

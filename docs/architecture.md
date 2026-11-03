@@ -7,15 +7,15 @@ pieces fit.
 ## Components
 
 ```
-Browser (React SPA) ──/api──▶ Vite dev proxy (dev)        ──▶ Express API ──▶ MongoDB Atlas
-                              HTTPS proxy → Express (prod)    │               (all records, audit log)
-                                                              └──▶ private disk (uploads, logo)
+Browser (React SPA) ──/api──▶ Vite dev proxy (dev)  ──▶ Express API ──▶ MongoDB Atlas
+                              Netlify proxy (prod)        │               (all records, audit log, logo)
+                                                          └──▶ private disk (uploads, error reports)
 ```
 
 - **Same origin** in dev and prod (ADR-0002): the SPA calls `/api/...`; nothing cross-site. In production
-  one Express process serves the API and the built frontend (ADR-0022).
-- **Private file storage** (ADR-0009) for uploaded workbooks, error reports and the report logo, never
-  publicly served; files of finished imports are purged after 30 days by a timer in the server.
+  Netlify hosts the built frontend and forwards `/api` to the API on Render (ADR-0023).
+- **Private file storage** (ADR-0009) for uploaded workbooks and error reports, never publicly served;
+  files of finished imports are purged after 30 days by a timer in the server.
 - **Background work** (import previews and commits) runs in the same process. If the server restarts
   mid-job, the job is marked failed at the next start (ADR-0020).
 

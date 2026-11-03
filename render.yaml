@@ -1,0 +1,31 @@
+# The API (ADR-0023). Values marked sync: false are entered in Render when the blueprint is created.
+services:
+  - type: web
+    name: agri-dms-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci --include=dev && npm run build -w server
+    startCommand: npm start -w server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      # Only the tests need this binary.
+      - key: MONGOMS_DISABLE_POSTINSTALL
+        value: "1"
+      - key: HOST
+        value: 0.0.0.0
+      - key: MONGODB_DB
+        value: agri_prod
+      # Netlify and Render's own edge. Check this after deploying: docs/deployment.md step 7.
+      - key: TRUSTED_PROXY_COUNT
+        value: "2"
+      - key: MONGODB_URI
+        sync: false
+      - key: PUBLIC_ORIGIN
+        sync: false
+      - key: JWT_SIGNING_KEY
+        sync: false

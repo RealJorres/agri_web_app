@@ -5,14 +5,12 @@
 import PDFDocument from 'pdfkit'
 
 import { DomainError, notFound } from '../lib/errors.js'
-import { removePrivateFile, savePrivateFile } from '../lib/privateFiles.js'
 import { inTransaction } from '../lib/transaction.js'
 import { markDeleted } from '../models/base.js'
 import {
   ReportSettings,
   Signatory,
   type ReportKind,
-  type ReportSettingsDoc,
   type SignatoryDoc,
 } from '../models/report.models.js'
 import { recordAudit } from './audit.service.js'
@@ -23,9 +21,9 @@ function rejectLogo(message: string): DomainError {
   return new DomainError('invalid_logo', message, { file: [message] })
 }
 
-function logoSuffix(content: Buffer): '.png' | '.jpg' {
-  if (content.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47]))) return '.png'
-  if (content.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return '.jpg'
+function logoKind(content: Buffer): 'png' | 'jpeg' {
+  if (content.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47]))) return 'png'
+  if (content.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return 'jpeg'
   throw rejectLogo('Upload a PNG or JPEG image.')
 }
 
@@ -66,13 +64,13 @@ export async function updateReportSettings(input: {
   })
 }
 
-async function replaceLogo(actorId: string, logoPath: string, action: string): Promise<string> {
-  return inTransaction(async (session) => {
-    const settings: ReportSettingsDoc & { save: (o: object) => Promise<unknown> } =
-      (await currentSettings({ session })) ?? new ReportSettings({ _id: 'current' })
-    const previous = settings.logoPath
-    settings.logoPath = logoPath
-    await settings.save({ session })
+async function replaceLogo(actorId: string, logo: Buffer | null, action: string): Promise<void> {
+  await inTransaction(async (session) => {
+    await ReportSettings.updateOne(
+      { _id: 'current' },
+      { $set: { logo } },
+      { upsert: true, setDefaultsOnInsert: true, session },
+    )
     await recordAudit({
       actorId,
       action,
@@ -80,28 +78,18 @@ async function replaceLogo(actorId: string, logoPath: string, action: string): P
       objectId: 'current',
       session,
     })
-    return previous
   })
 }
 
 export async function setReportLogo(input: { actorId: string; content: Buffer }): Promise<void> {
   if (input.content.length > MAX_LOGO_BYTES) throw rejectLogo('The image is larger than 2 MB.')
-  const suffix = logoSuffix(input.content)
+  logoKind(input.content)
   requireDrawable(input.content)
-  const logoPath = await savePrivateFile('report-logos', suffix, input.content)
-  let previous: string
-  try {
-    previous = await replaceLogo(input.actorId, logoPath, 'report_settings.set_logo')
-  } catch (error) {
-    await removePrivateFile(logoPath)
-    throw error
-  }
-  if (previous) await removePrivateFile(previous)
+  await replaceLogo(input.actorId, input.content, 'report_settings.set_logo')
 }
 
 export async function removeReportLogo(input: { actorId: string }): Promise<void> {
-  const previous = await replaceLogo(input.actorId, '', 'report_settings.remove_logo')
-  if (previous) await removePrivateFile(previous)
+  await replaceLogo(input.actorId, null, 'report_settings.remove_logo')
 }
 
 function signatoryAudit(row: SignatoryDoc) {

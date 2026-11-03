@@ -18,8 +18,8 @@ export interface ReportSettingsDoc {
   _id: string
   letterhead: string
   programLine: string
-  /** A private file, shown on PDFs. Empty when no logo has been uploaded. */
-  logoPath: string
+  /** Shown on PDFs. Kept here because a host's disk may not last (ADR-0023). */
+  logo: Buffer | null
 }
 
 const reportSettingsSchema = new Schema<ReportSettingsDoc>(
@@ -27,7 +27,7 @@ const reportSettingsSchema = new Schema<ReportSettingsDoc>(
     _id: { type: String, default: 'current' },
     letterhead: { type: String, default: DEFAULT_LETTERHEAD },
     programLine: { type: String, default: DEFAULT_PROGRAM_LINE, maxlength: 200 },
-    logoPath: { type: String, default: '' },
+    logo: { type: Buffer, default: null, select: false },
   },
   { collection: 'report_settings', versionKey: false, timestamps: true },
 )

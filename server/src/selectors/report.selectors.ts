@@ -12,7 +12,6 @@ import { dateOnly } from '../lib/dates.js'
 import { HalfUp } from '../lib/decimal.js'
 import { notFound } from '../lib/errors.js'
 import { orderRows } from '../lib/ordering.js'
-import { readPrivateFile } from '../lib/privateFiles.js'
 import { Cap } from '../lib/roles.js'
 import { COPIED_SCOPE_PATHS, scopeFilter, within, type Scope } from '../lib/scoping.js'
 import {
@@ -102,11 +101,12 @@ async function commonContent(
   }
 }
 
-/** The uploaded logo for PDFs. A missing file is not worth failing a report over. */
+/** The uploaded logo for PDFs. */
 export async function reportLogo(): Promise<Buffer | null> {
-  const settings = await ReportSettings.findOne({ _id: 'current' }).lean()
-  if (!settings?.logoPath) return null
-  return readPrivateFile(settings.logoPath).catch(() => null)
+  const settings = await ReportSettings.findById('current').select('+logo').lean()
+  // A lean document holds a BSON Binary rather than a Buffer.
+  const logo = settings?.logo as unknown as { buffer: Uint8Array } | null | undefined
+  return logo ? Buffer.from(logo.buffer) : null
 }
 
 function areaText(trees: number, density: number | null): string | null {

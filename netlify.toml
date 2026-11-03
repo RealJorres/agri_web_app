@@ -1,0 +1,25 @@
+# The frontend (ADR-0023). Set API_ORIGIN in Netlify's environment variables.
+[build]
+  command = "npm run build -w frontend && node frontend/scripts/write-proxy.mjs"
+  publish = "frontend/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Only the tests need this binary.
+  MONGOMS_DISABLE_POSTINSTALL = "1"
+
+# Keep this policy equal to spaCsp() in server/src/middleware/spa.ts. A test compares them.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org; connect-src 'self' https://tile.openstreetmap.org; font-src 'self'; worker-src 'self' blob:; child-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self), payment=(), usb=()"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

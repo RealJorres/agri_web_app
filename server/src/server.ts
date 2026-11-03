@@ -66,15 +66,14 @@ async function connectWithRetry(): Promise<void> {
   }
 }
 
-/** In production this server also serves the built frontend, so it refuses to start without it. */
+/** Serves the built frontend too, when told where it is (ADR-0023). */
 function builtFrontend(): string | undefined {
-  if (!production) return undefined
-  const dir = env.STATIC_DIR ?? join(import.meta.dirname, '..', '..', 'frontend', 'dist')
-  if (!existsSync(join(dir, 'index.html'))) {
-    console.error('The built frontend is missing. Run npm run build first.')
+  if (!env.STATIC_DIR) return undefined
+  if (!existsSync(join(env.STATIC_DIR, 'index.html'))) {
+    console.error('STATIC_DIR has no built frontend in it. Run npm run build first.')
     process.exit(1)
   }
-  return dir
+  return env.STATIC_DIR
 }
 
 const staticDir = builtFrontend()

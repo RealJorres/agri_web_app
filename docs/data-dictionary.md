@@ -276,7 +276,7 @@ Indexes: `surveyRoundId, cropStandId` (unique); `surveyRoundId, municipalityId, 
 | Field | Type | Required | PII | Notes |
 |---|---|---|---|---|
 | `letterhead` | String |  |  |  |
-| `logoPath` | String |  |  |  |
+| `logo` | Buffer |  |  | left out of queries unless asked for |
 | `programLine` | String |  |  | at most 200 characters |
 
 ## `report_signoffs`

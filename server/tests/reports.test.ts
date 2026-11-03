@@ -5,7 +5,6 @@ import request from 'supertest'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { createApp } from '../src/app.js'
-import { removePrivateFile, savePrivateFile } from '../src/lib/privateFiles.js'
 import { Role } from '../src/lib/roles.js'
 import { FULL_SCOPE, type Actor } from '../src/lib/scoping.js'
 import { AuditLog } from '../src/models/auditLog.model.js'
@@ -365,19 +364,16 @@ describe('rendering', () => {
     expect(list.subarray(0, 4).toString()).toBe('%PDF')
   })
 
-  it('draws the uploaded logo, and carries on if the file is gone', async () => {
+  it('draws the uploaded logo', async () => {
     const png = onePixelPng()
     expect(await reportLogo()).toBeNull()
-    const logoPath = await savePrivateFile('imports', '.xlsx', png)
-    await ReportSettings.create({ _id: 'current', logoPath })
+    await ReportSettings.create({ _id: 'current', logo: png })
     expect((await reportLogo())?.equals(png)).toBe(true)
     const content = await summaryContent(round, FULL_SCOPE)
     const plain = await summaryPdf(content)
     const withLogo = await summaryPdf(content, png)
     expect(withLogo.subarray(0, 4).toString()).toBe('%PDF')
     expect(withLogo.equals(plain)).toBe(false)
-    await removePrivateFile(logoPath)
-    expect(await reportLogo()).toBeNull()
   })
 
   it('still produces the report when the logo file is damaged', async () => {

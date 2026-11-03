@@ -98,11 +98,11 @@ export async function listSources() {
 }
 
 export async function reportSettingsView() {
-  const settings = await ReportSettings.findById('current').lean()
+  const settings = await ReportSettings.findById('current').select('+logo').lean()
   return {
     letterhead: settings?.letterhead ?? DEFAULT_LETTERHEAD,
     program_line: settings?.programLine ?? DEFAULT_PROGRAM_LINE,
-    has_logo: Boolean(settings?.logoPath),
+    has_logo: Boolean(settings?.logo),
   }
 }
 

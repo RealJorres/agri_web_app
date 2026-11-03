@@ -1,68 +1,35 @@
 # Going live
 
-This is the runbook for production, in order. Nothing real reaches Atlas until step 5, and that step
-needs the PAO's approval first. Reasons are in ADR-0019, ADR-0020 and ADR-0022.
+This is the runbook for the demo deployment: the frontend on Netlify, the API on Render, and the data on
+MongoDB Atlas. Reasons are in ADR-0019, ADR-0020, ADR-0022 and ADR-0023.
 
 ## Before you start
 
-- [ ] PAO has approved putting real farmer data on the hosted database (RA 10173).
-- [ ] PAO has confirmed the farmer count rule (ADR-0015).
-- [ ] The Atlas tier and region are chosen, and backups are confirmed for that tier. Free and shared
-      tiers have limited or no backups, so check this before loading anything you need to keep.
-- [ ] A host is chosen. It must provide all of:
-  - Node 22;
-  - HTTPS, ended by a proxy or platform in front of the app. This server does not end TLS itself;
-  - **a disk that survives restarts** for `PRIVATE_FILES_DIR`. Uploaded workbooks, error reports and the
-    report logo live there. A host with a throwaway disk would lose them;
-  - one running instance. Sign-in rate limits and background import jobs are held in that process.
-- [ ] The host's outgoing address is on the Atlas IP access list. Avoid `0.0.0.0/0`.
+- [x] PAO has approved real farmer data on the hosted database (RA 10173).
+- [ ] PAO knows the data also passes through Netlify and Render (ADR-0023).
+- [ ] The code is in a private Git repository that Netlify and Render can read.
 
-## 1. Settings
-
-Set these in the host's secret store, not in a file in the repository:
-
-| Variable | Value |
-|---|---|
-| `NODE_ENV` | `production` |
-| `MONGODB_URI` | the connection string. See step 3 for which account |
-| `MONGODB_DB` | `agri_prod`. Must differ from development's `agri_dev` |
-| `JWT_SIGNING_KEY` | a random value of 50+ characters |
-| `PUBLIC_ORIGIN` | `https://your.address`, with no path |
-| `TRUSTED_PROXY_COUNT` | how many proxies are in front, usually `1`. Too low breaks HTTPS detection; too high lets clients fake their address |
-| `PRIVATE_FILES_DIR` | a private folder on the lasting disk |
-| `HOST` | `0.0.0.0` if the proxy is on another machine, otherwise leave it |
-| `PORT` | what the proxy forwards to |
-
-The server refuses to start if a required value is missing or weak.
-
-## 2. Build
-
-```sh
-npm ci
-npm run build
-```
-
-## 3. Database accounts
+## 1. Database accounts
 
 Use two Atlas accounts:
 
-- An **administrator's** account, for steps 4 and 5 only. Your current account has `atlasAdmin`, which
-  can change or delete anything on the cluster, so it should not be what the app runs with.
-- An **application** account, for the running server. Create it as follows.
+- An **administrator's** account, for the setup in steps 2 and 3 only. Run these from a trusted machine, with
+  the account in `.env`. It has `atlasAdmin`, which can change or delete anything on the cluster, so the
+  server must not run with it.
+- An **application** account, for Render. Create it as follows.
 
-`npm run db-role -w server` prints the privileges, per collection. In Atlas, go to Database Access →
-Custom Roles and add a role named `agriApp` with those privileges. `audit_logs` gets `find` and `insert`
-only, and that is what keeps the audit log append-only. Then add a database user with only that role. The
-wording of Atlas's screens may differ. Atlas does not accept `createRole` from a client, so this is done
-in Atlas itself.
+`npm run db-role -w server` prints the privileges, per collection (set `MONGODB_DB=agri_prod` first). In Atlas,
+go to Database Access → Custom Roles and add a role named `agriApp` with those privileges. `audit_logs` gets
+`find` and `insert` only, and that is what keeps the audit log append-only. Then add a database user with only
+that role, and a long random password. The wording of Atlas's screens may differ. Atlas does not accept
+`createRole` from a client, so this is done in Atlas itself.
 
-The application account cannot create collections or indexes, so step 4 needs the administrator's.
+## 2. Indexes and reference data
 
-## 4. Indexes and reference data
-
-With `MONGODB_URI` set to the **administrator's** account:
+With the administrator's account:
 
 ```sh
+export MONGODB_DB=agri_prod
 npm run create-indexes -w server
 npm run seed -w server
 npm run seed-psgc -w server -- <file>         # when the PAO has supplied it
@@ -71,64 +38,95 @@ npm run seed-boundaries -w server -- --file <file> --level municipality --provin
 
 Read the boundary report before dropping `--dry-run`. A shape that fails a check is listed and not loaded.
 
-## 5. Real data (needs PAO approval)
+## 3. Real data and the first administrator
 
-Still with the administrator's account:
+Still with the administrator's account and `MONGODB_DB=agri_prod`:
 
 ```sh
-npm run import-workbook -w server -- data/raw/cacao_production_data_as_of_july_2023.xlsx
+npm run import-workbook -w server -- "data/raw/<workbook>.xlsx"
 npm run integrity -w server
-```
-
-Check the printed figures before going further: 212 named rows, 208 with trees, 81,712 trees, 130.74 ha,
-Santa Cruz +940 against the workbook's own total. Stop if any differs.
-
-A large import is bulk-written to stay inside MongoDB's 60-second transaction limit (ADR-0020). If it is
-stopped, re-running does not duplicate rows.
-
-## 6. First administrator
-
-```sh
 npm run create-admin -w server -- you@your.office.gov.ph
 ```
 
-The password is typed at a hidden prompt. Everyone else is added in the app, under **Users**.
+Check the printed figures: 212 named rows, 208 with trees, 81,712 trees, 130.74 ha, Santa Cruz +940 against the
+workbook's own total. Stop if any differs. If an import stops, re-running does not duplicate rows. The admin's
+password is typed at a hidden prompt. Everyone else is added in the app, under **Users**.
 
-## 7. Start with the application account
-
-Switch `MONGODB_URI` to the **application** account, then:
+Then check the role with the application account, by running this with its connection string in `.env`:
 
 ```sh
 npm run db-role -w server -- --check
-npm start
 ```
 
-The check must say the role is right for every collection. It tries each operation and leaves nothing
-behind. If it reports `audit_logs: can be changed`, you are still on the administrator's account.
+It must say the role is right for every collection. It tries each operation and leaves nothing behind. If it
+reports `audit_logs: can be changed`, you are still on the administrator's account.
 
-Then check that:
+## 4. API on Render
 
-- `https://your.address/api/health` reports the database as `ok`;
-- `http://your.address/` redirects to HTTPS;
-- you can sign in, and the dashboard shows 81,712 trees for the 2023 round.
+1. In Render, create a new Blueprint from the repository. It reads `render.yaml`.
+2. Enter the values it asks for:
+
+   | Variable | Value |
+   |---|---|
+   | `MONGODB_URI` | the **application** account's connection string |
+   | `JWT_SIGNING_KEY` | from `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"` |
+   | `PUBLIC_ORIGIN` | the Netlify address. Use a placeholder such as `https://placeholder.example` until step 5 |
+
+3. Find the service's outbound addresses (its **Connect** menu) and add them to the Atlas IP access list. Avoid
+   `0.0.0.0/0`.
+4. Check that `https://<render address>/api/health` reports the database as `ok`.
+
+## 5. Frontend on Netlify
+
+1. In Netlify, import the repository. It reads `netlify.toml`.
+2. Add the environment variable `API_ORIGIN`: `https://<render address>`, with no path. The build fails without it.
+3. Deploy, then set `PUBLIC_ORIGIN` on Render to `https://<netlify address>`. Render restarts by itself.
+
+## 6. Check it
+
+- `https://<netlify address>/api/health` reports the database as `ok`, which proves the forwarding.
+- You can sign in, and stay signed in after reloading the page, which proves the cookie.
+- The dashboard shows 81,712 trees for the 2023 round, and the map shows tiles with no "403" on them.
+- `curl -I https://<netlify address>/api/v1/auth/me` shows `Cache-Control: no-store`. If it shows Netlify's page
+  headers instead, stop and fix this before real users sign in: responses hold personal data.
+- Upload a test workbook through the app, to prove that a file of that size gets through the proxy. Use a
+  synthetic one, and do not commit it.
+
+## 7. Check how many proxies Render sees
+
+Sign in, then look at the newest `audit_logs` entry's `ip` in Atlas. It should be your own public address.
+
+- If it is an address of Netlify's, Cloudflare's or Render's, raise `TRUSTED_PROXY_COUNT` by one, and check again.
+- If you can change it by sending your own `X-Forwarded-For` header straight to the Render address, lower it.
+
+## Living with the free tiers
+
+- **The first visit after 15 idle minutes takes about a minute.** The app says the server is waking up; try again
+  shortly after. Before a demo, open `https://<render address>/api/health` a minute early.
+- **The disk is wiped on every sleep.** A workbook uploaded through the app must be committed before the server
+  sleeps, or uploaded again. Download error reports soon after a preview. The report logo is safe, in MongoDB.
+- **The Atlas free tier has no backups to restore from.** Keep the source workbook. Anything entered in the app
+  after the import could be lost.
 
 ## After a release
 
-```sh
-npm ci && npm run build
-```
+Pushing deploys both. Run `npm run create-indexes -w server` with the administrator's account first if an index
+changed. If a new collection was added, add it to the role first (`npm run db-role -w server` shows it), then run
+the check.
 
-Run `npm run create-indexes -w server` with the administrator's account if an index changed. If a new
-collection was added, add it to the role first (`npm run db-role -w server` shows it), then run the
-check. Restart the server afterwards.
+## Running it all on one server instead
+
+Express can still serve the app itself, on a host with HTTPS in front and a lasting disk. Set `STATIC_DIR` to the
+built `frontend/dist`, `PUBLIC_ORIGIN` to the server's own address, `TRUSTED_PROXY_COUNT` to its proxy count and
+`PRIVATE_FILES_DIR` to a folder on the disk, then `npm run build` and `npm start` (ADR-0022).
 
 ## Good to know
 
-- **Do not re-run `npm run seed`** on a live system without reading ADR-0021: it resets seeded fields on
-  seeded rows, which would undo an administrator's edit to them.
-- `npm start` writes JSON logs to standard output, with no personal data in them.
-- Finished imports' files are removed after `IMPORT_FILE_RETENTION_DAYS` (30). The logo is kept.
-- The default map tiles come from OpenStreetMap, for low-volume internal use. Switch `MAP_TILE_URL` before
-  any public use (ADR-0016). The page's security policy follows that setting.
-- After cutover, the old Docker volume with the Postgres database still holds real personal data, and
-  should be deleted. That is the product owner's decision, and it needs Docker one last time.
+- **Do not re-run `npm run seed`** on a live system without reading ADR-0021: it resets seeded fields on seeded
+  rows, which would undo an administrator's edit to them.
+- The server writes JSON logs to standard output, with no personal data in them.
+- Finished imports' files are removed after `IMPORT_FILE_RETENTION_DAYS` (30).
+- The default map tiles come from OpenStreetMap, for low-volume internal use. To switch, set `MAP_TILE_URL` on
+  Render and change the tile host in `netlify.toml` (ADR-0016).
+- The old Docker volume with the Postgres database still holds real personal data, and should be deleted. That is
+  the product owner's decision, and it needs Docker one last time.

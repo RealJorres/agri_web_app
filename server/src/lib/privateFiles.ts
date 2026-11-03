@@ -6,6 +6,8 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve, sep } from 'node:path'
 
+import { DomainError } from './errors.js'
+
 const DEFAULT_DIR = join(import.meta.dirname, '..', '..', '..', 'private_files')
 
 function root(): string {
@@ -22,8 +24,8 @@ function locate(relative: string): string {
 
 /** Saves under a generated name, so nothing from the upload's name reaches the file system. */
 export async function savePrivateFile(
-  folder: 'imports' | 'import-errors' | 'report-logos',
-  suffix: '.xlsx' | '.csv' | '.png' | '.jpg',
+  folder: 'imports' | 'import-errors',
+  suffix: '.xlsx' | '.csv',
   content: Buffer,
 ): Promise<string> {
   const now = new Date()
@@ -38,7 +40,18 @@ export async function savePrivateFile(
 }
 
 export async function readPrivateFile(relative: string): Promise<Buffer> {
-  return readFile(locate(relative))
+  try {
+    return await readFile(locate(relative))
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    // A host's disk can be wiped on restart (ADR-0023), which is not a server fault.
+    throw new DomainError(
+      'file_gone',
+      'This file is no longer stored. Please upload it again.',
+      {},
+      410,
+    )
+  }
 }
 
 export async function removePrivateFile(relative: string): Promise<void> {

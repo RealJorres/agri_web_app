@@ -5,6 +5,7 @@ import express, { Router, type RequestHandler } from 'express'
 import { DomainError } from '../lib/errors.js'
 
 const ONE_YEAR_SECONDS = 31_536_000
+const PAGE_PERMISSIONS = 'camera=(), microphone=(), geolocation=(self), payment=(), usb=()'
 
 /** The tile server's origin, or any HTTPS host when the template makes the host unknowable. */
 function tileOrigin(tileUrl: string): string {
@@ -50,6 +51,8 @@ export function serveSpa(dir: string, tileUrl: string): Router {
     // OpenStreetMap refuses tile requests with no referrer. This sends only our address, so paths
     // and record ids stay private.
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+    // Setting a farm's location can use the device's GPS. The API itself needs none of this.
+    res.setHeader('Permissions-Policy', PAGE_PERMISSIONS)
     // The page itself is checked each time, so a new release shows at once.
     res.setHeader('Cache-Control', 'no-cache')
     next()
