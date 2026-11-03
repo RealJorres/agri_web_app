@@ -46,6 +46,11 @@ export class Scope {
 
 export const EMPTY_SCOPE = new Scope(null, [])
 
+/** Everything, everywhere: for system work such as the province-wide figures that get signed. */
+export const FULL_SCOPE = new Scope(null, [
+  { role: 'system_admin', municipalityId: null, programId: null, barangayIds: new Set() },
+])
+
 /** The fields on a collection that hold its copied location and program keys (ADR-0019). */
 export interface ScopePaths {
   barangay?: string

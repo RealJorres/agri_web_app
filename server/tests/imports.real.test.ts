@@ -19,6 +19,10 @@ import { seedCatalog } from '../src/services/catalog.service.js'
 import { commitJob, createJob, runPreview } from '../src/services/imports/jobs.service.js'
 import type { Reconciliation } from '../src/services/imports/workbookPlan.js'
 import { seedMunicipalities } from '../src/services/location.service.js'
+import { summaryPdf, summaryXlsx } from '../src/services/reportRender.js'
+import { breakdown, overview } from '../src/selectors/analytics.selectors.js'
+import { contentHash, summaryContent } from '../src/selectors/report.selectors.js'
+import { FULL_SCOPE } from '../src/lib/scoping.js'
 import { actorFor, userWithRole } from './support/factories.js'
 
 const RAW_DIR = join(import.meta.dirname, '..', '..', 'data', 'raw')
@@ -132,5 +136,28 @@ describe.skipIf(REAL_FILE === undefined)('the real workbook', () => {
       expect(counts).toEqual(expected)
     }
     expect((await integrityProblems()).map((problem) => problem.check)).toEqual([])
+  }, 120_000)
+
+  it('gives the same figures in analytics and the official report', async () => {
+    const round = (await SurveyRound.findOne().lean()) as SurveyRoundDoc
+    const data = await overview(FULL_SCOPE, round._id, {})
+    expect(data.trees).toBe(81_712)
+    expect(data.area_ha).toBe('130.74')
+    expect(data.stages.map((stage) => stage.trees)).toEqual(PROVINCE)
+    const towns = await breakdown(FULL_SCOPE, round._id, 'municipality', {})
+    for (const town of towns) {
+      expect(STAGES.map((stage) => town.stages[stage])).toEqual(TRUE_TOTALS[town.name])
+    }
+    const report = await summaryContent(round, FULL_SCOPE)
+    expect(report.total.trees).toEqual(PROVINCE)
+    expect(report.total.trees_total).toBe(81_712)
+    // ADR-0015: distinct farmers with a tree counted gives 206, where the typed sheet says 209.
+    expect(report.total.farmers).toBe(206)
+    const farmers = Object.fromEntries(report.rows.map((row) => [row.municipality, row.farmers]))
+    expect([farmers.Boac, farmers.Buenavista, farmers.Mogpog]).toEqual([19, 39, 23])
+    const first = contentHash(report)
+    expect(contentHash(await summaryContent(round, FULL_SCOPE))).toBe(first)
+    await expect(summaryPdf(report)).resolves.toBeInstanceOf(Buffer)
+    await expect(summaryXlsx(report)).resolves.toBeInstanceOf(Buffer)
   }, 120_000)
 })

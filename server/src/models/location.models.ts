@@ -9,11 +9,20 @@ const uniqueOnceCoded = {
   partialFilterExpression: { psgcCode: { $type: 'string' } },
 } as const
 
+/** GeoJSON in WGS84, with longitude first. Large, so queries leave it out unless they ask. */
+export interface MultiPolygon {
+  type: 'MultiPolygon'
+  coordinates: number[][][][]
+}
+
+const boundaryField = { type: Schema.Types.Mixed, default: null, select: false }
+
 export interface MunicipalityDoc extends BaseDoc {
   /** Empty until the official PSGC file is loaded; codes are never invented (ADR-0005). */
   psgcCode: string | null
   name: string
   normalizedName: string
+  boundary?: MultiPolygon | null
 }
 
 const municipalitySchema = new Schema<MunicipalityDoc>(
@@ -22,6 +31,7 @@ const municipalitySchema = new Schema<MunicipalityDoc>(
     psgcCode: { type: String, default: null },
     name: { type: String, required: true },
     normalizedName: { type: String, required: true },
+    boundary: boundaryField,
   },
   { ...baseOptions, collection: 'municipalities' },
 )
@@ -41,6 +51,7 @@ export interface BarangayDoc extends BaseDoc {
   municipalityId: string
   /** False when created from an import rather than the official PSGC list. */
   isVerified: boolean
+  boundary?: MultiPolygon | null
 }
 
 const barangaySchema = new Schema<BarangayDoc>(
@@ -51,6 +62,7 @@ const barangaySchema = new Schema<BarangayDoc>(
     normalizedName: { type: String, required: true },
     municipalityId: { type: String, required: true },
     isVerified: { type: Boolean, default: false },
+    boundary: boundaryField,
   },
   { ...baseOptions, collection: 'barangays' },
 )

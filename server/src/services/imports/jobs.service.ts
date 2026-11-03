@@ -14,8 +14,8 @@ import { DomainError } from '../../lib/errors.js'
 import { logger, safeErrorDetails } from '../../lib/logger.js'
 import { hashPassword } from '../../lib/passwords.js'
 import { readPrivateFile, removePrivateFile, savePrivateFile } from '../../lib/privateFiles.js'
-import { Cap, Role } from '../../lib/roles.js'
-import { canReach, Scope, type Actor } from '../../lib/scoping.js'
+import { Cap } from '../../lib/roles.js'
+import { canReach, FULL_SCOPE, type Actor } from '../../lib/scoping.js'
 import { normalizeName } from '../../lib/text.js'
 import { inTransaction } from '../../lib/transaction.js'
 import { User } from '../../models/account.models.js'
@@ -59,10 +59,6 @@ const LEGACY_2023 = {
 const SYSTEM_EMAIL = 'system@agri-dms.invalid'
 const FILE_RETENTION_DAYS = 30
 const DAY_MS = 86_400_000
-
-const FULL_SCOPE = new Scope(null, [
-  { role: Role.SYSTEM_ADMIN, municipalityId: null, programId: null, barangayIds: new Set() },
-])
 
 /** An inactive service account, recorded as the actor for command-line imports. It cannot sign in. */
 export async function systemActor(): Promise<Actor> {

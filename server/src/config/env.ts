@@ -27,6 +27,10 @@ const schema = z
     TRUSTED_PROXY_COUNT: z.coerce.number().int().min(0).default(0),
     CSRF_TRUSTED_ORIGINS: z.string().default(''),
     PRIVATE_FILES_DIR: z.string().min(1).optional(),
+    MAP_TILE_URL: z.string().min(1).optional(),
+    MAP_TILE_ATTRIBUTION: z.string().optional(),
+    MAP_DEFAULT_CENTER: z.string().optional(),
+    MAP_DEFAULT_ZOOM: z.coerce.number().optional(),
     IMPORT_FILE_RETENTION_DAYS: z.coerce.number().int().min(1).default(30),
   })
   .superRefine((value, context) => {

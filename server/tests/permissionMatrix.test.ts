@@ -12,6 +12,7 @@ import { authOf } from '../src/middleware/auth.js'
 import { createThrottles } from '../src/middleware/throttle.js'
 import { Barangay, type BarangayDoc, type MunicipalityDoc } from '../src/models/location.models.js'
 import type { RouteDefinition } from '../src/routes/registry.js'
+import { ANALYTICS_ROUTES } from '../src/routes/analytics.routes.js'
 import { RECORD_ROUTES } from '../src/routes/records.routes.js'
 import { v1Routes, type RouteConfig } from '../src/routes/v1.js'
 import {
@@ -253,6 +254,12 @@ const NOT_RECORD_LEVEL: Record<string, string> = {
   'POST /imports/:id/commit': 'a write: covered in imports.template.test.ts',
   'GET /exports/farmers.xlsx': 'scope and capability covered in imports.template.test.ts',
   'GET /exports/inventory.xlsx': 'scope and capability covered in imports.template.test.ts',
+  ...Object.fromEntries(
+    ANALYTICS_ROUTES.map((route) => [
+      `${route.method.toUpperCase()} ${route.path}`,
+      'aggregates or geography, scope covered in analytics.test.ts and reports.test.ts',
+    ]),
+  ),
   'GET /plantings': 'answers 405 and reads nothing: farms.test.ts',
   'GET /harvests': 'answers 405 and reads nothing: farms.test.ts',
   ...Object.fromEntries(

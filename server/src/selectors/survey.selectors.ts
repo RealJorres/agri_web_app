@@ -116,6 +116,9 @@ async function roundById(scope: Scope, id: string): Promise<SurveyRoundDoc> {
   return row
 }
 
+/** A round the viewer's grants cover. Out of reach and missing look the same: a 404. */
+export const roundForViewer = roundById
+
 export async function requireRound(scope: Scope, id: string): Promise<void> {
   await roundById(scope, id)
 }

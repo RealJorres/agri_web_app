@@ -5,6 +5,7 @@ import * as reference from '../controllers/reference.controller.js'
 import { Cap } from '../lib/roles.js'
 import { enforceCsrf, issueCsrfToken } from '../middleware/csrf.js'
 import type { Throttles } from '../middleware/throttle.js'
+import { ANALYTICS_ROUTES } from './analytics.routes.js'
 import { importRoutes } from './imports.routes.js'
 import { RECORD_ROUTES } from './records.routes.js'
 import type { RouteDefinition } from './registry.js'
@@ -70,5 +71,6 @@ export function v1Routes(config: RouteConfig): RouteDefinition[] {
     referenceRoute('/units/:id', reference.getUnit),
     ...RECORD_ROUTES,
     ...importRoutes(throttles),
+    ...ANALYTICS_ROUTES,
   ]
 }

@@ -13,6 +13,7 @@
     "seed": "tsx scripts/seed.ts",
     "seed-psgc": "tsx scripts/seed-psgc.ts",
     "integrity": "tsx scripts/integrity.ts",
+    "seed-boundaries": "tsx scripts/seed-boundaries.ts",
     "import-workbook": "tsx scripts/import-workbook.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
@@ -25,6 +26,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@turf/simplify": "^7.4.0",
     "ajv": "^8.20.0",
     "argon2": "^0.45.2",
     "cookie-parser": "^1.4.7",
@@ -37,6 +39,9 @@
     "jose": "^6.2.15",
     "mongoose": "^9.11.4",
     "multer": "^2.5.0",
+    "pdfkit": "^0.20.2",
+    "proj4": "^2.22.0",
+    "shapefile": "^0.6.6",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -45,6 +50,8 @@
     "@types/express": "^5.0.6",
     "@types/multer": "^2.3.0",
     "@types/node": "^22.20.5",
+    "@types/pdfkit": "^0.17.7",
+    "@types/proj4": "^2.5.6",
     "@types/supertest": "^7.2.1",
     "@vitest/coverage-v8": "^5.1.0",
     "eslint": "^10.14.0",

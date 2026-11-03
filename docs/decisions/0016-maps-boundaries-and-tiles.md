@@ -33,5 +33,11 @@ move to self-hosted tiles before wider use.
 `connect-src`, and `blob:` in `worker-src` (MapLibre runs its workers from blobs). Device GPS needs
 HTTPS outside localhost.
 
+**On MongoDB (ADR-0019).** The loader is `npm run seed-boundaries -w server`. Shapes are stored as
+GeoJSON. A self-intersecting ring is reported, not repaired, so it needs fixing in the source file. A
+GeoJSON file must be in WGS84 or UTM; any other coordinate system is refused rather than guessed, and a
+shapefile's system comes from its `.prj`. No `2dsphere` index exists yet, because no query searches by
+location: add one when a query needs it.
+
 **Cluster labels.** Clusters show their size by radius, with the count in a hover popup. Text labels
 on the map would need a glyph server, another external dependency.

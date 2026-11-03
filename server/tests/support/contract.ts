@@ -25,7 +25,10 @@ function closed(schema: unknown): unknown {
   if (typeof schema !== 'object' || schema === null) return schema
   const source = schema as Record<string, unknown>
   const { allOf } = source
-  if (Array.isArray(allOf) && allOf.length === 1) return closed(allOf[0])
+  if (Array.isArray(allOf) && allOf.length === 1) {
+    const inner = closed(allOf[0])
+    return source.nullable === true ? { anyOf: [inner, { type: 'null' }] } : inner
+  }
   const result = Object.fromEntries(
     Object.entries(source).map(([key, value]) => [key, closed(value)]),
   )

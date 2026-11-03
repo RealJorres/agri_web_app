@@ -108,6 +108,14 @@ describe('the API contract', () => {
     expect(missing.join(' ')).toMatch(/required property 'id'/)
   })
 
+  it('leaves no route in the contract unbuilt', () => {
+    const config = { production: false, csrfTrustedOrigins: [], throttles: createThrottles() }
+    const built = new Set(
+      v1Routes(config).map((route) => `${route.method.toUpperCase()} ${route.path}`),
+    )
+    expect([...contractRoutes()].filter((route) => !built.has(route))).toEqual([])
+  })
+
   it('every implemented route is in the contract', () => {
     const config = { production: false, csrfTrustedOrigins: [], throttles: createThrottles() }
     const known = contractRoutes()
