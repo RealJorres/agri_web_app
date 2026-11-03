@@ -1,0 +1,12 @@
+# Keeps every default rule, and skips only files whose password-like values are known not to be secrets.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Synthetic test passwords, and the list of common passwords the app refuses"
+paths = [
+  '''^server/tests/admin\.test\.ts$''',
+  '''^server/tests/config\.test\.ts$''',
+  '''^server/tests/support/factories\.ts$''',
+  '''^server/src/lib/passwords\.ts$''',
+]
