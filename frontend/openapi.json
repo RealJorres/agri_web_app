@@ -3061,6 +3061,42 @@
                 }
             }
         },
+        "/api/v1/farms/points": {
+            "get": {
+                "operationId": "farms_points_retrieve",
+                "description": "Farm locations for the map. Coordinates travel in the body only, never in URLs.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "municipality",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "tags": [
+                    "farms"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FarmPoints"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/harvests": {
             "get": {
                 "operationId": "harvests_list",
@@ -4376,6 +4412,78 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/InventoryRecord"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/map/boundaries": {
+            "get": {
+                "operationId": "map_boundaries_retrieve",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "level",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "barangay",
+                                "municipality"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "municipality",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "tags": [
+                    "map"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BoundaryCollection"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/map/config": {
+            "get": {
+                "operationId": "map_config_retrieve",
+                "description": "Tile source and starting view (ADR-0016), plus what boundary data has been loaded.",
+                "tags": [
+                    "map"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MapConfig"
                                 }
                             }
                         },
@@ -5806,6 +5914,58 @@
                     ""
                 ]
             },
+            "BoundaryCollection": {
+                "type": "object",
+                "description": "Schema only: the selector already returns GeoJSON.",
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BoundaryFeature"
+                        }
+                    }
+                },
+                "required": [
+                    "features",
+                    "type"
+                ]
+            },
+            "BoundaryFeature": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "properties": {
+                        "$ref": "#/components/schemas/BoundaryProperties"
+                    },
+                    "geometry": {}
+                },
+                "required": [
+                    "geometry",
+                    "properties",
+                    "type"
+                ]
+            },
+            "BoundaryProperties": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
             "BreakdownRow": {
                 "type": "object",
                 "properties": {
@@ -6238,6 +6398,64 @@
                     "municipality",
                     "sitio",
                     "tenure"
+                ]
+            },
+            "FarmPoint": {
+                "type": "object",
+                "description": "No names: the point links to the farmer's page, where access is checked again.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "farmer": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "lon": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "lat": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "barangay": {
+                        "type": "string"
+                    },
+                    "municipality": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "barangay",
+                    "farmer",
+                    "id",
+                    "lat",
+                    "lon",
+                    "municipality"
+                ]
+            },
+            "FarmPoints": {
+                "type": "object",
+                "properties": {
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FarmPoint"
+                        }
+                    },
+                    "total_farms": {
+                        "type": "integer"
+                    },
+                    "located": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "located",
+                    "results",
+                    "total_farms"
                 ]
             },
             "FarmWriteRequest": {
@@ -7252,6 +7470,44 @@
                 "required": [
                     "access",
                     "user"
+                ]
+            },
+            "MapConfig": {
+                "type": "object",
+                "properties": {
+                    "tile_url": {
+                        "type": "string"
+                    },
+                    "tile_attribution": {
+                        "type": "string"
+                    },
+                    "center": {
+                        "type": "array",
+                        "items": {
+                            "type": "number",
+                            "format": "double"
+                        },
+                        "maxItems": 2,
+                        "minItems": 2
+                    },
+                    "zoom": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "municipality_boundaries": {
+                        "type": "integer"
+                    },
+                    "barangay_boundaries": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "barangay_boundaries",
+                    "center",
+                    "municipality_boundaries",
+                    "tile_attribution",
+                    "tile_url",
+                    "zoom"
                 ]
             },
             "MaterialSource": {

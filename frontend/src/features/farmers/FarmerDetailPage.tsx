@@ -1,5 +1,5 @@
-import { ClipboardPlus, Pencil, Plus } from 'lucide-react'
-import { useState, type SyntheticEvent } from 'react'
+import { ClipboardPlus, MapPin, Pencil, Plus } from 'lucide-react'
+import { lazy, Suspense, useState, type SyntheticEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 
 import { Button } from '@/components/ui/Button'
@@ -17,6 +17,7 @@ import { SelectInput, TextInput } from '@/components/ui/fields'
 import { LoadingBlock } from '@/components/ui/Spinner'
 import { useToast } from '@/components/ui/useToast'
 import { HarvestList } from '@/features/harvests/HarvestList'
+import type { Schemas } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/context'
 import { errorMessage } from '@/lib/forms'
 import { formatDate, formatDateTime, formatNumber } from '@/lib/format'
@@ -30,6 +31,9 @@ import {
   useRecordsOf,
   type FarmerDetail,
 } from './api'
+
+// Lazy: MapLibre is heavy and only needed once someone sets a location.
+const FarmLocationDialog = lazy(() => import('@/features/map/FarmLocationDialog'))
 
 export default function FarmerDetailPage() {
   const { id = '' } = useParams()
@@ -141,55 +145,82 @@ function FarmerDetail({ farmer }: { farmer: FarmerDetail }) {
 function Farms({ farmerId }: { farmerId: string }) {
   const farms = useFarmsOf(farmerId)
   const { can } = useAuth()
+  const [locating, setLocating] = useState<Schemas['Farm'] | null>(null)
   if (farms.isPending) return <LoadingBlock />
   if (farms.isError) return <Alert tone="error">{errorMessage(farms.error)}</Alert>
   if (farms.data.results.length === 0) return <EmptyState title="No farms recorded yet" />
   return (
-    <ul className="space-y-4">
-      {farms.data.results.map((farm) => (
-        <li key={farm.id} className="rounded-md border border-line p-3">
-          <p className="font-medium">
-            {farm.barangay.name}, {farm.municipality.name}
-            {farm.sitio ? (
-              <span className="font-normal text-muted"> · Sitio {farm.sitio}</span>
+    <>
+      {locating ? (
+        <Suspense fallback={null}>
+          <FarmLocationDialog
+            farmerId={farmerId}
+            farmId={locating.id}
+            farmLabel={locating.barangay.name}
+            current={locating.location}
+            onClose={() => setLocating(null)}
+          />
+        </Suspense>
+      ) : null}
+      <ul className="space-y-4">
+        {farms.data.results.map((farm) => (
+          <li key={farm.id} className="rounded-md border border-line p-3">
+            <p className="font-medium">
+              {farm.barangay.name}, {farm.municipality.name}
+              {farm.sitio ? (
+                <span className="font-normal text-muted"> · Sitio {farm.sitio}</span>
+              ) : null}
+            </p>
+            {farm.location_raw ? (
+              <p className="text-xs text-muted">Recorded as: {farm.location_raw}</p>
             ) : null}
-          </p>
-          {farm.location_raw ? (
-            <p className="text-xs text-muted">Recorded as: {farm.location_raw}</p>
-          ) : null}
-          {farm.crop_stands.map((stand) => (
-            <div key={stand.id} className="mt-3 border-t border-line pt-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm font-medium">{stand.commodity.name}</p>
-                {can('edit_records') ? (
-                  <Link
-                    to={`/inventory/new?crop_stand=${stand.id}`}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-brand-800 hover:underline"
-                  >
-                    <ClipboardPlus className="h-4 w-4" aria-hidden="true" />
-                    Record inventory
-                  </Link>
-                ) : null}
-              </div>
-              {stand.plantings.length ? (
-                <ul className="mt-1 text-sm text-muted">
-                  {stand.plantings.map((p) => (
-                    <li key={p.id}>
-                      Planted {p.year_planted ?? 'year unknown'}
-                      {p.varieties.length ? ` · ${p.varieties.join(', ')}` : ''}
-                      {p.source ? ` · source ${p.source}` : ''}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-1 text-sm text-muted">No planting details.</p>
-              )}
-              <HarvestList standId={stand.id} />
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted">
+              <span>{farm.location ? 'Map location recorded' : 'No map location yet'}</span>
+              {can('edit_records') ? (
+                <button
+                  type="button"
+                  onClick={() => setLocating(farm)}
+                  className="inline-flex items-center gap-1 font-medium text-brand-800 hover:underline"
+                >
+                  <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                  {farm.location ? 'Change location' : 'Set location'}
+                </button>
+              ) : null}
             </div>
-          ))}
-        </li>
-      ))}
-    </ul>
+            {farm.crop_stands.map((stand) => (
+              <div key={stand.id} className="mt-3 border-t border-line pt-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-medium">{stand.commodity.name}</p>
+                  {can('edit_records') ? (
+                    <Link
+                      to={`/inventory/new?crop_stand=${stand.id}`}
+                      className="inline-flex items-center gap-1 text-sm font-medium text-brand-800 hover:underline"
+                    >
+                      <ClipboardPlus className="h-4 w-4" aria-hidden="true" />
+                      Record inventory
+                    </Link>
+                  ) : null}
+                </div>
+                {stand.plantings.length ? (
+                  <ul className="mt-1 text-sm text-muted">
+                    {stand.plantings.map((p) => (
+                      <li key={p.id}>
+                        Planted {p.year_planted ?? 'year unknown'}
+                        {p.varieties.length ? ` · ${p.varieties.join(', ')}` : ''}
+                        {p.source ? ` · source ${p.source}` : ''}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-1 text-sm text-muted">No planting details.</p>
+                )}
+                <HarvestList standId={stand.id} />
+              </div>
+            ))}
+          </li>
+        ))}
+      </ul>
+    </>
   )
 }
 

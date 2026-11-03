@@ -6,7 +6,7 @@ API     := $(COMPOSE) run --rm api
 WEB     := $(COMPOSE) run --rm --no-deps frontend
 
 .DEFAULT_GOAL := help
-.PHONY: help env up down logs build migrate makemigrations seed seed-demo import-legacy \
+.PHONY: help env up down logs build migrate makemigrations seed seed-demo seed-boundaries import-legacy \
         test test-backend test-frontend coverage docs lint lint-backend lint-frontend fmt schema shell superuser
 
 help: ## List targets
@@ -42,6 +42,10 @@ seed-demo: ## Load synthetic demo data
 import-legacy: ## Import the 2023 cacao workbook: make import-legacy FILE=data/raw/x.xlsx
 	@test -n "$(FILE)" || (echo "Usage: make import-legacy FILE=data/raw/<file>.xlsx" && exit 1)
 	$(API) python manage.py import_legacy_cacao /$(FILE)
+
+seed-boundaries: ## Load boundaries: make seed-boundaries FILE=data/reference/x.geojson LEVEL=municipality PROVINCE=Marinduque
+	@test -n "$(FILE)" -a -n "$(LEVEL)" -a -n "$(PROVINCE)" || (echo "Usage: make seed-boundaries FILE=data/reference/<file> LEVEL=municipality|barangay PROVINCE=<name>" && exit 1)
+	$(API) python manage.py seed_boundaries --file /$(FILE) --level $(LEVEL) --province "$(PROVINCE)"
 
 test: test-backend test-frontend ## Run all tests
 

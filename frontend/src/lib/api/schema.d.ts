@@ -664,6 +664,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/farms/points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Farm locations for the map. Coordinates travel in the body only, never in URLs. */
+        get: operations["farms_points_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/harvests": {
         parameters: {
             query?: never;
@@ -933,6 +950,39 @@ export interface paths {
         put?: never;
         /** @description Adds GET {id}/audit to a scoped viewset (the object lookup enforces scope -> 404). */
         post: operations["inventory_records_validate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/map/boundaries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["map_boundaries_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/map/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Tile source and starting view (ADR-0016), plus what boundary data has been loaded. */
+        get: operations["map_config_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1379,6 +1429,21 @@ export interface components {
         };
         /** @enum {unknown} */
         BlankEnum: "";
+        /** @description Schema only: the selector already returns GeoJSON. */
+        BoundaryCollection: {
+            type: string;
+            features: components["schemas"]["BoundaryFeature"][];
+        };
+        BoundaryFeature: {
+            type: string;
+            properties: components["schemas"]["BoundaryProperties"];
+            geometry: unknown;
+        };
+        BoundaryProperties: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
         BreakdownRow: {
             /** Format: uuid */
             id: string;
@@ -1496,6 +1561,24 @@ export interface components {
             readonly tenure: string;
             readonly location_raw: string;
             readonly crop_stands: components["schemas"]["CropStand"][];
+        };
+        /** @description No names: the point links to the farmer's page, where access is checked again. */
+        FarmPoint: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            farmer: string;
+            /** Format: double */
+            lon: number;
+            /** Format: double */
+            lat: number;
+            barangay: string;
+            municipality: string;
+        };
+        FarmPoints: {
+            results: components["schemas"]["FarmPoint"][];
+            total_farms: number;
+            located: number;
         };
         FarmWriteRequest: {
             /** Format: uuid */
@@ -1768,6 +1851,15 @@ export interface components {
         LoginResponse: {
             access: string;
             user: components["schemas"]["Me"];
+        };
+        MapConfig: {
+            tile_url: string;
+            tile_attribution: string;
+            center: number[];
+            /** Format: double */
+            zoom: number;
+            municipality_boundaries: number;
+            barangay_boundaries: number;
         };
         MaterialSource: {
             /** Format: uuid */
@@ -3946,6 +4038,27 @@ export interface operations {
             };
         };
     };
+    farms_points_retrieve: {
+        parameters: {
+            query?: {
+                municipality?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FarmPoints"];
+                };
+            };
+        };
+    };
     harvests_list: {
         parameters: {
             query?: {
@@ -4604,6 +4717,47 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InventoryRecord"];
+                };
+            };
+        };
+    };
+    map_boundaries_retrieve: {
+        parameters: {
+            query?: {
+                level?: "barangay" | "municipality";
+                municipality?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BoundaryCollection"];
+                };
+            };
+        };
+    };
+    map_config_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapConfig"];
                 };
             };
         };

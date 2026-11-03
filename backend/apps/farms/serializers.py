@@ -123,6 +123,23 @@ class LonLatField(serializers.Field[Any, Any, Any, Any]):
         return {"lon": value.x, "lat": value.y}
 
 
+class FarmPointSerializer(serializers.Serializer[Any]):
+    """No names: the point links to the farmer's page, where access is checked again."""
+
+    id = serializers.UUIDField()
+    farmer = serializers.UUIDField()
+    lon = serializers.FloatField()
+    lat = serializers.FloatField()
+    barangay = serializers.CharField()
+    municipality = serializers.CharField()
+
+
+class FarmPointsSerializer(serializers.Serializer[Any]):
+    results = FarmPointSerializer(many=True)
+    total_farms = serializers.IntegerField()
+    located = serializers.IntegerField()
+
+
 class FarmWriteSerializer(serializers.ModelSerializer[Farm]):
     barangay = serializers.PrimaryKeyRelatedField(queryset=Barangay.objects.all())
     location = LonLatField(required=False, allow_null=True)

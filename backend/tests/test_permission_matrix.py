@@ -1,6 +1,7 @@
 """Role x scope matrix for every record-level endpoint (brief §7). New endpoints go in ENDPOINTS."""
 
 import pytest
+from django.contrib.gis.geos import Point
 
 from apps.accounts.roles import Role
 from apps.accounts.tests.factories import user_with_role
@@ -47,6 +48,16 @@ ENDPOINTS: list[Endpoint] = [
         list_url="/api/v1/farms",
         detail_url=lambda obj: f"/api/v1/farms/{obj.pk}",
         make=lambda barangay: FarmFactory(barangay=barangay, farmer__home_barangay=barangay),
+    ),
+    Endpoint(
+        name="farm map points",
+        list_url="/api/v1/farms/points",
+        detail_url=None,
+        make=lambda barangay: FarmFactory(
+            barangay=barangay,
+            farmer__home_barangay=barangay,
+            location=Point(121.9, 13.4, srid=4326),
+        ),
     ),
     Endpoint(
         name="crop-stands",
@@ -97,7 +108,7 @@ def world(municipalities):
     return {"gasan": gasan, OWN: home_barangay, OTHER: other_barangay}
 
 
-@pytest.mark.parametrize("endpoint", ENDPOINTS, ids=lambda e: e.name)
+@pytest.mark.parametrize("endpoint", [e for e in ENDPOINTS if e.detail_url], ids=lambda e: e.name)
 @pytest.mark.parametrize("role", list(Role))
 @pytest.mark.parametrize("relation", [OWN, OTHER])
 def test_read_detail(endpoint, role, relation, world, auth_client):

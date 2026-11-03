@@ -49,6 +49,7 @@ Harvests on the crop-stand page (list/add/edit), harvest summary per municipalit
 separately until a sack weight is configured), date-estimated flag visible.
 
 ## P2-M5 — GIS map (MapLibre GL)
+_Built 2026-11-03 (ADR-0016). The choropleth has only been exercised on synthetic shapes: it awaits the PAO boundary file (input 1)._
 Boundary loader (`seed_boundaries` from `data/reference/`), farm location capture on the farm form
 (map click or device GPS), map page: municipality/barangay choropleth (trees, bearing share) and farm
 points (only for `view_personal_data`, clustered). Tile source per ADR-0016.

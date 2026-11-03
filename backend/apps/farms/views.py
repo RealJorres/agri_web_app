@@ -2,12 +2,14 @@ from typing import Any
 
 import django_filters
 from django.db.models import Prefetch, QuerySet
-from drf_spectacular.utils import extend_schema
-from rest_framework import status
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework import serializers, status
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.accounts.roles import Cap
 from apps.audit.views import AuditTrailMixin
 from apps.production import services as production
 from apps.production.serializers import HarvestSerializer
@@ -16,12 +18,13 @@ from common.exceptions import DomainError
 from common.scoping import scope_for
 from common.viewsets import ServiceModelViewSet
 
-from . import services
+from . import selectors, services
 from .models import CropStand, Farm, Planting
 from .serializers import (
     CropStandSerializer,
     CropStandUpdateSerializer,
     CropStandWriteSerializer,
+    FarmPointsSerializer,
     FarmSerializer,
     FarmWriteSerializer,
     PlantingSerializer,
@@ -51,15 +54,34 @@ class FarmFilter(django_filters.FilterSet):
         fields = ["tenure"]
 
 
+class _PointsQuery(serializers.Serializer[Any]):
+    municipality = serializers.UUIDField(required=False)
+
+
 class FarmViewSet(AuditTrailMixin, ServiceModelViewSet):
     queryset = Farm.objects.select_related("barangay__municipality", "farmer")
     serializer_class = FarmSerializer
     write_serializer_class = FarmWriteSerializer
     filterset_class = FarmFilter
     scope_barangay_path = "barangay"
+    action_capabilities = {"points": Cap.VIEW_PERSONAL_DATA}
 
     def get_queryset(self) -> QuerySet[Farm]:
         return super().get_queryset().prefetch_related(_stands()).order_by("barangay__name")
+
+    @extend_schema(
+        parameters=[OpenApiParameter("municipality", OpenApiTypes.UUID)],
+        responses=FarmPointsSerializer,
+    )
+    @action(detail=False, methods=["get"], pagination_class=None, filterset_class=None)
+    def points(self, request: Request) -> Response:
+        """Farm locations for the map. Coordinates travel in the body only, never in URLs."""
+        query = _PointsQuery(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        data = selectors.farm_points(
+            scope_for(request), municipality=query.validated_data.get("municipality")
+        )
+        return Response(FarmPointsSerializer(data).data)
 
     def service_create(self, data: dict[str, Any]) -> Farm:
         requested = data.pop("farmer", None)

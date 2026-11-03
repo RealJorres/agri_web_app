@@ -32,7 +32,7 @@ READ_DETAIL: dict[str, dict[str, int]] = {
 class Endpoint:
     name: str
     list_url: str | None  # None when the endpoint has no list (nested or detail-only)
-    detail_url: Callable[[Any], str]
+    detail_url: Callable[[Any], str] | None  # None when the endpoint is list-only
     # Creates an object located in the given barangay.
     make: Callable[[Barangay], Any]
     read_detail: dict[str, dict[str, int]] | None = None  # override READ_DETAIL when needed

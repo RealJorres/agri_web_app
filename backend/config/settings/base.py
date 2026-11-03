@@ -121,6 +121,12 @@ IMPORT_FILE_RETENTION_DAYS = env.int("IMPORT_FILE_RETENTION_DAYS", default=30)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
+# Base map (ADR-0016). OSM's tile servers are for low-volume internal use only.
+MAP_TILE_URL = env("MAP_TILE_URL", default="https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+MAP_TILE_ATTRIBUTION = env("MAP_TILE_ATTRIBUTION", default="© OpenStreetMap contributors")
+MAP_DEFAULT_CENTER = env.list("MAP_DEFAULT_CENTER", cast=float, default=[121.97, 13.4])  # lon, lat
+MAP_DEFAULT_ZOOM = env.float("MAP_DEFAULT_ZOOM", default=10.0)
+
 # Audit IPs: number of trusted reverse proxies in front of Django (0 = use REMOTE_ADDR).
 AUDIT_TRUSTED_PROXY_COUNT = env.int("TRUSTED_PROXY_COUNT", default=0)
 

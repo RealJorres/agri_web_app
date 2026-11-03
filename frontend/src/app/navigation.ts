@@ -4,6 +4,7 @@ import {
   FileUp,
   Home,
   Layers,
+  Map as MapIcon,
   Users,
   UsersRound,
   type LucideIcon,
@@ -22,6 +23,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Home', icon: Home, anyOf: ['view_aggregates'] },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart3, anyOf: ['view_aggregates'] },
+  { to: '/map', label: 'Map', icon: MapIcon, anyOf: ['view_aggregates'] },
   { to: '/farmers', label: 'Farmers', icon: Users, anyOf: ['view_records'] },
   { to: '/associations', label: 'Associations', icon: UsersRound, anyOf: ['view_records'] },
   { to: '/rounds', label: 'Survey rounds', icon: Layers, anyOf: ['view_aggregates'] },
