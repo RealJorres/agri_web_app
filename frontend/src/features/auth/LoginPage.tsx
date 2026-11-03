@@ -11,11 +11,15 @@ import { TextInput } from '@/components/ui/fields'
 import { ApiError } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/context'
 
+import { parseDemoAccounts } from './demoAccounts'
+
 const schema = z.object({
   email: z.email('Enter a valid email address.'),
   password: z.string().min(1, 'Enter your password.'),
 })
 type Values = z.infer<typeof schema>
+
+const DEMO_ACCOUNTS = parseDemoAccounts(import.meta.env.VITE_DEMO_ACCOUNTS)
 
 export default function LoginPage() {
   const { status, login } = useAuth()
@@ -25,6 +29,7 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<Values>({ resolver: zodResolver(schema) })
 
@@ -76,6 +81,35 @@ export default function LoginPage() {
             </Button>
           </form>
         </div>
+        {DEMO_ACCOUNTS.length > 0 ? (
+          <section
+            aria-label="Demo accounts"
+            className="mt-4 rounded-lg border border-line bg-surface p-4 shadow-sm"
+          >
+            <h2 className="text-sm font-semibold">Demo accounts</h2>
+            <ul className="mt-2 divide-y divide-line">
+              {DEMO_ACCOUNTS.map((account) => (
+                <li key={account.email} className="flex items-center justify-between gap-3 py-2">
+                  <div className="min-w-0 text-xs">
+                    <p className="font-medium text-ink">{account.role}</p>
+                    <p className="break-all text-muted">{account.email}</p>
+                    <p className="break-all font-mono text-muted">{account.password}</p>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    aria-label={`Use the ${account.role} account`}
+                    onClick={() => {
+                      setValue('email', account.email, { shouldValidate: true })
+                      setValue('password', account.password, { shouldValidate: true })
+                    }}
+                  >
+                    Use
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </div>
     </main>
   )
