@@ -29,6 +29,8 @@ htmlcov/
 node_modules/
 frontend/dist/
 frontend/coverage/
+server/dist/
+server/coverage/
 
 # --- OS / editors ---
 .DS_Store

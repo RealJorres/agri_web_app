@@ -95,23 +95,41 @@ jobs:
           uv export --frozen --no-hashes --format requirements-txt > /tmp/requirements.txt
           uvx pip-audit --strict -r /tmp/requirements.txt
 
-  frontend:
+  server:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
+    env:
+      MONGOMS_DOWNLOAD_DIR: /home/runner/.cache/mongodb-binaries
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+      - name: Cache the MongoDB binary used by the in-memory test database
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ hashFiles('package-lock.json') }}
       - run: npm ci --no-audit --no-fund
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm run format:check
-      - run: npm test
-      - run: npm run build
+      - run: npm run lint -w server
+      - run: npm run typecheck -w server
+      - run: npm run format:check -w server
+      - run: npm test -w server
+      - run: npm run build -w server
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint -w frontend
+      - run: npm run typecheck -w frontend
+      - run: npm run format:check -w frontend
+      - run: npm test -w frontend
+      - run: npm run build -w frontend
       - name: Known vulnerabilities in npm dependencies (high and above)
         run: npm audit --omit=dev --audit-level=high

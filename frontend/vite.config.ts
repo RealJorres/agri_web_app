@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 
 // The dev server proxies /api so the SPA and API share one origin, as in production (ADR-0002).
-const apiTarget = process.env.API_PROXY_TARGET ?? 'http://localhost:8000'
+const apiTarget = process.env.API_PROXY_TARGET ?? 'http://127.0.0.1:8000'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
