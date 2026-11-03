@@ -3,7 +3,6 @@ data/raw/
 data/reference/
 media/
 private_files/
-private_files/
 backend/media/
 *.xlsx
 *.xls
