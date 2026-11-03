@@ -27,7 +27,19 @@ import {
   type FarmerDoc,
 } from '../../src/models/registry.models.js'
 import { getScope } from '../../src/selectors/accounts.selectors.js'
-import { Commodity, Program, type CommodityDoc } from '../../src/models/catalog.models.js'
+import {
+  Commodity,
+  GrowthStage,
+  type GrowthStageDoc,
+  Program,
+  type CommodityDoc,
+} from '../../src/models/catalog.models.js'
+import {
+  InventoryRecord,
+  type InventoryRecordDoc,
+  SurveyRound,
+  type SurveyRoundDoc,
+} from '../../src/models/survey.models.js'
 import { issueTokens } from '../../src/services/auth.service.js'
 import { seedCatalog } from '../../src/services/catalog.service.js'
 
@@ -209,4 +221,50 @@ export async function makeAssociation(
 
 export async function makeMember(farmerId: string, associationId: string) {
   return (await AssociationMember.create({ farmerId, associationId })).toObject()
+}
+
+let roundSequence = 0
+
+export async function makeRound(
+  commodity?: CommodityDoc,
+  fields: Partial<SurveyRoundDoc> = {},
+): Promise<SurveyRoundDoc> {
+  const crop = commodity ?? (await cacao())
+  roundSequence += 1
+  const round = await SurveyRound.create({
+    commodityId: crop._id,
+    programId: crop.programId,
+    name: `Test round ${String(roundSequence)}-${randomUUID()}`,
+    asOfDate: new Date('2025-06-30T00:00:00Z'),
+    ...fields,
+  })
+  return round.toObject()
+}
+
+/** A record with stage counts keyed by stage code, such as { FRUITING: 120 }. */
+export async function makeRecord({
+  stand,
+  round,
+  counts = {},
+  ...fields
+}: {
+  stand: CropStandDoc
+  round?: SurveyRoundDoc
+  counts?: Record<string, number | null>
+} & Partial<Omit<InventoryRecordDoc, 'stageCounts'>>): Promise<InventoryRecordDoc> {
+  const stages = await GrowthStage.find({ commodityId: stand.commodityId }).lean<GrowthStageDoc[]>()
+  const stageCounts = Object.entries(counts).map(([code, count]) => ({
+    growthStageId: stages.find((stage) => stage.code === code)?._id,
+    count,
+  }))
+  const record = await InventoryRecord.create({
+    surveyRoundId: (round ?? (await makeRound()))._id,
+    cropStandId: stand._id,
+    barangayId: stand.barangayId,
+    municipalityId: stand.municipalityId,
+    programId: stand.programId,
+    stageCounts,
+    ...fields,
+  })
+  return record.toObject()
 }

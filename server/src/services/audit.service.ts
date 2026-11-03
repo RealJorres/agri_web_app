@@ -55,6 +55,25 @@ export interface AuditEntry {
   session: ClientSession
 }
 
+/** Many entries from one operation, such as every record locked when a round closes. */
+export async function recordAuditMany(
+  entries: Omit<AuditEntry, 'session'>[],
+  session: ClientSession,
+): Promise<void> {
+  if (entries.length === 0) return
+  const { ip, userAgent } = currentRequestMeta()
+  await AuditLog.insertMany(
+    entries.map(({ before = null, after = null, ...fields }) => ({
+      ...fields,
+      before,
+      after,
+      ip,
+      userAgent,
+    })),
+    { session },
+  )
+}
+
 export async function recordAudit(entry: AuditEntry): Promise<void> {
   const { session, before = null, after = null, ...fields } = entry
   const { ip, userAgent } = currentRequestMeta()

@@ -62,7 +62,8 @@ the same hash.
 ### M7 — Frontend and admin screens
 Point the frontend at Express, fix contract differences, add admin screens (users and assignments, crops and
 stages, varieties and sources, report settings and signatories), add a crop picker on import, remove any
-leftover cacao-specific wording. Correct `frontend/openapi.json` where the old generator was wrong: nested POST
+leftover cacao-specific wording. The crop screen must not let a commodity change program once it has crop stands
+or rounds, because those copy its program key. Correct `frontend/openapi.json` where the old generator was wrong: nested POST
 routes (association members, crop stands, plantings, harvests) answer 201 with one object, and a planting's
 `source` can be null. Decide with the PAO whether an RA 10173 erasure screen is needed: the service exists, but
 neither the Django nor the new API has ever exposed it.

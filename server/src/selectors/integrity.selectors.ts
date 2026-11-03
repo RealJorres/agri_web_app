@@ -15,6 +15,7 @@ import {
 import { CropStand, Farm, Harvest, Planting } from '../models/farm.models.js'
 import { Barangay, Municipality } from '../models/location.models.js'
 import { Association, AssociationMember, Farmer } from '../models/registry.models.js'
+import { InventoryRecord, SurveyRound, WorkflowComment } from '../models/survey.models.js'
 
 export interface IntegrityProblem {
   check: string
@@ -36,6 +37,7 @@ function asModel(model: unknown): Model<never> {
 }
 
 export async function integrityProblems(): Promise<IntegrityProblem[]> {
+  const load = (model: unknown) => aliveRows(asModel(model))
   const [
     municipalities,
     barangays,
@@ -51,39 +53,28 @@ export async function integrityProblems(): Promise<IntegrityProblem[]> {
     stands,
     plantings,
     harvests,
-  ] = (await Promise.all(
-    [
-      Municipality,
-      Barangay,
-      Program,
-      Commodity,
-      GrowthStage,
-      Variety,
-      MaterialSource,
-      Farmer,
-      Association,
-      AssociationMember,
-      Farm,
-      CropStand,
-      Planting,
-      Harvest,
-    ].map((model) => aliveRows(asModel(model))),
-  )) as [
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-    Row[],
-  ]
+    rounds,
+    records,
+    comments,
+  ] = await Promise.all([
+    load(Municipality),
+    load(Barangay),
+    load(Program),
+    load(Commodity),
+    load(GrowthStage),
+    load(Variety),
+    load(MaterialSource),
+    load(Farmer),
+    load(Association),
+    load(AssociationMember),
+    load(Farm),
+    load(CropStand),
+    load(Planting),
+    load(Harvest),
+    load(SurveyRound),
+    load(InventoryRecord),
+    load(WorkflowComment),
+  ])
 
   const index = (rows: Row[]) => new Map(rows.map((row) => [row._id, row]))
   const barangayById = index(barangays)
@@ -166,5 +157,32 @@ export async function integrityProblems(): Promise<IntegrityProblem[]> {
       return stand !== undefined && variety.commodityId !== stand.commodityId
     })
   })
+  const roundById = index(rounds)
+  report('survey_round.commodity', rounds, missing(commodityById, 'commodityId'))
+  report('survey_round.program_key', rounds, (row) => {
+    const commodity = commodityById.get(row.commodityId as string)
+    return commodity !== undefined && commodity.programId !== row.programId
+  })
+  report('inventory_record.round', records, missing(roundById, 'surveyRoundId'))
+  report('inventory_record.crop_stand', records, missing(standById, 'cropStandId'))
+  report('inventory_record.scope_keys', records, (row) => {
+    const stand = standById.get(row.cropStandId as string)
+    return keysDiffer(stand, row) || (stand !== undefined && stand.programId !== row.programId)
+  })
+  report('inventory_record.commodity', records, (row) => {
+    const stand = standById.get(row.cropStandId as string)
+    const round = roundById.get(row.surveyRoundId as string)
+    return stand !== undefined && round !== undefined && stand.commodityId !== round.commodityId
+  })
+  const stageById = index(stages)
+  report('inventory_record.stages', records, (row) => {
+    const stand = standById.get(row.cropStandId as string)
+    return (row.stageCounts as { growthStageId: string }[]).some(({ growthStageId }) => {
+      const stage = stageById.get(growthStageId)
+      if (stage === undefined) return true
+      return stand !== undefined && stage.commodityId !== stand.commodityId
+    })
+  })
+  report('comment.record', comments, missing(index(records), 'inventoryRecordId'))
   return problems
 }

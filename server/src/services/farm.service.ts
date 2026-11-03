@@ -34,6 +34,7 @@ import {
 } from '../models/farm.models.js'
 import { Barangay, type BarangayDoc } from '../models/location.models.js'
 import { Farmer, FARMER_SCOPE, type FarmerDoc } from '../models/registry.models.js'
+import { InventoryRecord } from '../models/survey.models.js'
 import type { FarmValues, PlantingValues, StandValues } from '../validators/farm.validators.js'
 import { changes, mask, recordAudit } from './audit.service.js'
 import { validateAttributes } from './catalog.service.js'
@@ -160,8 +161,7 @@ export async function createFarm({
 const INCLUDING_DELETED = { isDeleted: { $in: [true, false] } }
 
 /**
- * Copies a farm's new location onto its crop stands, plantings and harvests. Inventory records join
- * this list at M4.
+ * Copies a farm's new location onto its crop stands, plantings, harvests and inventory records.
  */
 async function moveFarmKeys(farm: FarmDoc, actor: Actor, session: ClientSession): Promise<void> {
   const keys = {
@@ -177,6 +177,7 @@ async function moveFarmKeys(farm: FarmDoc, actor: Actor, session: ClientSession)
   await CropStand.updateMany({ farmId: farm._id, ...INCLUDING_DELETED }, keys, { session })
   await Planting.updateMany({ cropStandId, ...INCLUDING_DELETED }, keys, { session })
   await Harvest.updateMany({ cropStandId, ...INCLUDING_DELETED }, keys, { session })
+  await InventoryRecord.updateMany({ cropStandId, ...INCLUDING_DELETED }, keys, { session })
 }
 
 export async function updateFarm({
@@ -383,7 +384,14 @@ export async function deleteCropStand({
     if (await Planting.exists({ cropStandId: standId }).session(session)) {
       throw new DomainError('has_plantings', 'Delete the plantings first.', {}, 409)
     }
-    // The inventory-record check joins here at M4.
+    if (await InventoryRecord.exists({ cropStandId: standId }).session(session)) {
+      throw new DomainError(
+        'has_inventory',
+        'This crop stand has inventory records and cannot be deleted.',
+        {},
+        409,
+      )
+    }
     markDeleted(stand, actor.id)
     await stand.save({ session })
     await recordAudit({

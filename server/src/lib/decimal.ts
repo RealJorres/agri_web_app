@@ -2,7 +2,8 @@
 import { Decimal } from 'decimal.js'
 import { Types } from 'mongoose'
 
-const HalfUp = Decimal.clone({ rounding: Decimal.ROUND_HALF_UP })
+/** Decimal with half-up rounding, the rule for every figure the system shows (ADR-0019). */
+export const HalfUp = Decimal.clone({ rounding: Decimal.ROUND_HALF_UP })
 
 export function toDecimal128(value: Decimal.Value): Types.Decimal128 {
   return Types.Decimal128.fromString(new HalfUp(value).toString())

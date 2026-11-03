@@ -24,6 +24,7 @@ import {
   makeMunicipality,
   makePlanting,
   makeProgram,
+  makeRecord,
   makeStand,
   signedIn,
   userWithRole,
@@ -180,6 +181,30 @@ const ENDPOINTS: Endpoint[] = [
     make: async (barangay) => (await makePlanting(await standIn(barangay)))._id,
   },
   {
+    name: 'inventory records',
+    routes: ['GET /inventory-records', 'GET /inventory-records/:id'],
+    listUrl: '/api/v1/inventory-records',
+    detailUrl: (id) => `/api/v1/inventory-records/${id}`,
+    make: async (barangay) =>
+      (await makeRecord({ stand: await standIn(barangay), counts: { FRUITING: 1 } }))._id,
+  },
+  {
+    name: 'inventory record audit trail',
+    routes: ['GET /inventory-records/:id/audit'],
+    listUrl: null,
+    detailUrl: (id) => `/api/v1/inventory-records/${id}/audit`,
+    make: async (barangay) =>
+      (await makeRecord({ stand: await standIn(barangay), counts: { FRUITING: 1 } }))._id,
+  },
+  {
+    name: 'inventory record comments',
+    routes: ['GET /inventory-records/:id/comments'],
+    listUrl: null,
+    detailUrl: (id) => `/api/v1/inventory-records/${id}/comments`,
+    make: async (barangay) =>
+      (await makeRecord({ stand: await standIn(barangay), counts: { FRUITING: 1 } }))._id,
+  },
+  {
     name: 'harvests',
     routes: ['GET /harvests/:id'],
     listUrl: null,
@@ -215,12 +240,17 @@ const NOT_RECORD_LEVEL: Record<string, string> = {
     ].map((path) => [`GET ${path}`, 'reference data, unscoped for all roles: reference.test.ts']),
   ),
   'GET /farmers/duplicates': 'scope covered in registry.test.ts',
+  'GET /stats/home': 'aggregates for all roles, scope covered in officialTotals.test.ts',
+  'GET /survey-rounds': 'not personal, visible by program: surveys.test.ts',
+  'GET /survey-rounds/:id': 'not personal, visible by program: surveys.test.ts',
+  'GET /survey-rounds/:id/progress': 'aggregates, scope covered in officialTotals.test.ts',
+  'GET /survey-rounds/:id/totals': 'aggregates, scope covered in officialTotals.test.ts',
   'GET /plantings': 'answers 405 and reads nothing: farms.test.ts',
   'GET /harvests': 'answers 405 and reads nothing: farms.test.ts',
   ...Object.fromEntries(
     RECORD_ROUTES.filter((route) => route.method !== 'get').map((route) => [
       `${route.method.toUpperCase()} ${route.path}`,
-      'a write: refusals covered below and in registry.test.ts and farms.test.ts',
+      'a write: refusals covered below and in the registry, farms and surveys tests',
     ]),
   ),
 }

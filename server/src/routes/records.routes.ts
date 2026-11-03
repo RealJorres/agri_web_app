@@ -3,6 +3,7 @@ import type { RequestHandler } from 'express'
 
 import * as farm from '../controllers/farm.controller.js'
 import * as registry from '../controllers/registry.controller.js'
+import * as survey from '../controllers/survey.controller.js'
 import { Cap } from '../lib/roles.js'
 import type { RouteDefinition } from './registry.js'
 
@@ -76,4 +77,28 @@ export const RECORD_ROUTES: RouteDefinition[] = [
   edit('put', '/harvests/:id', farm.putHarvest),
   edit('patch', '/harvests/:id', farm.patchHarvest),
   edit('delete', '/harvests/:id', farm.deleteHarvest),
+
+  route('get', '/stats/home', Cap.VIEW_AGGREGATES, survey.homeStats),
+
+  route('get', '/survey-rounds', Cap.VIEW_AGGREGATES, survey.listRounds),
+  route('post', '/survey-rounds', Cap.MANAGE_ROUNDS, survey.createRound),
+  route('get', '/survey-rounds/:id', Cap.VIEW_AGGREGATES, survey.getRound),
+  route('post', '/survey-rounds/:id/close', Cap.MANAGE_ROUNDS, survey.closeRound),
+  route('get', '/survey-rounds/:id/progress', Cap.VIEW_AGGREGATES, survey.roundProgress),
+  route('get', '/survey-rounds/:id/totals', Cap.VIEW_AGGREGATES, survey.roundTotals),
+
+  read('/inventory-records', survey.listRecords),
+  edit('post', '/inventory-records', survey.createRecord),
+  read('/inventory-records/:id', survey.getRecord),
+  edit('put', '/inventory-records/:id', survey.updateRecord),
+  edit('patch', '/inventory-records/:id', survey.updateRecord),
+  edit('delete', '/inventory-records/:id', survey.deleteRecord),
+  read('/inventory-records/:id/audit', survey.recordAudit),
+  read('/inventory-records/:id/comments', survey.listComments),
+  route('post', '/inventory-records/:id/submit', Cap.SUBMIT, survey.submitRecord),
+  route('post', '/inventory-records/:id/validate', Cap.VALIDATE, survey.validateRecord),
+  route('post', '/inventory-records/:id/approve', Cap.APPROVE, survey.approveRecord),
+  // A validator or a coordinator may return a record. The service decides from its status.
+  route('post', '/inventory-records/:id/return', Cap.VIEW_RECORDS, survey.returnRecord),
+  route('post', '/inventory-records/:id/reopen', Cap.REOPEN, survey.reopenRecord),
 ]
