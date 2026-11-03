@@ -1,5 +1,5 @@
 # ADR-0019: Move to the MERN stack (MVC) on MongoDB Atlas, without Docker
-Status: Proposed · 2026-11-03 · Decided by the product owner; the design details below await approval.
+Status: Accepted · 2026-11-03 · Decided by the product owner, who also approved the design below.
 
 **Context.** The product owner does not want to run or use Docker on this project and wants the
 system built with MongoDB, Express, React and Node in an MVC structure, using a hosted MongoDB

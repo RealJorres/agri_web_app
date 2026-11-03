@@ -1,7 +1,7 @@
 # MERN migration plan
 
-Status: **proposed 2026-11-03, awaiting approval.** Design decisions: ADR-0019. P2-M6 and P2-M7 wait
-until this is finished.
+Status: **approved 2026-11-03.** Design decisions: ADR-0019. P2-M6 and P2-M7 wait until this is
+finished.
 
 ## Approach
 - Work on a `mern-migration` branch. `main` keeps the working Django version until cutover.
@@ -68,7 +68,8 @@ pass a browser check with synthetic data.
 
 ### M8 — Cutover
 Confirm inputs 2 and 3, create production indexes, load `data/raw/` into Atlas, check the totals there, create the
-real admin account. Remove `backend/`, `infra/` and the `Makefile`; update `CLAUDE.md`, `README`, `architecture.md`,
+real admin account. Serve the built frontend from Express with its own CSP and an HTTPS redirect, replacing the old
+web server. Remove `backend/`, `infra/` and the `Makefile`; update `CLAUDE.md`, `README`, `architecture.md`,
 the data dictionary, `.env.example` and CI; merge to `main`.
 **Done when:** the clean-clone instructions work without Docker, and Atlas shows 81,712.
 
