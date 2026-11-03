@@ -3,7 +3,7 @@
  * locked records when asked for; nothing is stored (rule 1).
  */
 import type { Decimal } from 'decimal.js'
-import type { Types } from 'mongoose'
+import type { ClientSession, Types } from 'mongoose'
 
 import { dateOnly } from '../lib/dates.js'
 import { decimalString, HalfUp } from '../lib/decimal.js'
@@ -231,12 +231,7 @@ const RECORD_ORDER: SortFields<InventoryRecordDoc> = {
   status: (row) => row.status,
 }
 
-export async function listRecords(
-  scope: Scope,
-  filters: RecordFilters,
-  page: PageRequest,
-  ordering: unknown,
-) {
+async function recordFilter(scope: Scope, filters: RecordFilters): Promise<Filter> {
   const conditions: Filter[] = []
   if (filters.survey_round) conditions.push({ surveyRoundId: filters.survey_round })
   if (filters.crop_stand) conditions.push({ cropStandId: filters.crop_stand })
@@ -250,8 +245,16 @@ export async function listRecords(
       .lean()
     conditions.push({ cropStandId: { $in: stands.map((row) => row._id) } })
   }
-  const visible = scopeFilter(scope, Cap.VIEW_RECORDS, COPIED_SCOPE_PATHS)
-  const rows = await InventoryRecord.find(within(visible, ...conditions))
+  return within(scopeFilter(scope, Cap.VIEW_RECORDS, COPIED_SCOPE_PATHS), ...conditions)
+}
+
+export async function listRecords(
+  scope: Scope,
+  filters: RecordFilters,
+  page: PageRequest,
+  ordering: unknown,
+) {
+  const rows = await InventoryRecord.find(await recordFilter(scope, filters))
     .select('updatedAt submittedAt status')
     .lean<InventoryRecordDoc[]>()
   const ordered = orderRows(rows, ordering, RECORD_ORDER, ['-updated_at'])
@@ -265,6 +268,45 @@ export async function listRecords(
       scope,
       pageIds.flatMap((id) => full.get(id) ?? []),
     ),
+  }
+}
+
+const MAX_EXPORT_ROWS = 20_000
+
+/** Records in scope matching the filters, as rows for the personal-data export. */
+export async function exportInventoryRows(scope: Scope, filters: RecordFilters) {
+  const rows = await InventoryRecord.find(await recordFilter(scope, filters)).lean<
+    InventoryRecordDoc[]
+  >()
+  const views = orderRows(
+    await recordViews(scope, rows),
+    undefined,
+    { town: (row) => row.farm.municipality, farmer: (row) => row.farmer.display_name },
+    ['town', 'farmer'],
+  ).slice(0, MAX_EXPORT_ROWS)
+  const stages = new Map<string, { label: string; order: number }>()
+  for (const view of views) {
+    for (const { growth_stage: stage } of view.counts) {
+      stages.set(stage.code, { label: stage.label, order: stage.sort_order })
+    }
+  }
+  const columns = [...stages].sort((a, b) => a[1].order - b[1].order)
+  return {
+    labels: columns.map(([, stage]) => stage.label),
+    rows: views.map((view) => {
+      const byCode = new Map(view.counts.map((row) => [row.growth_stage.code, row.count]))
+      return [
+        view.survey_round.name,
+        view.crop_stand.commodity_name,
+        view.farm.municipality,
+        view.farm.barangay,
+        view.farmer.display_name,
+        ...columns.map(([code]) => byCode.get(code) ?? null),
+        view.total,
+        view.status,
+        view.remarks,
+      ]
+    }),
   }
 }
 
@@ -319,8 +361,14 @@ export interface StageTotal {
 }
 
 /** Official totals per municipality and stage for one round: approved or locked records only. */
-export async function stageTotals(round: SurveyRoundDoc, scope: Scope): Promise<StageTotal[]> {
-  const commodity = await Commodity.findOne({ _id: round.commodityId }).lean<CommodityDoc>()
+export async function stageTotals(
+  round: SurveyRoundDoc,
+  scope: Scope,
+  session?: ClientSession,
+): Promise<StageTotal[]> {
+  const commodity = await Commodity.findOne({ _id: round.commodityId })
+    .session(session ?? null)
+    .lean<CommodityDoc>()
   if (!commodity) return []
   const rows = await InventoryRecord.aggregate<{
     _id: { municipalityId: string; growthStageId: string }
@@ -349,14 +397,16 @@ export async function stageTotals(round: SurveyRoundDoc, scope: Scope): Promise<
         anyArea: { $max: '$stageCounts.areaHa' },
       },
     },
-  ])
-  const [stages, towns] = await Promise.all([
-    GrowthStage.find({
-      _id: { $in: rows.map((row) => row._id.growthStageId) },
-      isDeleted: { $in: [true, false] },
-    }).lean<GrowthStageDoc[]>(),
-    Municipality.find({ _id: { $in: rows.map((row) => row._id.municipalityId) } }).lean(),
-  ])
+  ]).session(session ?? null)
+  const stages = await GrowthStage.find({
+    _id: { $in: rows.map((row) => row._id.growthStageId) },
+    isDeleted: { $in: [true, false] },
+  })
+    .session(session ?? null)
+    .lean<GrowthStageDoc[]>()
+  const towns = await Municipality.find({ _id: { $in: rows.map((row) => row._id.municipalityId) } })
+    .session(session ?? null)
+    .lean()
   const stageById = byOwnId(stages)
   const townName = new Map(towns.map((town) => [town._id, town.name]))
   const density = plantsPerHa(commodity)

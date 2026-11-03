@@ -4,10 +4,15 @@ import { rateLimit } from 'express-rate-limit'
 import { DomainError } from '../lib/errors.js'
 
 const ONE_MINUTE_MS = 60_000
+const ONE_HOUR_MS = 3_600_000
 
-function limiter(limit: number, keyGenerator?: RequestHandlerKey): RequestHandler {
+function limiter(
+  limit: number,
+  keyGenerator?: RequestHandlerKey,
+  windowMs = ONE_MINUTE_MS,
+): RequestHandler {
   return rateLimit({
-    windowMs: ONE_MINUTE_MS,
+    windowMs,
     limit,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
@@ -25,6 +30,7 @@ export interface Throttles {
   login: RequestHandler
   auth: RequestHandler
   user: RequestHandler
+  imports: RequestHandler
 }
 
 export function createThrottles(): Throttles {
@@ -32,5 +38,6 @@ export function createThrottles(): Throttles {
     login: limiter(10),
     auth: limiter(30),
     user: limiter(600, (req) => req.auth?.user._id ?? 'anonymous'),
+    imports: limiter(20, (req) => req.auth?.user._id ?? 'anonymous', ONE_HOUR_MS),
   }
 }

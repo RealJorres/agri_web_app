@@ -7258,10 +7258,11 @@
             "ImportKindEnum": {
                 "enum": [
                     "template",
-                    "legacy_cacao_2023"
+                    "legacy_cacao_2023",
+                    "legacy_workbook"
                 ],
                 "type": "string",
-                "description": "* `template` - Clean template\n* `legacy_cacao_2023` - Legacy cacao workbook (2023)"
+                "description": "* `template` - Clean template\n* `legacy_cacao_2023` - Legacy cacao workbook (2023)\n* `legacy_workbook` - Workbook with the legacy layout, for a chosen crop"
             },
             "ImportStatusEnum": {
                 "enum": [
@@ -8980,6 +8981,21 @@
                     "survey_round": {
                         "type": "string",
                         "format": "uuid",
+                        "nullable": true
+                    },
+                    "commodity": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                    },
+                    "round_name": {
+                        "type": "string",
+                        "maxLength": 150,
+                        "nullable": true
+                    },
+                    "as_of_date": {
+                        "type": "string",
+                        "format": "date",
                         "nullable": true
                     }
                 },

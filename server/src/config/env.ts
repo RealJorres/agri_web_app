@@ -26,6 +26,8 @@ const schema = z
     JWT_SIGNING_KEY: z.string().optional(),
     TRUSTED_PROXY_COUNT: z.coerce.number().int().min(0).default(0),
     CSRF_TRUSTED_ORIGINS: z.string().default(''),
+    PRIVATE_FILES_DIR: z.string().min(1).optional(),
+    IMPORT_FILE_RETENTION_DAYS: z.coerce.number().int().min(1).default(30),
   })
   .superRefine((value, context) => {
     if (value.NODE_ENV !== 'production') return

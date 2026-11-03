@@ -185,12 +185,10 @@ export function searchRows<Row extends Pick<FarmerDoc, 'normalizedName' | 'rsbsa
   })
 }
 
-export async function listFarmers(
+async function matchingFarmers(
   scope: Scope,
   filters: FarmerFilters,
-  page: PageRequest,
-  ordering: unknown,
-) {
+): Promise<{ matching: RankedFarmer[]; searching: boolean }> {
   const conditions: Record<string, unknown>[] = []
   if (filters.municipality) conditions.push({ municipalityId: filters.municipality })
   if (filters.barangay) conditions.push({ homeBarangayId: filters.barangay })
@@ -207,7 +205,16 @@ export async function listFarmers(
     .lean<RankedFarmer[]>()
 
   const searching = normalizePersonName(filters.q) !== ''
-  const matching: RankedFarmer[] = searching ? searchRows(rows, filters.q ?? '') : rows
+  return { matching: searching ? searchRows(rows, filters.q ?? '') : rows, searching }
+}
+
+export async function listFarmers(
+  scope: Scope,
+  filters: FarmerFilters,
+  page: PageRequest,
+  ordering: unknown,
+) {
+  const { matching, searching } = await matchingFarmers(scope, filters)
   const defaults = searching
     ? ['-similarity', 'last_name', 'first_name']
     : ['last_name', 'first_name']
@@ -217,6 +224,52 @@ export async function listFarmers(
   const byId = new Map(full.map((row) => [row._id, row]))
   const pageRows = pageIds.flatMap((id) => byId.get(id) ?? [])
   return { count: matching.length, results: await farmerViews(scope, pageRows) }
+}
+
+const MAX_EXPORT_ROWS = 20_000
+
+/** Farmers in scope matching the filters, as rows for the personal-data export. */
+export async function exportFarmerRows(scope: Scope, filters: FarmerFilters) {
+  const { matching } = await matchingFarmers(scope, filters)
+  const full = await Farmer.find({ _id: { $in: matching.map((row) => row._id) } }).lean<
+    FarmerDoc[]
+  >()
+  const refs = await locationRefs(full.map((row) => row.homeBarangayId))
+  const ordered = orderRows(
+    full,
+    undefined,
+    {
+      town: (row) => refs.get(row.homeBarangayId)?.municipality.name ?? null,
+      last: (row) => row.lastName,
+      first: (row) => row.firstName,
+    },
+    ['town', 'last', 'first'],
+  ).slice(0, MAX_EXPORT_ROWS)
+  const members = await AssociationMember.find({
+    farmerId: { $in: ordered.map((row) => row._id) },
+  }).lean<AssociationMemberDoc[]>()
+  const associations = await Association.find({
+    _id: { $in: members.map((member) => member.associationId) },
+  }).lean<AssociationDoc[]>()
+  const associationName = new Map(associations.map((row) => [row._id, row.name]))
+  return ordered.map((row) => [
+    row.lastName,
+    row.firstName,
+    row.middleName,
+    row.suffix,
+    row.sex,
+    row.birthYear,
+    row.rsbsaNo,
+    row.contactNo,
+    refs.get(row.homeBarangayId)?.barangay.name ?? '',
+    refs.get(row.homeBarangayId)?.municipality.name ?? '',
+    members
+      .filter((member) => member.farmerId === row._id)
+      .map((member) => associationName.get(member.associationId) ?? '')
+      .join('; '),
+    row.status,
+    row.consentAt ? 'Y' : '',
+  ])
 }
 
 export interface DuplicateCandidate {

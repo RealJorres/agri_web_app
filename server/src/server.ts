@@ -1,10 +1,13 @@
 import { createApp } from './app.js'
 import { connectDatabase, disconnectDatabase } from './config/database.js'
 import { EnvError, loadEnv, type Env } from './config/env.js'
+import { settleBackgroundTasks } from './lib/background.js'
 import { logger, safeErrorDetails } from './lib/logger.js'
 import { municipalitiesWithoutPsgc } from './selectors/location.selectors.js'
+import { failInterruptedJobs, purgeOldFiles } from './services/imports/jobs.service.js'
 
 const RETRY_MS = 10_000
+const ONE_DAY_MS = 86_400_000
 
 function readSettings(): Env {
   try {
@@ -20,12 +23,32 @@ const env = readSettings()
 const production = env.NODE_ENV === 'production'
 let stopping = false
 let retryTimer: NodeJS.Timeout | undefined
+let purgeTimer: NodeJS.Timeout | undefined
+
+function purgeFiles(): void {
+  purgeOldFiles().catch((error: unknown) => {
+    logger.error('imports.purge_failed', safeErrorDetails(error))
+  })
+}
+
+async function startImportHousekeeping(): Promise<void> {
+  try {
+    const interrupted = await failInterruptedJobs()
+    if (interrupted > 0) logger.warn('imports.interrupted', { jobs: interrupted })
+  } catch (error) {
+    logger.error('imports.recovery_failed', safeErrorDetails(error))
+  }
+  purgeFiles()
+  purgeTimer = setInterval(purgeFiles, ONE_DAY_MS)
+  purgeTimer.unref()
+}
 
 // The server stays up while the database is away, so the health endpoint can report it.
 async function connectWithRetry(): Promise<void> {
   try {
     await connectDatabase(env.MONGODB_URI, env.MONGODB_DB, { autoIndex: !production })
     logger.info('database.connected', { database: env.MONGODB_DB })
+    void startImportHousekeeping()
     if (production) {
       const missing = await municipalitiesWithoutPsgc()
       if (missing.length > 0) {
@@ -57,8 +80,11 @@ void connectWithRetry()
 function shutdown(): void {
   stopping = true
   clearTimeout(retryTimer)
+  clearInterval(purgeTimer)
   server.close(() => {
-    void disconnectDatabase().finally(() => process.exit(0))
+    void settleBackgroundTasks()
+      .then(disconnectDatabase)
+      .finally(() => process.exit(0))
   })
 }
 
