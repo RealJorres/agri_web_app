@@ -73,6 +73,25 @@ const NOT_RECORD_LEVEL: Record<string, string> = {
   'POST /auth/refresh': 'public: covered in auth.test.ts',
   'POST /auth/logout': 'public: covered in auth.test.ts',
   'GET /auth/me': 'the caller only: covered in auth.test.ts',
+  ...Object.fromEntries(
+    [
+      '/municipalities',
+      '/municipalities/:id',
+      '/barangays',
+      '/barangays/:id',
+      '/programs',
+      '/programs/:id',
+      '/commodities',
+      '/commodities/:id',
+      '/commodities/:id/stages',
+      '/varieties',
+      '/varieties/:id',
+      '/material-sources',
+      '/material-sources/:id',
+      '/units',
+      '/units/:id',
+    ].map((path) => [`GET ${path}`, 'reference data, unscoped for all roles: reference.test.ts']),
+  ),
 }
 
 const app = createApp({

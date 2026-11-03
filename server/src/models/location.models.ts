@@ -3,6 +3,12 @@ import { model, Schema } from 'mongoose'
 import { normalizeName } from '../lib/text.js'
 import { baseFields, baseOptions, softDelete, uniqueAmongAlive, type BaseDoc } from './base.js'
 
+// A code is unique once it exists; many rows may still have none.
+const uniqueOnceCoded = {
+  unique: true,
+  partialFilterExpression: { psgcCode: { $type: 'string' } },
+} as const
+
 export interface MunicipalityDoc extends BaseDoc {
   /** Empty until the official PSGC file is loaded; codes are never invented (ADR-0005). */
   psgcCode: string | null
@@ -21,6 +27,7 @@ const municipalitySchema = new Schema<MunicipalityDoc>(
 )
 municipalitySchema.plugin(softDelete)
 municipalitySchema.index({ normalizedName: 1 }, uniqueAmongAlive)
+municipalitySchema.index({ psgcCode: 1 }, uniqueOnceCoded)
 municipalitySchema.pre('validate', function () {
   this.normalizedName = normalizeName(this.name)
 })
@@ -49,6 +56,7 @@ const barangaySchema = new Schema<BarangayDoc>(
 )
 barangaySchema.plugin(softDelete)
 barangaySchema.index({ municipalityId: 1, normalizedName: 1 }, uniqueAmongAlive)
+barangaySchema.index({ psgcCode: 1 }, uniqueOnceCoded)
 barangaySchema.pre('validate', function () {
   this.normalizedName = normalizeName(this.name)
 })

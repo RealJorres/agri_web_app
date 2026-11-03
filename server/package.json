@@ -10,6 +10,8 @@
     "dev": "tsx watch src/server.ts",
     "dev:memory": "tsx scripts/dev-memory.ts",
     "create-admin": "tsx scripts/create-admin.ts",
+    "seed": "tsx scripts/seed.ts",
+    "seed-psgc": "tsx scripts/seed-psgc.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
@@ -21,8 +23,12 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "ajv": "^8.20.0",
     "argon2": "^0.45.2",
     "cookie-parser": "^1.4.7",
+    "csv-parse": "^7.0.3",
+    "decimal.js": "^10.6.0",
+    "exceljs": "^4.4.0",
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.3",
     "helmet": "^8.3.0",

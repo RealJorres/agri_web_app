@@ -7,7 +7,7 @@ import { hashPassword } from '../../src/lib/passwords.js'
 import type { Role } from '../../src/lib/roles.js'
 import { User, UserAssignment, type UserDoc } from '../../src/models/account.models.js'
 import { Barangay, Municipality } from '../../src/models/location.models.js'
-import { Program } from '../../src/models/catalog.models.js'
+import { Commodity, Program, type CommodityDoc } from '../../src/models/catalog.models.js'
 import { issueTokens } from '../../src/services/auth.service.js'
 
 export const TEST_PASSWORD = 'synthetic-Passw0rd-for-tests'
@@ -50,6 +50,21 @@ export async function makeBarangay(municipalityId: string, name?: string) {
 export async function makeProgram(code?: string) {
   const unique = code ?? `P${next()}`
   return (await Program.create({ code: unique, name: `Sample program ${unique}` })).toObject()
+}
+
+export async function makeCommodity(
+  programId: string,
+  fields: Partial<Pick<CommodityDoc, 'code' | 'name' | 'attributesSchema' | 'plantsPerHa'>> = {},
+) {
+  const n = next()
+  const commodity = await Commodity.create({
+    programId,
+    code: `CROP${String(n)}`,
+    name: `Sample crop ${String(n)}`,
+    measureType: 'trees',
+    ...fields,
+  })
+  return commodity.toObject()
 }
 
 export async function userWithRole(

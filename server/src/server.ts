@@ -2,6 +2,7 @@ import { createApp } from './app.js'
 import { connectDatabase, disconnectDatabase } from './config/database.js'
 import { EnvError, loadEnv, type Env } from './config/env.js'
 import { logger, safeErrorDetails } from './lib/logger.js'
+import { municipalitiesWithoutPsgc } from './selectors/location.selectors.js'
 
 const RETRY_MS = 10_000
 
@@ -25,6 +26,12 @@ async function connectWithRetry(): Promise<void> {
   try {
     await connectDatabase(env.MONGODB_URI, env.MONGODB_DB, { autoIndex: !production })
     logger.info('database.connected', { database: env.MONGODB_DB })
+    if (production) {
+      const missing = await municipalitiesWithoutPsgc()
+      if (missing.length > 0) {
+        logger.warn('locations.psgc_codes_missing', { municipalities: missing.join(', ') })
+      }
+    }
   } catch (error) {
     logger.error('database.connect_failed', { ...safeErrorDetails(error), retryMs: RETRY_MS })
     if (!stopping) {

@@ -84,3 +84,4 @@ decision for the product owner, and it needs Docker one last time.
 | Small differences from Postgres or Python behaviour (rounding, name matching, Excel parsing) | Brief §3 figures as acceptance tests; ported tests; review-list counts compared with the existing real-data tests |
 | A query forgets scoping | One scoped query helper, permission matrix, a test that every route has a matrix row |
 | Real data reaches Atlas before approval | Real data is loaded only at M8; tests cannot connect to Atlas |
+| `exceljs` is no longer actively maintained and brings moderate audit advisories through `archiver` and `uuid` | The flagged code paths (glob matching, `uuid` v3/v5/v6 with a buffer) are not called by `exceljs`. CI still fails on high severity. Review again at M5, when uploads reach this code |
