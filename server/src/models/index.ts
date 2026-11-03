@@ -1,0 +1,10 @@
+/** Loads every model, for scripts and checks that work across all collections. */
+import './account.models.js'
+import './auditLog.model.js'
+import './catalog.models.js'
+import './farm.models.js'
+import './import.models.js'
+import './location.models.js'
+import './registry.models.js'
+import './report.models.js'
+import './survey.models.js'

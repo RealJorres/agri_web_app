@@ -1,6 +1,8 @@
 # ADR-0009: Uploaded workbooks and error reports are private, short-lived files
 Status: Accepted · 2026-10-26
 
+> Still in force. On Express the folder is `PRIVATE_FILES_DIR`, and the host needs a lasting disk (ADR-0022).
+
 **Context.** Uploaded workbooks and generated error reports contain personal data.
 
 **Decision.** Store them under a private storage root (`PRIVATE_MEDIA_ROOT`, never served as static or

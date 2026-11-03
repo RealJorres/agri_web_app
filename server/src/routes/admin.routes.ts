@@ -14,7 +14,7 @@ function route(
   return { method, path: `/admin${path}`, access: ADMIN, handlers }
 }
 
-/** Staff accounts, the catalog and report settings. These replace the Django admin site (ADR-0021). */
+/** Staff accounts, the catalog and report settings. See ADR-0021. */
 export const ADMIN_ROUTES: RouteDefinition[] = [
   route('get', '/users', admin.listUsers),
   route('post', '/users', admin.createStaffUser),

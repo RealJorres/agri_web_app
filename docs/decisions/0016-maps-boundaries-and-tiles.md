@@ -29,8 +29,9 @@ default OSM server therefore learns the rough area around any farm a user zooms 
 identifies the farm or farmer. This is accepted for low-volume internal use and is another reason to
 move to self-hosted tiles before wider use.
 
-**Deployment.** The web server's CSP for the SPA must allow the tile host in `img-src` and
-`connect-src`, and `blob:` in `worker-src` (MapLibre runs its workers from blobs). Device GPS needs
+**Deployment.** Pages send `Referrer-Policy: strict-origin-when-cross-origin`, because OpenStreetMap refuses
+tile requests with no referrer. Only the site address is sent, never a path or record id. The web server's CSP for the SPA must allow the tile host in `img-src` and
+`connect-src`, and `'self'` in `worker-src` (MapLibre loads its worker from the built files). Device GPS needs
 HTTPS outside localhost.
 
 **On MongoDB (ADR-0019).** The loader is `npm run seed-boundaries -w server`. Shapes are stored as

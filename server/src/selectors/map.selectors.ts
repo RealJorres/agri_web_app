@@ -10,8 +10,10 @@ import { Barangay, Municipality, type MultiPolygon } from '../models/location.mo
 const SIMPLIFY_TOLERANCE_DEG = 0.0002
 const COORDINATE_DECIMALS = 5
 
+export const DEFAULT_TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+
 const DEFAULTS = {
-  tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  tileUrl: DEFAULT_TILE_URL,
   tileAttribution: '© OpenStreetMap contributors',
   center: [121.97, 13.4],
   zoom: 10,

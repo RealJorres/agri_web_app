@@ -18,11 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Reject data files, spreadsheets and .env
+      - name: Reject data files, spreadsheets, uploads and .env
         run: |
           bad=$(git ls-files \
-            | grep -E '^data/|\.(xlsx|xls|xlsm|csv)$|(^|/)\.env$' \
-            | grep -v '^backend/apps/imports/templates/' || true)
+            | grep -E '^data/|^private_files/|\.(xlsx|xls|xlsm|csv)$|(^|/)\.env$' || true)
           if [ -n "$bad" ]; then
             echo "::error::Tracked files that may contain personal data or secrets:"
             echo "$bad"
@@ -35,65 +34,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Install gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.24.0/gitleaks_8.24.0_linux_x64.tar.gz \
+            | tar -xz gitleaks
       - name: gitleaks (full history)
-        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.24.0 detect --source /repo --redact --no-banner
-
-  backend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
-    services:
-      db:
-        image: postgis/postgis:16-3.4
-        env:
-          POSTGRES_DB: agri
-          POSTGRES_USER: agri
-          POSTGRES_PASSWORD: agri-ci-password
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U agri -d agri"
-          --health-interval 5s --health-timeout 5s --health-retries 10
-      redis:
-        image: redis:7-alpine
-        ports: ["6379:6379"]
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s --health-timeout 3s --health-retries 10
-    env:
-      DATABASE_URL: postgis://agri:agri-ci-password@localhost:5432/agri
-      REDIS_URL: redis://localhost:6379/0
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install GeoDjango system libraries
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gdal-bin libproj-dev libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 fonts-dejavu-core
-      - uses: astral-sh/setup-uv@v6
-        with:
-          version: "0.13.5"
-          enable-cache: true
-          cache-dependency-glob: backend/uv.lock
-      - run: uv python install 3.12
-      - run: uv sync --frozen
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uv run mypy
-      - run: uv run python manage.py makemigrations --check --dry-run --settings=config.settings.test
-      - run: uv run pytest
-      - name: Coverage gate on business logic (Definition of Done)
-        run: uv run coverage report --include='*/services.py,*/selectors.py,*/permissions.py,common/scoping.py,apps/surveys/rules.py' --fail-under=85
-      - name: Deploy checklist with production settings
-        env:
-          DJANGO_SECRET_KEY: ci-${{ github.run_id }}-0123456789abcdefghijklmnopqrstuvwxyz0123456789
-          DJANGO_ALLOWED_HOSTS: agri.example.gov.ph
-        run: uv run python manage.py check --deploy --fail-level WARNING --settings=config.settings.prod --tag security
-      - name: OpenAPI schema committed for the frontend is up to date (ADR-0011)
-        run: |
-          uv run python manage.py spectacular --validate --format openapi-json --settings=config.settings.test > /tmp/openapi.json
-          diff -q /tmp/openapi.json ../frontend/openapi.json || (echo "::error::Run make schema and commit frontend/openapi.json" && exit 1)
-      - name: Known vulnerabilities in Python dependencies
-        run: |
-          uv export --frozen --no-hashes --format requirements-txt > /tmp/requirements.txt
-          uvx pip-audit --strict -r /tmp/requirements.txt
+        run: ./gitleaks detect --source . --redact --no-banner
 
   server:
     runs-on: ubuntu-latest
@@ -114,7 +60,8 @@ jobs:
       - run: npm run lint -w server
       - run: npm run typecheck -w server
       - run: npm run format:check -w server
-      - run: npm test -w server
+      - name: Tests, with the coverage gate
+        run: npm run test:coverage -w server
       - run: npm run build -w server
 
   frontend:
@@ -131,5 +78,10 @@ jobs:
       - run: npm run format:check -w frontend
       - run: npm test -w frontend
       - run: npm run build -w frontend
+      - name: API types match the contract (ADR-0011)
+        run: |
+          npm run gen:api -w frontend
+          git diff --exit-code frontend/src/lib/api/schema.d.ts \
+            || (echo "::error::Run npm run gen:api -w frontend and commit the result" && exit 1)
       - name: Known vulnerabilities in npm dependencies (high and above)
         run: npm audit --omit=dev --audit-level=high

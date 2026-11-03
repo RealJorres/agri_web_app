@@ -1,6 +1,8 @@
 # ADR-0014: Analytics through refreshed materialized views
 Status: Accepted · 2026-10-27
 
+> **Superseded by ADR-0019.** MongoDB has no materialized views here; figures are aggregated per request.
+
 **Context.** Brief rule 2.1 forbids stored totals; §15 asks for materialized views for analytics.
 Dashboards aggregate across rounds, municipalities, barangays and stages and must stay fast.
 

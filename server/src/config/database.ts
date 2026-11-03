@@ -26,6 +26,7 @@ export async function connectDatabase(
   await mongoose.connect(uri, {
     dbName,
     autoIndex,
+    autoCreate: autoIndex,
     // Fail at once while disconnected, rather than queueing writes that may run much later.
     bufferCommands: false,
     serverSelectionTimeoutMS: 5000,

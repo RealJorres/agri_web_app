@@ -1,6 +1,6 @@
 /**
  * Dashboard figures, computed from approved and locked records on every request and limited to the
- * caller's scope. Nothing is stored (rule 1), which replaces Django's materialized views (ADR-0019).
+ * caller's scope. Nothing is stored (rule 1).
  */
 import type { Decimal } from 'decimal.js'
 import type { ClientSession, Types } from 'mongoose'

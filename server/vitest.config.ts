@@ -13,6 +13,7 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.ts'],
       exclude: ['src/server.ts'],
+      thresholds: { lines: 85 },
     },
   },
 })

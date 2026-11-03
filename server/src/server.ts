@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { createApp } from './app.js'
 import { connectDatabase, disconnectDatabase } from './config/database.js'
 import { EnvError, loadEnv, type Env } from './config/env.js'
@@ -63,10 +66,28 @@ async function connectWithRetry(): Promise<void> {
   }
 }
 
+/** In production this server also serves the built frontend, so it refuses to start without it. */
+function builtFrontend(): string | undefined {
+  if (!production) return undefined
+  const dir = env.STATIC_DIR ?? join(import.meta.dirname, '..', '..', 'frontend', 'dist')
+  if (!existsSync(join(dir, 'index.html'))) {
+    console.error('The built frontend is missing. Run npm run build first.')
+    process.exit(1)
+  }
+  return dir
+}
+
+const staticDir = builtFrontend()
 const app = createApp({
   production,
   trustedProxies: env.TRUSTED_PROXY_COUNT,
-  csrfTrustedOrigins: env.CSRF_TRUSTED_ORIGINS,
+  csrfTrustedOrigins: [
+    ...env.CSRF_TRUSTED_ORIGINS,
+    ...(env.PUBLIC_ORIGIN ? [env.PUBLIC_ORIGIN] : []),
+  ],
+  ...(env.PUBLIC_ORIGIN ? { publicOrigin: env.PUBLIC_ORIGIN } : {}),
+  ...(staticDir ? { staticDir } : {}),
+  ...(env.MAP_TILE_URL ? { tileUrl: env.MAP_TILE_URL } : {}),
 })
 const server = app.listen(env.PORT, env.HOST, (error) => {
   if (error) {

@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react'
 
 import type { Schemas } from '@/lib/api/client'
 
-/** Mirrors apps/accounts/roles.py Cap. The UI hides what you cannot do; the API enforces it. */
+/** Mirrors Cap in server/src/lib/roles.ts. The UI hides what you cannot do; the API enforces it. */
 export type Capability =
   | 'view_aggregates'
   | 'view_records'

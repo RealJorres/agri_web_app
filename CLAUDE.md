@@ -1,8 +1,9 @@
 # CLAUDE.md — agri-dms
 
 Marinduque Agri Data Management & Analytics System for the Provincial Agriculture Office (PAO).
-Full requirements: `docs/PROJECT_BRIEF.md` (source of truth — re-read it at the start of a milestone).
-Decisions: `docs/decisions/` (ADRs). Phase 1 plan: `docs/PLAN_PHASE1.md`.
+Full requirements: `docs/PROJECT_BRIEF.md` (source of truth for what it does; ADR-0019 supersedes its
+stack and layout sections). Decisions: `docs/decisions/` (ADRs). How it fits together:
+`docs/architecture.md`. Going live: `docs/deployment.md`.
 
 ## What it is
 One commodity-agnostic system replacing Excel crop inventories. Farmer-level records are entered once
@@ -11,90 +12,90 @@ summary/report is computed from approved records. Cacao (HVCDP) first; other cro
 not new code.
 
 ## Non-negotiable rules
-1. **Never store totals.** Summaries are queries/views over approved records. (Derived values such as
+1. **Never store totals.** Summaries are queries over approved records. (Derived values such as
    area-from-tree-count are computed, not stored — ADR-0004.)
 2. **Personal data is protected (RA 10173).** Never commit `data/raw/`, `data/reference/`, `.env`,
-   uploaded files, or any real personal data. Tests, fixtures, seeds and demo data use SYNTHETIC
-   names only. Never print real farmer data in logs, test output, commit messages or chat.
-3. **Server-side scoping on every query** by role + assignment (municipality/program/barangay),
-   via `common.scoping.ScopedQuerySetMixin`. The frontend is never an access-control layer.
-   Out-of-scope objects return **404**, not 403.
-4. **Business rules live in `services.py`** (writes) and `selectors.py` (reads) — never in views,
-   serializers, model `save()`, or signals. Views are thin: parse → call service → serialize.
-   (Only mechanical derived columns such as `normalized_name` may be set in `save()`.)
+   `private_files/`, uploaded files, or any real personal data. Tests, fixtures, seeds and demo data use
+   SYNTHETIC names only. Never print real farmer data in logs, test output, commit messages or chat.
+3. **Server-side scoping on every query** by role + assignment (municipality/program/barangay), through
+   `lib/scoping.ts`. Combine filters with `within(scope, ...conditions)`, never by spreading a scope
+   filter. The frontend is never an access-control layer. Out-of-scope objects return **404**, not 403.
+4. **Business rules live in `services/`** (writes) and `selectors/` (reads) — never in controllers,
+   validators, routes or model hooks. Controllers are thin: parse → call service → shape the response.
 5. **Audit log** every state change, approval, delete, merge and personal-data export
-   (`apps.audit.services.record(...)`, called from services, inside the same transaction).
-6. **No secrets in code.** Settings read env vars via django-environ; keep `.env.example` current.
+   (`services/audit.service.ts`, called from services, inside the same transaction).
+6. **No secrets in code.** Settings come from env vars through `config/env.ts`; keep `.env.example`
+   current. The connection string belongs in `.env`, never in chat or git.
 7. **Small conventional commits** (`feat(registry): ...`, `fix(imports): ...`, `test:`, `docs:`,
    `chore:`). Tests + lint must pass before every commit.
 
-## Tech stack
-- Backend: Python 3.12, Django 5.2 LTS, DRF, drf-spectacular, django-filter, simplejwt, django-axes,
-  argon2-cffi, django-environ, django-cors-headers, psycopg 3, Celery 5 + Redis 7, openpyxl + pandas,
-  rapidfuzz. Deps via **uv** + `backend/pyproject.toml`.
-- DB: PostgreSQL 16 + PostGIS (GeoDjango), `pg_trgm`. UUID primary keys everywhere.
-- Frontend: React 19, Vite, TypeScript strict, Tailwind v4, React Router, TanStack Query v5 +
-  Table v8, React Hook Form + Zod, API client generated from OpenAPI (`openapi-typescript` +
-  `openapi-fetch`). Node 22, npm.
-- Tooling: Docker Compose, Makefile, ruff, mypy, ESLint + Prettier, pytest + pytest-django +
-  factory_boy, Vitest + Testing Library, GitHub Actions.
+## Tech stack (ADR-0019)
+- Server: Node 22, Express 5, Mongoose 9, TypeScript strict (NodeNext ESM, `.js` import suffixes), zod,
+  argon2, jsonwebtoken, multer, helmet, exceljs, pdfkit, proj4, shapefile, decimal.js.
+- Database: MongoDB Atlas. UUID strings as `_id`. Transactions need a replica set.
+- Frontend: React 19, Vite, TypeScript strict, Tailwind v4, React Router, TanStack Query v5 + Table v8,
+  React Hook Form + Zod, API client generated from `frontend/openapi.json` (`openapi-typescript` +
+  `openapi-fetch`).
+- Tooling: npm workspaces, ESLint + Prettier, Vitest + supertest + `mongodb-memory-server`, Testing
+  Library, GitHub Actions. **No Docker.**
 
-## Folder layout
-The repo root is this directory (the brief's `agri-dms/`).
+## Folder layout (MVC)
 ```
-backend/
-  config/settings/{base,dev,prod,test}.py, urls.py, celery.py, wsgi.py
-  common/        BaseModel (UUID, timestamps, created_by/updated_by, soft delete), scoping,
-                 permissions, pagination, exception handler
-  apps/{accounts,locations,catalog,registry,farms,surveys,production,imports,audit}/
-       models.py serializers.py views.py urls.py filters.py permissions.py
-       services.py selectors.py admin.py tests/
-  tests/         cross-app tests (permission matrix, acceptance import tests)
-frontend/src/{app,features,components/ui,lib}
-infra/           docker-compose.yml, scripts/
-docs/            PROJECT_BRIEF.md, architecture.md, data-dictionary.md, decisions/
-data/raw/        (gitignored) source workbooks — READ-ONLY, never modify
-data/reference/  (gitignored) PSGC file from the PAO
+server/src/   models/ controllers/ routes/ services/ selectors/ middleware/ validators/ lib/ config/
+server/scripts/   seed, seed-psgc, seed-boundaries, import-workbook, create-admin, create-indexes,
+                  db-role, integrity, data-dictionary, dev-memory
+server/tests/     Vitest; tests/support/ has factories, the contract check and the synthetic workbook
+frontend/src/     app, features/<feature>, components/ui, lib
+frontend/openapi.json   the maintained API contract; server tests check responses against it
+docs/             PROJECT_BRIEF.md, architecture.md, deployment.md, data-dictionary.md, decisions/
+data/raw/         (gitignored) source workbooks — READ-ONLY, never modify
+data/reference/   (gitignored) PSGC and boundary files from the PAO
+private_files/    (gitignored) uploads and error reports; they hold personal data
 ```
 
-## Commands
-All dev runs through Docker (GeoDjango needs GDAL/GEOS; do not try to run Django on the Windows host).
-`make` is required (Windows: `choco install make`, run from Git Bash) — see ADR-0008.
+## Commands (from the repo root)
 ```
-make up / make down            start / stop db, redis, api, worker, frontend
-make migrate                   apply migrations
-make seed                      municipalities + catalog (cacao) [+ PSGC if data/reference/ present]
-make seed-demo                 synthetic demo data
-make import-legacy FILE=data/raw/cacao_production_data_as_of_july_2023.xlsx
-make test                      backend pytest (+ coverage) and frontend vitest
-make lint                      ruff check, ruff format --check, mypy, eslint, tsc --noEmit
-make fmt                       ruff format + ruff check --fix, prettier --write
-make schema                    export OpenAPI → regenerate frontend/src/lib/api/schema.d.ts
+npm ci                          install
+npm run dev:memory              app on a throwaway local database, with a generated admin password
+npm run dev                     app on the database in .env (that is Atlas: mind what you run)
+npm test                        server and frontend tests (never touch Atlas)
+npm run lint                    ESLint, tsc and the Prettier check, on both workspaces
+npm run fmt                     Prettier on both workspaces
+npm run build                   server and frontend; `npm start` then runs production
+npm run gen:api -w frontend     regenerate schema.d.ts after changing frontend/openapi.json
+npm run data-dictionary -w server   regenerate docs/data-dictionary.md after changing a model
+npm run seed -w server          municipalities and catalog [+ PSGC if data/reference/ has it]
+npm run import-workbook -w server -- <file>   preview and commit a workbook
+npm run integrity -w server     check references between documents
 ```
-Backend only: `docker compose -f infra/docker-compose.yml run --rm api uv run pytest path::test -x`
-Tests needing the real workbook are marked `@pytest.mark.real_data` and auto-skip when
-`data/raw/` is absent.
+Single test: `cd server && npx vitest run tests/farms.test.ts -t "name"`. Tests needing the real
+workbook skip themselves when `data/raw/` is absent.
+
+**`.env` points at Atlas.** `npm run dev`, `seed` and `import-workbook` act on it. Use `dev:memory` for
+trying things. Real data goes to Atlas only as `docs/deployment.md` describes, after PAO approval.
 
 ## Coding conventions
-- Python: ruff (line 100), full type hints in `services.py`/`selectors.py` (mypy strict there).
-  Services take keyword-only args and an explicit `actor: User`; wrap writes in
-  `transaction.atomic()`; raise `common.exceptions.DomainError(code, message, fields)` for rule
-  violations (rendered as `{code, message, fields}`).
-- Workflow state changes only via `apps.surveys.services` transition functions — status is
-  read-only in serializers; no generic PATCH of `status`.
-- Every record-level viewset inherits `ScopedQuerySetMixin` (set `scope_barangay_path` /
-  `scope_municipality_path` / `scope_program_path`) and uses `common.permissions.HasCapability`
-  (capabilities in `apps/accounts/roles.py`, never role-name checks). Every new endpoint gets an
-  `Endpoint` row in `backend/tests/test_permission_matrix.py`.
-- Soft-deleted rows are excluded by the default manager; uniqueness constraints are partial
-  (`condition=Q(deleted_at__isnull=True)`).
-- Catalog-driven, not crop-specific: never hard-code "cacao", stage codes or 625 outside seeds,
-  the legacy-import adapter, and tests.
-- Factories (`factory_boy`) use obviously synthetic data (surnames "Sample<n>").
-- `apps/imports` is split by step: `uploads.py` (file safety), `normalizers.py` (pure cell
-  parsers), `legacy_cacao_2023.py` (reader), `legacy_plan.py` (plan + reconciliation, read-only),
-  `template.py` (clean template), `exports.py`, `services.py` (job lifecycle + legacy commit).
-  The synthetic workbook in `apps/imports/tests/legacy_fixture.py` mirrors every §3 defect.
-- Frontend: feature folders own their pages/components/hooks/api; shared UI in `components/ui`;
-  server state only in TanStack Query; forms with RHF + Zod; no `any`; access token in memory only.
+- TypeScript: Prettier (line 100), no `any`. Services take a keyword-style input object with an actor,
+  wrap writes in `inTransaction`, and throw `DomainError(code, message, fields, status)`, rendered as
+  `{code, message, fields}`.
+- Load documents inside the transaction callback, because the driver may retry it. `inTransaction` joins
+  an outer transaction. Call `lockForWrite(parent)` before inserting a child, since MongoDB has no foreign
+  keys. Transactions abort at 60 s, so bulk-write large commits (ADR-0020).
+- Workflow state changes only through `services/surveyWorkflow.ts`. Status is not writable through a
+  generic update.
+- Every route is declared in a route table with who may call it (`routes/registry.ts`), using capabilities
+  from `lib/roles.ts`, never role names. Every new route gets a row or a stated exemption in
+  `server/tests/permissionMatrix.test.ts`, and an entry in `frontend/openapi.json`.
+- A new collection must also be added to the Atlas role (ADR-0022): `npm run db-role -w server` shows it.
+- Soft-deleted documents are hidden by the `softDelete` plugin. Aggregations must match
+  `isDeleted: false` themselves. Unique indexes use `uniqueAmongAlive`.
+- Public catalog routes never expose aliases; those are on admin routes only.
+- Catalog-driven, not crop-specific: never hard-code "cacao", stage codes or 625 outside seeds, the
+  legacy-workbook adapter, and tests.
+- Factories use obviously synthetic data (surnames "Sample<n>"). The synthetic workbook in
+  `tests/support/workbookFixture.ts` mirrors every defect in brief §3.
+- Frontend: feature folders own their pages/components/hooks/api; shared UI in `components/ui`; server
+  state only in TanStack Query; forms with RHF + Zod; no `any`; access token in memory only.
 - Write an ADR (`docs/decisions/NNNN-title.md`) for any significant or brief-deviating decision.
+- Windows: to stop a dev server you started, find it by port and verify its command line. Awaiting a
+  supertest request runs it, so add `.attach` before awaiting `signedIn(...)`.

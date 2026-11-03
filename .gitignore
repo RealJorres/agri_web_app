@@ -3,28 +3,14 @@ data/raw/
 data/reference/
 media/
 private_files/
-backend/media/
 *.xlsx
 *.xls
 *.csv
-!backend/apps/imports/templates/**/*.xlsx
 
 # --- Secrets ---
 .env
 .env.*
 !.env.example
-
-# --- Python ---
-__pycache__/
-*.py[cod]
-.venv/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-coverage.xml
-htmlcov/
-*.egg-info/
 
 # --- Node ---
 node_modules/
@@ -40,5 +26,4 @@ Thumbs.db
 .vscode/
 
 # runtime / build output
-backend/celerybeat-schedule*
 *.tsbuildinfo

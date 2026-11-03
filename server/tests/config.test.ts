@@ -30,9 +30,37 @@ describe('parseEnv', () => {
   })
 
   it('requires an explicit database name in production', () => {
-    const production = { NODE_ENV: 'production', MONGODB_URI: URI, JWT_SIGNING_KEY: SIGNING_KEY }
+    const production = {
+      NODE_ENV: 'production',
+      MONGODB_URI: URI,
+      JWT_SIGNING_KEY: SIGNING_KEY,
+      PUBLIC_ORIGIN: 'https://agri.example.test',
+      TRUSTED_PROXY_COUNT: '1',
+    }
     expect(() => parseEnv(production)).toThrow(/MONGODB_DB is required in production/)
     expect(parseEnv({ ...production, MONGODB_DB: 'agri_prod' }).MONGODB_DB).toBe('agri_prod')
+  })
+
+  it('requires a public HTTPS address and a proxy in production', () => {
+    const settings = {
+      NODE_ENV: 'production',
+      MONGODB_URI: URI,
+      MONGODB_DB: 'agri_prod',
+      JWT_SIGNING_KEY: SIGNING_KEY,
+    }
+    const proxied = { ...settings, TRUSTED_PROXY_COUNT: '1' }
+    const secure = { ...settings, PUBLIC_ORIGIN: 'https://agri.example.test' }
+    expect(() => parseEnv(proxied)).toThrow(/PUBLIC_ORIGIN is required/)
+    expect(() => parseEnv(secure)).toThrow(/TRUSTED_PROXY_COUNT must be at least 1/)
+    expect(() => parseEnv({ ...proxied, PUBLIC_ORIGIN: 'http://agri.example.test' })).toThrow(
+      /PUBLIC_ORIGIN must look like/,
+    )
+    expect(() => parseEnv({ ...proxied, PUBLIC_ORIGIN: 'https://agri.example.test/app' })).toThrow(
+      /PUBLIC_ORIGIN must look like/,
+    )
+    expect(parseEnv({ ...proxied, PUBLIC_ORIGIN: 'https://agri.example.test' }).PUBLIC_ORIGIN).toBe(
+      'https://agri.example.test',
+    )
   })
 
   it.each([undefined, 'short', `insecure-${'a'.repeat(50)}`])(

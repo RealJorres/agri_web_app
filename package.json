@@ -13,6 +13,7 @@
     "dev": "concurrently --names api,web --kill-others-on-fail \"npm run dev -w server\" \"npm run dev -w frontend\"",
     "dev:memory": "concurrently --names api,web --kill-others-on-fail \"npm run dev:memory -w server\" \"npm run dev -w frontend\"",
     "build": "npm run build -w server && npm run build -w frontend",
+    "start": "npm start -w server",
     "test": "npm test -w server && npm test -w frontend",
     "lint": "npm run lint -w server && npm run typecheck -w server && npm run format:check -w server && npm run lint -w frontend && npm run typecheck -w frontend && npm run format:check -w frontend",
     "fmt": "npm run format -w server && npm run format -w frontend"

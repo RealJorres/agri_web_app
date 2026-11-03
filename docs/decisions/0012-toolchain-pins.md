@@ -1,6 +1,8 @@
 # ADR-0012: Toolchain version pins
 Status: Accepted · 2026-10-26
 
+> The Python, Django and Docker pins below ended with ADR-0019.
+
 **Context.** At scaffold time the newest TypeScript is 7.x, but `typescript-eslint` 8.72 accepts
 `<6.1` and `openapi-typescript` 7.13 accepts `^5`.
 

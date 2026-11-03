@@ -26,6 +26,11 @@ const schema = z
     JWT_SIGNING_KEY: z.string().optional(),
     TRUSTED_PROXY_COUNT: z.coerce.number().int().min(0).default(0),
     CSRF_TRUSTED_ORIGINS: z.string().default(''),
+    PUBLIC_ORIGIN: z
+      .string()
+      .regex(/^https:\/\/[^/\s]+$/, 'must look like https://agri.example.gov.ph, with no path')
+      .optional(),
+    STATIC_DIR: z.string().min(1).optional(),
     PRIVATE_FILES_DIR: z.string().min(1).optional(),
     MAP_TILE_URL: z.string().min(1).optional(),
     MAP_TILE_ATTRIBUTION: z.string().optional(),
@@ -41,6 +46,21 @@ const schema = z
         code: 'custom',
         path: ['MONGODB_DB'],
         message: 'is required in production',
+      })
+    }
+    if (!value.PUBLIC_ORIGIN) {
+      context.addIssue({
+        code: 'custom',
+        path: ['PUBLIC_ORIGIN'],
+        message: 'is required in production',
+      })
+    }
+    // This server does not end TLS itself, so with no proxy every request would look like plain HTTP.
+    if (value.TRUSTED_PROXY_COUNT < 1) {
+      context.addIssue({
+        code: 'custom',
+        path: ['TRUSTED_PROXY_COUNT'],
+        message: 'must be at least 1 in production, for the proxy that ends HTTPS',
       })
     }
     const key = value.JWT_SIGNING_KEY ?? ''

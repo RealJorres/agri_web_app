@@ -1,6 +1,6 @@
 # MERN migration plan
 
-Status: **approved 2026-11-03.** Design decisions: ADR-0019. P2-M6 and P2-M7 wait until this is
+Status: **approved 2026-11-03. Code finished 2026-11-03; loading real data follows `docs/deployment.md`.** Design decisions: ADR-0019. P2-M6 and P2-M7 wait until this is
 finished.
 
 ## Approach
