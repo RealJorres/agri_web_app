@@ -67,6 +67,7 @@ npm run data-dictionary -w server   regenerate docs/data-dictionary.md after cha
 npm run seed -w server          municipalities and catalog [+ PSGC if data/reference/ has it]
 npm run import-workbook -w server -- <file>   preview and commit a workbook
 npm run integrity -w server     check references between documents
+npm run seed-demo -w server     rebuild the synthetic agri_demo database (needs MONGODB_DB=agri_demo)
 ```
 Single test: `cd server && npx vitest run tests/farms.test.ts -t "name"`. Tests needing the real
 workbook skip themselves when `data/raw/` is absent.

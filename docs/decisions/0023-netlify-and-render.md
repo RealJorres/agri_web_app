@@ -22,9 +22,11 @@ longer serves the frontend unless `STATIC_DIR` is set. The page's security heade
 sees them unencrypted at its proxy, even though every hop is HTTPS. This is a new processor for RA 10173
 purposes, and the PAO should know.
 
-**Demo accounts on the sign-in page.** The product owner asked for credentials there, for easy demos. They come
-from a build-time variable and are off by default, so no password is in git. They are public once set, so the
-runbook says which roles are safe to list while the database holds real data.
+**Demo accounts on the sign-in page.** The product owner asked for an account per role there, for easy demos. Six of
+the seven roles can read personal data and the page is public, so those accounts exist only in a separate database,
+`agri_demo`, whose farmers are all made up (`seed-demo`, which refuses any other database). A site showing them
+runs on that database, and the real data stays in `agri_prod`. Credentials come from a build-time variable, so none
+are in git.
 
 **Limits to revisit before real use.** Move to paid tiers, or a host with a lasting disk and no sleep. Atlas's
 free tier has no backups the PAO could restore from. Render's outbound addresses are shared by everyone in the

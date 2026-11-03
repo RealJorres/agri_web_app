@@ -87,6 +87,7 @@ export default function LoginPage() {
             className="mt-4 rounded-lg border border-line bg-surface p-4 shadow-sm"
           >
             <h2 className="text-sm font-semibold">Demo accounts</h2>
+            <p className="mt-1 text-xs text-muted">One per role. All farmers here are made up.</p>
             <ul className="mt-2 divide-y divide-line">
               {DEMO_ACCOUNTS.map((account) => (
                 <li key={account.email} className="flex items-center justify-between gap-3 py-2">

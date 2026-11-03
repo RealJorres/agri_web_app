@@ -99,25 +99,29 @@ Sign in, then look at the newest `audit_logs` entry's `ip` in Atlas. It should b
 - If it is an address of Netlify's, Cloudflare's or Render's, raise `TRUSTED_PROXY_COUNT` by one, and check again.
 - If you can change it by sending your own `X-Forwarded-For` header straight to the Render address, lower it.
 
-## Demo accounts on the sign-in page (optional)
+## Demo site with sign-in accounts (optional)
 
 The sign-in page can list accounts with a **Use** button that fills in the form. It is off unless the Netlify
-variable `VITE_DEMO_ACCOUNTS` is set, then redeployed:
+variable `VITE_DEMO_ACCOUNTS` is set. **Whatever is listed there is public**, and six of the seven roles can read
+personal data, so a site listing them must run on the synthetic database, never on `agri_prod`.
 
-```json
-[{ "role": "Viewer", "email": "viewer@example.test", "password": "..." }]
-```
+1. With the administrator's account, build the synthetic database:
 
-**Whatever is listed is public.** Anyone who can open the site can read it on the page and in the site's files.
-On this deployment the database holds real farmer data, so:
+   ```powershell
+   $env:MONGODB_DB='agri_demo'; npm run seed-demo -w server
+   ```
 
-- **Viewer** is the only role that sees no personal data, and the only one safe to list here.
-- Any other role lets a stranger read farmers' names and contact details (RA 10173). A system admin account also
-  lets them change or remove users and records, and lock you out.
-- To show the other roles, either sign in with their passwords yourself during the demo, or restrict who can
-  reach the site. To list them all, point a separate site at a synthetic database first.
+   It deletes and rebuilds `agri_demo`, refuses any other database, and writes `demo-accounts.json`, which is
+   gitignored. Run it again to undo what visitors changed. Each run makes new passwords.
+2. In Atlas, give the application's database user `readWrite` on `agri_demo`.
+3. On Render, set `MONGODB_DB` to `agri_demo`.
+4. On Netlify, set `VITE_DEMO_ACCOUNTS` to the contents of `demo-accounts.json`, without ticking **Contains secret
+   values**, and redeploy. If the secrets scan stops the build, also set `SECRETS_SCAN_OMIT_KEYS` to
+   `VITE_DEMO_ACCOUNTS`.
 
-Remove the variable and change the passwords after the demo.
+**To go back to the real data:** delete `VITE_DEMO_ACCOUNTS` and redeploy **first**, then set `MONGODB_DB` back to
+`agri_prod` on Render. The demo accounts do not exist in `agri_prod`, and the real administrator's account does not
+exist in `agri_demo`.
 
 ## Living with the free tiers
 

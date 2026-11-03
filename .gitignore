@@ -3,6 +3,7 @@ data/raw/
 data/reference/
 media/
 private_files/
+demo-accounts.json
 *.xlsx
 *.xls
 *.csv

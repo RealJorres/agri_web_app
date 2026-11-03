@@ -11,6 +11,7 @@
     "dev:memory": "tsx scripts/dev-memory.ts",
     "create-admin": "tsx scripts/create-admin.ts",
     "seed": "tsx scripts/seed.ts",
+    "seed-demo": "tsx scripts/seed-demo.ts",
     "seed-psgc": "tsx scripts/seed-psgc.ts",
     "integrity": "tsx scripts/integrity.ts",
     "create-indexes": "tsx scripts/create-indexes.ts",
