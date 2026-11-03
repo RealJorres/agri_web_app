@@ -39,7 +39,7 @@ jobs:
           curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.24.0/gitleaks_8.24.0_linux_x64.tar.gz \
             | tar -xz gitleaks
       - name: gitleaks (full history)
-        run: ./gitleaks detect --source . --redact --no-banner
+        run: ./gitleaks detect --source . --redact --verbose --no-banner
 
   server:
     runs-on: ubuntu-latest
