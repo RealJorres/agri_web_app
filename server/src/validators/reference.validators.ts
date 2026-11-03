@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
-const id = z.guid('Must be a valid UUID.').optional()
+import { filterId } from './common.js'
 
 export const barangayQuery = z.object({
-  municipality: id,
+  municipality: filterId,
   // Anything other than true or false means no filter, as it did before.
   is_verified: z
     .unknown()
@@ -17,6 +17,6 @@ export const barangayQuery = z.object({
   q: z.string().optional(),
 })
 
-export const commodityQuery = z.object({ program: id })
+export const commodityQuery = z.object({ program: filterId })
 
-export const varietyQuery = z.object({ commodity: id })
+export const varietyQuery = z.object({ commodity: filterId })

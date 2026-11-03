@@ -29,6 +29,10 @@ function closed(schema: unknown): unknown {
   const result = Object.fromEntries(
     Object.entries(source).map(([key, value]) => [key, closed(value)]),
   )
+  // An untyped field accepts anything, null included, and Ajv refuses "nullable" alone.
+  if (source.nullable !== undefined && source.type === undefined && source.$ref === undefined) {
+    delete result.nullable
+  }
   if (source.properties !== undefined) {
     result.additionalProperties = false
     result.required = Object.keys(source.properties as object)
@@ -53,6 +57,15 @@ function localRefs(schema: unknown): unknown {
 }
 
 ajv.addSchema({ $id: 'contract', components: localRefs(contract.components) }, 'contract')
+
+/** The ways a body differs from a named schema, for routes the contract documents wrongly. */
+export function schemaProblems(name: string, body: unknown): string[] {
+  const validate = ajv.compile({ $ref: `contract#/components/schemas/${name}` })
+  if (validate(body)) return []
+  return (validate.errors ?? []).map(
+    (error) => `${error.instancePath || '/'} ${error.message ?? ''}`,
+  )
+}
 
 /** Paths in the contract, with Express-style parameters. */
 export function contractRoutes(): Set<string> {

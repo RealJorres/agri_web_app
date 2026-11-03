@@ -85,6 +85,20 @@ export function scopeFilter(scope: Scope, capability: Cap, paths: ScopePaths): F
   return { $or: alternatives }
 }
 
+/**
+ * Combines a scope filter with other conditions. Always use this rather than spreading: a spread
+ * lets a later `_id` or `$or` silently replace the scope's own, which would widen access.
+ */
+export function within(scopeClause: Filter, ...conditions: Filter[]): Filter {
+  return { $and: [scopeClause, ...conditions] }
+}
+
+/** Who is making a change, and what they may reach. */
+export interface Actor {
+  id: string | null
+  scope: Scope
+}
+
 export interface ReachTarget {
   barangayId?: string | null
   municipalityId?: string | null

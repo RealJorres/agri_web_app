@@ -3,12 +3,33 @@ import { randomUUID } from 'node:crypto'
 
 import type { Test } from 'supertest'
 
+import { toDecimal128 } from '../../src/lib/decimal.js'
 import { hashPassword } from '../../src/lib/passwords.js'
 import type { Role } from '../../src/lib/roles.js'
+import type { Actor } from '../../src/lib/scoping.js'
 import { User, UserAssignment, type UserDoc } from '../../src/models/account.models.js'
-import { Barangay, Municipality } from '../../src/models/location.models.js'
+import { Barangay, Municipality, type BarangayDoc } from '../../src/models/location.models.js'
+import {
+  CropStand,
+  type CropStandDoc,
+  Farm,
+  type FarmDoc,
+  Harvest,
+  type HarvestDoc,
+  Planting,
+  type PlantingDoc,
+} from '../../src/models/farm.models.js'
+import {
+  Association,
+  type AssociationDoc,
+  AssociationMember,
+  Farmer,
+  type FarmerDoc,
+} from '../../src/models/registry.models.js'
+import { getScope } from '../../src/selectors/accounts.selectors.js'
 import { Commodity, Program, type CommodityDoc } from '../../src/models/catalog.models.js'
 import { issueTokens } from '../../src/services/auth.service.js'
+import { seedCatalog } from '../../src/services/catalog.service.js'
 
 export const TEST_PASSWORD = 'synthetic-Passw0rd-for-tests'
 
@@ -81,4 +102,111 @@ export async function userWithRole(
 export async function signedIn<T extends Test>(request: T, user: UserDoc): Promise<T> {
   const { access } = await issueTokens(user._id)
   return request.set('Authorization', `Bearer ${access}`)
+}
+
+export async function actorFor(user: UserDoc): Promise<Actor> {
+  return { id: user._id, scope: await getScope(user) }
+}
+
+export async function cacao(): Promise<CommodityDoc> {
+  let commodity = await Commodity.findOne({ code: 'CACAO' }).lean<CommodityDoc>()
+  if (!commodity) {
+    await seedCatalog()
+    commodity = await Commodity.findOne({ code: 'CACAO' }).lean<CommodityDoc>()
+  }
+  return commodity as CommodityDoc
+}
+
+export async function makeFarmer(
+  barangay: Pick<BarangayDoc, '_id' | 'municipalityId'>,
+  fields: Partial<FarmerDoc> = {},
+): Promise<FarmerDoc> {
+  const farmer = await Farmer.create({
+    firstName: 'Test',
+    lastName: `Sample${String(next())}`,
+    homeBarangayId: barangay._id,
+    municipalityId: barangay.municipalityId,
+    ...fields,
+  })
+  return farmer.toObject()
+}
+
+export async function makeFarm(
+  barangay: Pick<BarangayDoc, '_id' | 'municipalityId'>,
+  fields: Partial<FarmDoc> = {},
+): Promise<FarmDoc> {
+  const farmerId = fields.farmerId ?? (await makeFarmer(barangay))._id
+  const farm = await Farm.create({
+    barangayId: barangay._id,
+    municipalityId: barangay.municipalityId,
+    ...fields,
+    farmerId,
+  })
+  return farm.toObject()
+}
+
+export async function makeStand(
+  farm: FarmDoc,
+  commodity?: CommodityDoc,
+  fields: Partial<CropStandDoc> = {},
+): Promise<CropStandDoc> {
+  const crop = commodity ?? (await cacao())
+  const stand = await CropStand.create({
+    farmId: farm._id,
+    commodityId: crop._id,
+    barangayId: farm.barangayId,
+    municipalityId: farm.municipalityId,
+    programId: crop.programId,
+    ...fields,
+  })
+  return stand.toObject()
+}
+
+const copiedKeys = ({ barangayId, municipalityId, programId }: CropStandDoc) => ({
+  barangayId,
+  municipalityId,
+  programId,
+})
+
+export async function makePlanting(
+  stand: CropStandDoc,
+  fields: Partial<PlantingDoc> = {},
+): Promise<PlantingDoc> {
+  const planting = await Planting.create({
+    cropStandId: stand._id,
+    ...copiedKeys(stand),
+    ...fields,
+  })
+  return planting.toObject()
+}
+
+export async function makeHarvest(
+  stand: CropStandDoc,
+  fields: Partial<Omit<HarvestDoc, 'quantity'>> & { quantity?: string } = {},
+): Promise<HarvestDoc> {
+  const { quantity = '1', ...rest } = fields
+  const harvest = await Harvest.create({
+    cropStandId: stand._id,
+    unit: 'kg',
+    ...copiedKeys(stand),
+    ...rest,
+    quantity: toDecimal128(quantity),
+  })
+  return harvest.toObject()
+}
+
+export async function makeAssociation(
+  municipalityId: string,
+  fields: Partial<AssociationDoc> = {},
+): Promise<AssociationDoc> {
+  const association = await Association.create({
+    name: `Sample Farmers Association ${String(next())}`,
+    municipalityId,
+    ...fields,
+  })
+  return association.toObject()
+}
+
+export async function makeMember(farmerId: string, associationId: string) {
+  return (await AssociationMember.create({ farmerId, associationId })).toObject()
 }

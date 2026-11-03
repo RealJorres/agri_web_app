@@ -5,6 +5,7 @@ import * as reference from '../controllers/reference.controller.js'
 import { Cap } from '../lib/roles.js'
 import { enforceCsrf, issueCsrfToken } from '../middleware/csrf.js'
 import type { Throttles } from '../middleware/throttle.js'
+import { RECORD_ROUTES } from './records.routes.js'
 import type { RouteDefinition } from './registry.js'
 
 export interface RouteConfig {
@@ -66,5 +67,6 @@ export function v1Routes(config: RouteConfig): RouteDefinition[] {
     referenceRoute('/material-sources/:id', reference.getMaterialSource),
     referenceRoute('/units', reference.listUnits),
     referenceRoute('/units/:id', reference.getUnit),
+    ...RECORD_ROUTES,
   ]
 }
