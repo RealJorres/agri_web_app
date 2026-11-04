@@ -46,7 +46,7 @@ export function Dialog({ open, onClose, title, children, footer, variant = 'moda
     >
       {open ? (
         <div className="flex h-full flex-col">
-          <header className="flex items-center justify-between gap-4 border-b border-line px-5 py-4">
+          <div className="flex items-center justify-between gap-4 border-b border-line px-5 py-4">
             <h2 id={titleId} className="text-lg font-bold">
               {title}
             </h2>
@@ -58,12 +58,12 @@ export function Dialog({ open, onClose, title, children, footer, variant = 'moda
             >
               <X className="h-5 w-5" aria-hidden="true" />
             </button>
-          </header>
+          </div>
           <div className="flex-1 overflow-y-auto p-5">{children}</div>
           {footer ? (
-            <footer className="flex flex-wrap justify-end gap-2 border-t border-line bg-sunken px-5 py-3.5">
+            <div className="flex flex-wrap justify-end gap-2 border-t border-line bg-sunken px-5 py-3.5">
               {footer}
-            </footer>
+            </div>
           ) : null}
         </div>
       ) : null}

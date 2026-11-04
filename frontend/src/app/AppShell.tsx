@@ -3,6 +3,8 @@ import { LogOut, Menu, Sprout, X } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
 
+import { Button } from '@/components/ui/Button'
+import { Dialog } from '@/components/ui/Dialog'
 import { Avatar } from '@/components/ui/display'
 import { useAuth } from '@/lib/auth/context'
 import { ROLE_LABELS } from '@/lib/format'
@@ -38,9 +40,43 @@ function Brand() {
   )
 }
 
+function SignOutDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { logout } = useAuth()
+  const [busy, setBusy] = useState(false)
+  const signOut = async () => {
+    setBusy(true)
+    try {
+      await logout()
+    } finally {
+      setBusy(false)
+      onClose()
+    }
+  }
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title="Sign out?"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button loading={busy} onClick={() => void signOut()}>
+            Sign out
+          </Button>
+        </>
+      }
+    >
+      <p className="text-sm">Any changes you haven’t saved will be lost.</p>
+    </Dialog>
+  )
+}
+
 export function AppShell() {
-  const { user, can, logout } = useAuth()
+  const { user, can } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false)
   const location = useLocation()
   const [lastPath, setLastPath] = useState(location.pathname)
   if (lastPath !== location.pathname) {
@@ -156,7 +192,7 @@ export function AppShell() {
             <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-line-strong sm:block" />
             <button
               type="button"
-              onClick={() => void logout()}
+              onClick={() => setConfirmingSignOut(true)}
               aria-label="Sign out"
               className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-muted transition hover:bg-line/60 hover:text-ink"
             >
@@ -173,6 +209,7 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+      <SignOutDialog open={confirmingSignOut} onClose={() => setConfirmingSignOut(false)} />
     </div>
   )
 }
