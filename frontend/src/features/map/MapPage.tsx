@@ -2,7 +2,7 @@ import { Download } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 
-import { Alert, Card, EmptyState, PageHeader } from '@/components/ui/display'
+import { Alert, Card, EmptyState, FilterBar, PageHeader } from '@/components/ui/display'
 import { SelectInput } from '@/components/ui/fields'
 import { LoadingBlock } from '@/components/ui/Spinner'
 import { StageLegend } from '@/features/analytics/ChartCard'
@@ -88,7 +88,7 @@ export default function MapPage() {
         title="Map"
         description="Figures come from approved records in your assignment."
       />
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <FilterBar className="sm:grid-cols-2 xl:grid-cols-4">
         <SelectInput
           label="Survey round"
           value={roundId ?? ''}
@@ -130,7 +130,7 @@ export default function MapPage() {
           <option value="trees">Number of trees</option>
           <option value="bearing_share">Share of trees bearing</option>
         </SelectInput>
-      </div>
+      </FilterBar>
 
       <div className="space-y-6">
         <Card title="Map">
@@ -245,7 +245,7 @@ function AreaTable({
           onClick={() =>
             downloadCsv(`map-${level}.csv`, [heading, 'Trees', 'Bearing %'], rows.map(toRow))
           }
-          className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-ink hover:bg-slate-100 disabled:opacity-50"
+          className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-ink hover:bg-sunken disabled:opacity-50"
         >
           <Download className="h-3.5 w-3.5" aria-hidden="true" />
           CSV

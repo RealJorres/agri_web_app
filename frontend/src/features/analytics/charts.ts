@@ -93,7 +93,8 @@ export function stageMix(stages: (StageDef & { trees: number })[]): EChartsCoreO
 /** Single-series columns (farm sizes, planting years): slot-1 colour, no legend. */
 export function columns(labels: string[], values: number[], name: string): EChartsCoreOption {
   // Many buckets: rotate rather than skip or overlap labels.
-  const rotate = labels.length > 8 ? 45 : 0
+  const characters = labels.reduce((sum, label) => sum + label.length, 0)
+  const rotate = labels.length > 8 || characters > 30 ? 45 : 0
   return {
     grid: { left: 8, right: 8, top: 16, bottom: 8, containLabel: true },
     tooltip: { ...tooltipBase, trigger: 'axis', axisPointer: { type: 'shadow' } },
@@ -155,6 +156,7 @@ export function trendLine(labels: string[], values: number[], name: string): ECh
         lineStyle: { width: 2, color: SERIES_1, cap: 'round', join: 'round' },
         itemStyle: { color: SERIES_1, borderColor: INK.surface, borderWidth: 2 },
         symbolSize: 9,
+        areaStyle: { color: SERIES_1, opacity: 0.08 },
         endLabel: {
           show: true,
           ...BASE_TEXT,

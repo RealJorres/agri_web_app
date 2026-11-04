@@ -95,6 +95,8 @@ trying things. Real data goes to Atlas only as `docs/deployment.md` describes, a
   legacy-workbook adapter, and tests.
 - Factories use obviously synthetic data (surnames "Sample<n>"). The synthetic workbook in
   `tests/support/workbookFixture.ts` mirrors every defect in brief §3.
+- Look and feel (ADR-0024): use the tokens in `index.css`, `surface-card`, and `components/ui`. Text on dark green
+  surfaces is `brand-200` or lighter, to keep WCAG AA.
 - Frontend: feature folders own their pages/components/hooks/api; shared UI in `components/ui`; server
   state only in TanStack Query; forms with RHF + Zod; no `any`; access token in memory only.
 - Write an ADR (`docs/decisions/NNNN-title.md`) for any significant or brief-deviating decision.

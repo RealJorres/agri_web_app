@@ -5,7 +5,15 @@ import { Link } from 'react-router'
 
 import { DataTable } from '@/components/ui/DataTable'
 import { Dialog } from '@/components/ui/Dialog'
-import { Alert, Badge, DefinitionList, PageHeader, StatusBadge } from '@/components/ui/display'
+import {
+  Alert,
+  Avatar,
+  Badge,
+  DefinitionList,
+  FilterBar,
+  PageHeader,
+  StatusBadge,
+} from '@/components/ui/display'
 import { SelectInput } from '@/components/ui/fields'
 import { api, unwrap } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/context'
@@ -29,7 +37,12 @@ const columns: ColumnDef<InventoryRecord>[] = [
     id: 'farmer',
     header: 'Farmer',
     enableSorting: false,
-    cell: ({ row }) => row.original.farmer.display_name,
+    cell: ({ row }) => (
+      <span className="inline-flex items-center gap-2.5 font-semibold">
+        <Avatar name={row.original.farmer.display_name} />
+        {row.original.farmer.display_name}
+      </span>
+    ),
   },
   {
     id: 'place',
@@ -103,7 +116,7 @@ export default function ReviewQueuePage() {
         title="Review queue"
         description="Records waiting for your decision, oldest first."
       />
-      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <FilterBar className="sm:grid-cols-3">
         <SelectInput
           label="Status"
           value={status}
@@ -143,7 +156,7 @@ export default function ReviewQueuePage() {
             </option>
           ))}
         </SelectInput>
-      </div>
+      </FilterBar>
       {records.isError ? (
         <Alert tone="error">{errorMessage(records.error)}</Alert>
       ) : (
@@ -196,28 +209,28 @@ function ReviewPanel({ id, onClose }: { id: string | null; onClose: () => void }
               ['Version', r.version],
             ]}
           />
-          <table className="w-full text-sm">
+          <table className="w-full overflow-hidden rounded-xl bg-sunken text-sm">
             <caption className="sr-only">Stage counts</caption>
             <tbody>
               {r.counts.map((c, i) => (
                 <tr key={i} className="border-b border-line">
-                  <th scope="row" className="py-1.5 text-left font-normal">
+                  <th scope="row" className="px-3 py-2 text-left font-normal">
                     {c.growth_stage.label}
                   </th>
-                  <td className="py-1.5 text-right tabular-nums">{formatNumber(c.count)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums">{formatNumber(c.count)}</td>
                 </tr>
               ))}
               <tr>
-                <th scope="row" className="py-1.5 text-left font-semibold">
+                <th scope="row" className="px-3 py-2 text-left font-semibold">
                   Total
                 </th>
-                <td className="py-1.5 text-right font-semibold tabular-nums">
+                <td className="px-3 py-2 text-right font-semibold tabular-nums">
                   {formatNumber(r.total)}
                 </td>
               </tr>
             </tbody>
           </table>
-          {r.remarks ? <p className="rounded-md bg-slate-50 p-2 text-sm">{r.remarks}</p> : null}
+          {r.remarks ? <p className="rounded-xl bg-sunken p-3 text-sm">{r.remarks}</p> : null}
           <RecordFlags record={r} />
           <CommentHistory recordId={r.id} />
           <WorkflowActions record={r} exclude={['submit']} onDone={onClose} />

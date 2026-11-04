@@ -1,8 +1,16 @@
-import { ArrowDown, ArrowUp } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  BarChart3,
+  Flower2,
+  LandPlot,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 
-import { Alert, EmptyState, PageHeader } from '@/components/ui/display'
+import { Alert, EmptyState, FilterBar, PageHeader, Stat } from '@/components/ui/display'
 import { SelectInput } from '@/components/ui/fields'
 import { LoadingBlock } from '@/components/ui/Spinner'
 import { HarvestSummaryCard } from '@/features/harvests/HarvestSummaryCard'
@@ -58,7 +66,7 @@ export default function DashboardPage() {
             : 'Approved records only'
         }
       />
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:max-w-2xl">
+      <FilterBar className="sm:grid-cols-2">
         <SelectInput
           label="Survey round"
           value={roundId ?? ''}
@@ -82,17 +90,17 @@ export default function DashboardPage() {
             </option>
           ))}
         </SelectInput>
-      </div>
+      </FilterBar>
       {rounds.isPending || overview.isPending ? (
         roundList.length === 0 && !rounds.isPending ? (
-          <EmptyState title="No survey rounds yet" />
+          <EmptyState title="No survey rounds yet" icon={BarChart3} />
         ) : (
           <LoadingBlock />
         )
       ) : overview.isError ? (
         <Alert tone="error">{errorMessage(overview.error)}</Alert>
       ) : overview.data.records === 0 ? (
-        <EmptyState title="No approved records in this round yet" />
+        <EmptyState title="No approved records in this round yet" icon={BarChart3} />
       ) : (
         <div className="space-y-6">
           <StatTiles overview={overview.data} town={town?.name} />
@@ -124,24 +132,27 @@ function Delta({
   value,
   unit = '',
   suffix,
+  onDark = false,
 }: {
   value: number | null
   unit?: string
   suffix?: string
+  onDark?: boolean
 }) {
-  if (value === null) return <span className="text-muted">No earlier round</span>
+  const quiet = onDark ? 'text-brand-100' : 'text-muted'
+  if (value === null) return <span className={quiet}>No earlier round</span>
   const up = value > 0
   const Icon = up ? ArrowUp : ArrowDown
-  if (value === 0) return <span className="text-muted">No change {suffix}</span>
+  if (value === 0) return <span className={quiet}>No change {suffix}</span>
   return (
     <span
-      className="inline-flex items-center gap-0.5 font-medium"
-      style={{ color: up ? INK.good : INK.bad }}
+      className="inline-flex items-center gap-0.5 font-semibold"
+      style={{ color: onDark ? '#ffffff' : up ? INK.good : INK.bad }}
     >
       <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       {up ? '+' : '−'}
       {formatNumber(Math.abs(value))}
-      {unit} <span className="font-normal text-muted">{suffix}</span>
+      {unit} <span className={`font-normal ${quiet}`}>{suffix}</span>
     </span>
   )
 }
@@ -156,24 +167,29 @@ function StatTiles({ overview: o, town }: { overview: Overview; town?: string | 
       aria-label="Headline figures"
       className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
     >
-      <div className="rounded-lg border border-line bg-surface p-4 shadow-sm sm:col-span-2 lg:col-span-1">
-        <p className="text-sm text-muted">Trees{town ? ` in ${town}` : ''}</p>
-        <p className="mt-1 text-5xl font-semibold text-ink">{formatNumber(o.trees)}</p>
-        <p className="mt-2 text-sm">
-          <Delta value={o.change.trees} suffix={vs} />
+      <div className="surface-forest rounded-2xl p-5 shadow-raised sm:col-span-2 lg:col-span-1">
+        <p className="text-[13px] font-medium text-brand-100">Trees{town ? ` in ${town}` : ''}</p>
+        <p className="mt-1.5 font-display text-[44px] leading-none font-extrabold">
+          {formatNumber(o.trees)}
+        </p>
+        <p className="mt-2.5 text-[13px]">
+          <Delta onDark value={o.change.trees} suffix={vs} />
         </p>
       </div>
       <Tile
+        icon={LandPlot}
         label="Area (derived)"
         value={formatHectares(o.area_ha)}
         hint="trees ÷ plants per hectare"
       />
       <Tile
+        icon={Users}
         label="Farmers"
         value={formatNumber(o.farmers)}
         hint={<Delta value={o.change.farmers} suffix={vs} />}
       />
       <Tile
+        icon={Flower2}
         label="Bearing trees"
         value={share}
         hint={
@@ -188,14 +204,18 @@ function StatTiles({ overview: o, town }: { overview: Overview; town?: string | 
   )
 }
 
-function Tile({ label, value, hint }: { label: string; value: string; hint?: React.ReactNode }) {
-  return (
-    <div className="rounded-lg border border-line bg-surface p-4 shadow-sm">
-      <p className="text-sm text-muted">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-ink">{value}</p>
-      {hint ? <p className="mt-2 text-sm text-muted">{hint}</p> : null}
-    </div>
-  )
+function Tile({
+  icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: LucideIcon
+  label: string
+  value: string
+  hint?: React.ReactNode
+}) {
+  return <Stat icon={icon} label={label} value={value} hint={hint} />
 }
 
 function legendFor(stages: { label: string }[]) {
@@ -209,7 +229,6 @@ function StageMixCard({ overview: o }: { overview: Overview }) {
       title="Growth stage mix"
       subtitle={`${o.round.name} · share of ${formatNumber(o.trees)} trees`}
       filename="stage-mix.csv"
-      legend={<StageLegend stages={legendFor(o.stages)} />}
       table={{
         columns: ['Stage', 'Trees', 'Area (ha)', 'Share %', 'Change'],
         rows: o.stages.map((s) => [
@@ -222,13 +241,22 @@ function StageMixCard({ overview: o }: { overview: Overview }) {
       }}
     >
       <EChart option={option} height={32} label="Share of trees by growth stage" />
-      <ul className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
-        {o.stages.map((s) => (
-          <li key={s.code}>
-            <span className="text-muted">{s.label}</span>{' '}
-            <span className="font-medium text-ink">{formatNumber(s.trees)}</span>{' '}
-            <span className="text-muted">
-              ({o.trees ? ((s.trees / o.trees) * 100).toFixed(0) : 0}%)
+      <ul aria-label="Legend" className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {o.stages.map((s, i) => (
+          <li key={s.code} className="min-w-0">
+            <span className="flex items-center gap-1.5 text-[13px] font-medium text-muted">
+              <span
+                aria-hidden="true"
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ background: stageColor(i, o.stages.length) }}
+              />
+              {s.label}
+            </span>
+            <span className="mt-0.5 block font-display text-lg font-bold text-ink">
+              {formatNumber(s.trees)}{' '}
+              <span className="font-sans text-[13px] font-normal text-muted">
+                {o.trees ? ((s.trees / o.trees) * 100).toFixed(0) : 0}%
+              </span>
             </span>
           </li>
         ))}

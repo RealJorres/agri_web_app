@@ -266,7 +266,7 @@ function ReconciliationTab({ rec }: { rec: Reconciliation | null }) {
       <div className="overflow-x-auto rounded-lg border border-line bg-surface">
         <table className="min-w-full text-sm">
           <caption className="sr-only">Reconciliation by municipality and stage</caption>
-          <thead className="bg-slate-50">
+          <thead className="bg-sunken">
             <tr>
               <th scope="col" className="px-3 py-2 text-left font-semibold">
                 Municipality
@@ -317,7 +317,7 @@ function ReconciliationTab({ rec }: { rec: Reconciliation | null }) {
                 </td>
               </tr>
             ))}
-            <tr className="bg-slate-50 font-semibold">
+            <tr className="bg-sunken font-semibold">
               <th scope="row" className="px-3 py-2 text-left">
                 Province
               </th>
@@ -361,7 +361,7 @@ function ReviewTab({ items }: { items: ReviewItem[] }) {
     <div className="overflow-x-auto rounded-lg border border-line bg-surface">
       <table className="min-w-full text-sm">
         <caption className="sr-only">Items to review</caption>
-        <thead className="bg-slate-50">
+        <thead className="bg-sunken">
           <tr className="text-left">
             <th scope="col" className="px-3 py-2 font-semibold">
               Where

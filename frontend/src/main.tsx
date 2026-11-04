@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { z } from 'zod'
 
 import { App } from '@/app/App'
+import '@fontsource-variable/inter/wght.css'
+import '@fontsource-variable/manrope/wght.css'
 import '@/index.css'
 
 // Our security policy forbids eval, so Zod should not try it to speed up validation.

@@ -47,7 +47,7 @@ export default function CropsPage() {
           ) : crops.data.length === 0 ? (
             <EmptyState title="No crops yet" />
           ) : (
-            <ul className="divide-y divide-line rounded-lg border border-line bg-surface shadow-sm">
+            <ul className="divide-y divide-line surface-card">
               {crops.data.map((crop) => (
                 <li
                   key={crop.id}

@@ -59,7 +59,7 @@ export default function SourcesPage() {
       ) : sources.data.length === 0 ? (
         <EmptyState title="No sources yet" />
       ) : (
-        <ul className="divide-y divide-line rounded-lg border border-line bg-surface shadow-sm">
+        <ul className="divide-y divide-line surface-card">
           {sources.data.map((source) => (
             <li key={source.id} className="flex items-start justify-between gap-3 px-4 py-3">
               <div className="min-w-0">

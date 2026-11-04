@@ -3,7 +3,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { Link } from 'react-router'
 
 import { DataTable } from '@/components/ui/DataTable'
-import { Alert, PageHeader } from '@/components/ui/display'
+import { Alert, FilterBar, PageHeader } from '@/components/ui/display'
 import { SelectInput } from '@/components/ui/fields'
 import { api, unwrap, type Schemas } from '@/lib/api/client'
 import { errorMessage } from '@/lib/forms'
@@ -77,7 +77,7 @@ export default function AssociationsPage() {
   return (
     <>
       <PageHeader title="Associations" description="Farmers associations and cooperatives." />
-      <div className="mb-4 max-w-xs">
+      <FilterBar className="sm:grid-cols-2 lg:grid-cols-3">
         <SelectInput
           label="Municipality"
           value={table.filters.municipality ?? ''}
@@ -92,7 +92,7 @@ export default function AssociationsPage() {
             </option>
           ))}
         </SelectInput>
-      </div>
+      </FilterBar>
       {associations.isError ? (
         <Alert tone="error">{errorMessage(associations.error)}</Alert>
       ) : (

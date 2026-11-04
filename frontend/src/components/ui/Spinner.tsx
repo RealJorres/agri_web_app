@@ -15,10 +15,22 @@ export function Spinner({ size = 'md', label }: { size?: 'sm' | 'md'; label?: st
   )
 }
 
+/** A grey placeholder bar, so a page keeps its shape while it loads. */
+export function Skeleton({ className }: { className?: string }) {
+  return <span className={clsx('block animate-shimmer rounded-md bg-line', className)} />
+}
+
 export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="flex justify-center py-12 text-brand-700">
-      <Spinner label={label} />
+    <div role="status" className="grid gap-4 py-2 sm:grid-cols-3">
+      <span className="sr-only">{label}</span>
+      {[0, 1, 2].map((i) => (
+        <span key={i} aria-hidden="true" className="surface-card block space-y-3 p-5">
+          <Skeleton className="h-3 w-1/3" />
+          <Skeleton className="h-7 w-2/3" />
+          <Skeleton className="h-3 w-1/2" />
+        </span>
+      ))}
     </div>
   )
 }

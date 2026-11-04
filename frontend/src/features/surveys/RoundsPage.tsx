@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus } from 'lucide-react'
+import { CalendarDays, Layers, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
@@ -8,7 +8,14 @@ import { z } from 'zod'
 
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
-import { Alert, Badge, EmptyState, PageHeader, StatusBadge } from '@/components/ui/display'
+import {
+  Alert,
+  Badge,
+  EmptyState,
+  IconTile,
+  PageHeader,
+  StatusBadge,
+} from '@/components/ui/display'
 import { SelectInput, TextInput } from '@/components/ui/fields'
 import { LoadingBlock } from '@/components/ui/Spinner'
 import { api, unwrap } from '@/lib/api/client'
@@ -42,24 +49,36 @@ export default function RoundsPage() {
       ) : rounds.isError ? (
         <Alert tone="error">{errorMessage(rounds.error)}</Alert>
       ) : rounds.data.results.length === 0 ? (
-        <EmptyState title="No survey rounds yet" />
+        <EmptyState title="No survey rounds yet" icon={Layers} />
       ) : (
-        <ul className="divide-y divide-line rounded-lg border border-line bg-surface shadow-sm">
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {rounds.data.results.map((r) => (
-            <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-              <div>
-                <Link to={`/rounds/${r.id}`} className="font-medium text-brand-800 hover:underline">
-                  {r.name}
-                </Link>
-                <p className="text-sm text-muted">
-                  {r.commodity_name} · as of {formatDate(r.as_of_date)}
-                  {r.deadline ? ` · deadline ${formatDate(r.deadline)}` : ''}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                {r.is_historical ? <Badge tone="amber">Historical</Badge> : null}
-                <StatusBadge status={r.status} />
-              </div>
+            <li key={r.id}>
+              <Link
+                to={`/rounds/${r.id}`}
+                className="surface-card group flex h-full flex-col gap-4 p-5 transition hover:-translate-y-0.5 hover:shadow-raised"
+              >
+                <span className="flex items-start justify-between gap-3">
+                  <IconTile icon={Layers} />
+                  <span className="flex flex-wrap justify-end gap-1.5">
+                    {r.is_historical ? <Badge tone="amber">Historical</Badge> : null}
+                    <StatusBadge status={r.status} />
+                  </span>
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-display font-bold text-ink group-hover:text-brand-700">
+                    {r.name}
+                  </span>
+                  <span className="mt-0.5 block text-[13px] text-muted">{r.commodity_name}</span>
+                </span>
+                <span className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line pt-3 text-[13px] text-muted">
+                  <span className="inline-flex items-center gap-1.5">
+                    <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+                    as of {formatDate(r.as_of_date)}
+                  </span>
+                  {r.deadline ? <span>deadline {formatDate(r.deadline)}</span> : null}
+                </span>
+              </Link>
             </li>
           ))}
         </ul>

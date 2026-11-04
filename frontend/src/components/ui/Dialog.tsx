@@ -38,30 +38,30 @@ export function Dialog({ open, onClose, title, children, footer, variant = 'moda
         onClose()
       }}
       className={clsx(
-        'bg-surface p-0 text-ink shadow-xl',
+        'bg-surface p-0 text-ink shadow-overlay',
         variant === 'drawer'
           ? 'ml-auto mr-0 h-full max-h-full w-full max-w-xl'
-          : 'm-auto w-[calc(100%-2rem)] max-w-lg rounded-lg',
+          : 'm-auto w-[calc(100%-2rem)] max-w-lg rounded-2xl',
       )}
     >
       {open ? (
         <div className="flex h-full flex-col">
-          <header className="flex items-center justify-between gap-4 border-b border-line px-4 py-3">
-            <h2 id={titleId} className="text-lg font-semibold">
+          <header className="flex items-center justify-between gap-4 border-b border-line px-5 py-4">
+            <h2 id={titleId} className="text-lg font-bold">
               {title}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="rounded p-1 text-muted hover:bg-slate-100"
+              className="rounded-lg p-1.5 text-muted transition hover:bg-sunken hover:text-ink"
               aria-label="Close"
             >
               <X className="h-5 w-5" aria-hidden="true" />
             </button>
           </header>
-          <div className="flex-1 overflow-y-auto p-4">{children}</div>
+          <div className="flex-1 overflow-y-auto p-5">{children}</div>
           {footer ? (
-            <footer className="flex flex-wrap justify-end gap-2 border-t border-line px-4 py-3">
+            <footer className="flex flex-wrap justify-end gap-2 border-t border-line bg-sunken px-5 py-3.5">
               {footer}
             </footer>
           ) : null}

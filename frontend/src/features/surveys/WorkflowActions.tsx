@@ -129,7 +129,7 @@ export function CommentHistory({ recordId }: { recordId: string }) {
   return (
     <ol className="space-y-2 text-sm">
       {comments.data.map((c) => (
-        <li key={c.id} className="rounded-md bg-slate-50 p-2">
+        <li key={c.id} className="rounded-md bg-sunken p-2">
           <p>{c.body}</p>
           <p className="mt-1 text-xs text-muted">
             {c.action} · {c.author} · {formatDateTime(c.created_at)}

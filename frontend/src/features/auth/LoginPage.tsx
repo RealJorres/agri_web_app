@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Sprout } from 'lucide-react'
+import clsx from 'clsx'
+import { BadgeCheck, ClipboardPen, Landmark, Sprout, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useLocation, useNavigate } from 'react-router'
@@ -21,11 +22,18 @@ type Values = z.infer<typeof schema>
 
 const DEMO_ACCOUNTS = parseDemoAccounts(import.meta.env.VITE_DEMO_ACCOUNTS)
 
+const STEPS: { icon: LucideIcon; label: string; who: string }[] = [
+  { icon: ClipboardPen, label: 'Encoded', who: 'Field or office' },
+  { icon: BadgeCheck, label: 'Validated', who: 'Municipal office' },
+  { icon: Landmark, label: 'Approved', who: 'Province' },
+]
+
 export default function LoginPage() {
   const { status, login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [error, setError] = useState<string | null>(null)
+  const [chosen, setChosen] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
@@ -49,69 +57,121 @@ export default function LoginPage() {
   })
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-6 flex items-center justify-center gap-2 text-brand-800">
-          <Sprout className="h-8 w-8" aria-hidden="true" />
-          <span className="text-xl font-semibold">agri-dms</span>
+    <div className="min-h-screen lg:grid lg:grid-cols-[minmax(24rem,5fr)_7fr]">
+      <aside className="surface-forest relative hidden flex-col justify-between overflow-hidden p-10 lg:flex">
+        <Sprout
+          aria-hidden="true"
+          strokeWidth={0.6}
+          className="pointer-events-none absolute -right-20 -bottom-16 h-[26rem] w-[26rem] text-white/[0.07]"
+        />
+        <div className="relative flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-harvest-300 text-brand-950">
+            <Sprout className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <span className="font-display text-lg font-extrabold">agri-dms</span>
         </div>
-        <div className="rounded-lg border border-line bg-surface p-6 shadow-sm">
-          <h1 className="text-lg font-semibold">Sign in</h1>
-          <p className="mt-1 text-sm text-muted">Marinduque Provincial Agriculture Office</p>
-          <form className="mt-5 space-y-4" onSubmit={(e) => void onSubmit(e)} noValidate>
-            {error ? <Alert tone="error">{error}</Alert> : null}
-            <TextInput
-              label="Email"
-              type="email"
-              autoComplete="username"
-              required
-              error={errors.email?.message}
-              {...register('email')}
-            />
-            <TextInput
-              label="Password"
-              type="password"
-              autoComplete="current-password"
-              required
-              error={errors.password?.message}
-              {...register('password')}
-            />
-            <Button type="submit" className="w-full" loading={isSubmitting}>
-              Sign in
-            </Button>
-          </form>
+        <div className="relative max-w-md">
+          <p className="font-display text-[34px] leading-[1.15] font-extrabold tracking-tight">
+            One farmer record, from the field to the province.
+          </p>
+          <ol className="mt-8 flex items-start">
+            {STEPS.map(({ icon: Icon, label, who }, i) => (
+              <li key={label} className="relative flex-1">
+                {i < STEPS.length - 1 ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-5 left-10 h-px w-[calc(100%-2.5rem)] bg-white/25"
+                  />
+                ) : null}
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-inset ring-white/20">
+                  <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                </span>
+                <span className="mt-2.5 block text-sm font-semibold">{label}</span>
+                <span className="block text-xs text-brand-100">{who}</span>
+              </li>
+            ))}
+          </ol>
         </div>
-        {DEMO_ACCOUNTS.length > 0 ? (
-          <section
-            aria-label="Demo accounts"
-            className="mt-4 rounded-lg border border-line bg-surface p-4 shadow-sm"
-          >
-            <h2 className="text-sm font-semibold">Demo accounts</h2>
-            <p className="mt-1 text-xs text-muted">One per role. All farmers here are made up.</p>
-            <ul className="mt-2 divide-y divide-line">
-              {DEMO_ACCOUNTS.map((account) => (
-                <li key={account.email} className="flex items-center justify-between gap-3 py-2">
-                  <div className="min-w-0 text-xs">
-                    <p className="font-medium text-ink">{account.role}</p>
-                    <p className="break-all text-muted">{account.email}</p>
-                    <p className="break-all font-mono text-muted">{account.password}</p>
-                  </div>
-                  <Button
-                    variant="secondary"
-                    aria-label={`Use the ${account.role} account`}
-                    onClick={() => {
-                      setValue('email', account.email, { shouldValidate: true })
-                      setValue('password', account.password, { shouldValidate: true })
-                    }}
+        <p className="relative text-xs text-brand-100">Marinduque Provincial Agriculture Office</p>
+      </aside>
+
+      <main className="flex min-h-screen items-center justify-center px-4 py-8 lg:min-h-0">
+        <div className="w-full max-w-xl animate-rise">
+          <div className="mx-auto w-full max-w-sm">
+            <div className="mb-6 flex items-center gap-2.5 text-brand-800 lg:hidden">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-900 text-harvest-300">
+                <Sprout className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <span className="font-display text-lg font-extrabold">agri-dms</span>
+            </div>
+            <h1 className="text-[28px] leading-tight font-extrabold">Sign in</h1>
+            <p className="mt-1 text-sm text-muted lg:hidden">
+              Marinduque Provincial Agriculture Office
+            </p>
+            <form className="mt-5 space-y-4" onSubmit={(e) => void onSubmit(e)} noValidate>
+              {error ? <Alert tone="error">{error}</Alert> : null}
+              <TextInput
+                label="Email"
+                type="email"
+                autoComplete="username"
+                required
+                error={errors.email?.message}
+                {...register('email')}
+              />
+              <TextInput
+                label="Password"
+                type="password"
+                autoComplete="current-password"
+                required
+                error={errors.password?.message}
+                {...register('password')}
+              />
+              <Button type="submit" className="w-full" loading={isSubmitting}>
+                Sign in
+              </Button>
+            </form>
+          </div>
+          {DEMO_ACCOUNTS.length > 0 ? (
+            <section aria-label="Demo accounts" className="mt-7 border-t border-line-strong pt-5">
+              <h2 className="text-sm font-bold">Demo accounts</h2>
+              <p className="mt-0.5 text-xs text-muted">
+                One per role. All farmers here are made up.
+              </p>
+              <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {DEMO_ACCOUNTS.map((account) => (
+                  <li
+                    key={account.email}
+                    className={clsx(
+                      'surface-card flex items-center justify-between gap-2 rounded-xl! px-3 py-2 transition',
+                      chosen === account.email && 'ring-2 ring-brand-600',
+                    )}
                   >
-                    Use
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-      </div>
-    </main>
+                    <div className="min-w-0 text-xs leading-snug">
+                      <p className="font-semibold text-ink">{account.role}</p>
+                      <p className="break-all text-muted">{account.email}</p>
+                      <p className="break-all font-mono text-[11px] text-muted">
+                        {account.password}
+                      </p>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      aria-label={`Use the ${account.role} account`}
+                      onClick={() => {
+                        setValue('email', account.email, { shouldValidate: true })
+                        setValue('password', account.password, { shouldValidate: true })
+                        setChosen(account.email)
+                      }}
+                    >
+                      Use
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </div>
+      </main>
+    </div>
   )
 }

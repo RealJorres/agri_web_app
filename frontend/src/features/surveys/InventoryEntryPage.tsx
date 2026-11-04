@@ -194,7 +194,7 @@ function InventoryForm({
                         }}
                         aria-invalid={Boolean(errors[s.id])}
                         aria-describedby={errors[s.id] ? `stage-${s.id}-error` : undefined}
-                        className="block w-full rounded-md border border-slate-300 px-3 py-2 text-right text-sm tabular-nums aria-[invalid=true]:border-red-700 disabled:bg-slate-100"
+                        className="block w-full rounded-md border border-line-strong px-3 py-2 text-right text-sm tabular-nums aria-[invalid=true]:border-red-700 disabled:bg-sunken"
                       />
                       {errors[s.id] ? (
                         <p id={`stage-${s.id}-error`} className="text-xs font-medium text-red-700">

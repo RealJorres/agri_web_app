@@ -9,8 +9,9 @@ import {
 } from 'react'
 
 const control =
-  'block w-full rounded-md border bg-white px-3 py-2 text-sm text-ink placeholder:text-slate-500 ' +
-  'disabled:bg-slate-100 aria-[invalid=true]:border-red-700'
+  'block min-h-10 w-full rounded-lg border bg-surface px-3 py-2 text-sm text-ink shadow-xs transition ' +
+  'placeholder:text-muted hover:border-muted focus:border-brand-600 focus:ring-3 focus:ring-brand-600/15 focus:outline-none ' +
+  'disabled:bg-sunken disabled:text-muted disabled:hover:border-line-strong aria-[invalid=true]:border-red-700'
 
 interface FieldProps {
   label: string
@@ -29,7 +30,7 @@ export function Field({ label, hint, error, required, children, className }: Fie
   const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined
   return (
     <div className={clsx('space-y-1', className)}>
-      <label htmlFor={id} className="block text-sm font-medium text-ink">
+      <label htmlFor={id} className="block text-[13px] font-semibold text-ink">
         {label}
         {required ? (
           <span className="text-red-700" aria-hidden="true">
@@ -73,7 +74,7 @@ export function TextInput({
           aria-describedby={describedBy}
           aria-invalid={invalid}
           aria-required={required}
-          className={clsx(control, 'border-slate-300')}
+          className={clsx(control, 'border-line-strong')}
           {...props}
         />
       )}
@@ -100,7 +101,7 @@ export function SelectInput({
           aria-describedby={describedBy}
           aria-invalid={invalid}
           aria-required={required}
-          className={clsx(control, 'border-slate-300')}
+          className={clsx(control, 'border-line-strong')}
           {...props}
         >
           {children}
@@ -128,7 +129,7 @@ export function TextArea({
           rows={3}
           aria-describedby={describedBy}
           aria-invalid={invalid}
-          className={clsx(control, 'border-slate-300')}
+          className={clsx(control, 'border-line-strong')}
           {...props}
         />
       )}
@@ -154,7 +155,7 @@ export function Checkbox({
           type="checkbox"
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${id}-error` : undefined}
-          className="mt-0.5 h-4 w-4 rounded border-slate-400 accent-brand-700"
+          className="mt-0.5 h-4 w-4 rounded border-line-strong accent-brand-700"
           {...props}
         />
         <label htmlFor={id} className="text-sm text-ink">

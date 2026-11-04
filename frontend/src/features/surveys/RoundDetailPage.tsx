@@ -15,6 +15,21 @@ import { formatDate, formatHectares, formatNumber } from '@/lib/format'
 
 import { ReportsPanel } from './ReportsPanel'
 
+function CompletionBar({ done, expected }: { done: number; expected: number }) {
+  const percent = expected > 0 ? Math.round((done / expected) * 100) : 0
+  return (
+    <span className="flex items-center gap-2.5">
+      <span aria-hidden="true" className="h-2 flex-1 overflow-hidden rounded-full bg-sunken">
+        <span
+          className="block h-full rounded-full bg-brand-600"
+          style={{ width: `${String(percent)}%` }}
+        />
+      </span>
+      <span className="w-9 text-right text-xs font-semibold tabular-nums">{percent}%</span>
+    </span>
+  )
+}
+
 export default function RoundDetailPage() {
   const { id = '' } = useParams()
   const { can } = useAuth()
@@ -96,7 +111,18 @@ export default function RoundDetailPage() {
         }
       />
       <div className="space-y-6">
-        <Card title="Progress by municipality">
+        <Card
+          title="Progress by municipality"
+          description={
+            progress.data
+              ? `${formatNumber(
+                  progress.data.reduce((sum, p) => sum + p.approved + p.locked, 0),
+                )} of ${formatNumber(
+                  progress.data.reduce((sum, p) => sum + p.expected, 0),
+                )} expected records approved`
+              : undefined
+          }
+        >
           {progress.isPending ? (
             <LoadingBlock />
           ) : progress.isError ? (
@@ -111,6 +137,9 @@ export default function RoundDetailPage() {
                   <tr className="text-left text-muted">
                     <th scope="col" className="py-1.5 font-medium">
                       Municipality
+                    </th>
+                    <th scope="col" className="w-1/3 min-w-40 py-1.5 pl-6 font-medium">
+                      Complete
                     </th>
                     {['Expected', 'Draft', 'Submitted', 'Validated', 'Approved', 'Locked'].map(
                       (h) => (
@@ -127,6 +156,9 @@ export default function RoundDetailPage() {
                       <th scope="row" className="py-2 text-left font-medium">
                         {p.municipality}
                       </th>
+                      <td className="py-2 pl-6">
+                        <CompletionBar done={p.approved + p.locked} expected={p.expected} />
+                      </td>
                       {[p.expected, p.draft, p.submitted, p.validated, p.approved, p.locked].map(
                         (n, i) => (
                           <td key={i} className="py-2 text-right tabular-nums">
@@ -158,6 +190,9 @@ export default function RoundDetailPage() {
                   <tr className="text-left text-muted">
                     <th scope="col" className="py-1.5 font-medium">
                       Municipality
+                    </th>
+                    <th scope="col" className="w-1/3 min-w-40 py-1.5 pl-6 font-medium">
+                      Complete
                     </th>
                     {stages.map((s) => (
                       <th key={s.stage_code} scope="col" className="py-1.5 text-right font-medium">

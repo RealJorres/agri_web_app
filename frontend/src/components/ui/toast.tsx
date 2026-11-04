@@ -1,7 +1,14 @@
 import clsx from 'clsx'
+import { CheckCircle2, Info, XCircle } from 'lucide-react'
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 
 import { ToastContext, type Tone } from './useToast'
+
+const TOAST_ICONS: Record<Tone, { Icon: typeof Info; cls: string }> = {
+  success: { Icon: CheckCircle2, cls: 'text-brand-600' },
+  error: { Icon: XCircle, cls: 'text-red-700' },
+  info: { Icon: Info, cls: 'text-sky-700' },
+}
 
 interface ToastItem {
   id: number
@@ -26,22 +33,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         aria-live="polite"
         className="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col gap-2"
       >
-        {items.map((t) => (
-          <div
-            key={t.id}
-            role={t.tone === 'error' ? 'alert' : 'status'}
-            className={clsx(
-              'pointer-events-auto max-w-sm rounded-md px-4 py-3 text-sm text-white shadow-lg',
-              t.tone === 'error'
-                ? 'bg-red-800'
-                : t.tone === 'info'
-                  ? 'bg-slate-800'
-                  : 'bg-brand-800',
-            )}
-          >
-            {t.message}
-          </div>
-        ))}
+        {items.map((t) => {
+          const { Icon, cls } = TOAST_ICONS[t.tone]
+          return (
+            <div
+              key={t.id}
+              role={t.tone === 'error' ? 'alert' : 'status'}
+              className="surface-card pointer-events-auto flex max-w-sm animate-rise items-start gap-2.5 px-4 py-3 text-sm font-medium text-ink shadow-raised"
+            >
+              <Icon className={clsx('mt-0.5 h-4 w-4 shrink-0', cls)} aria-hidden="true" />
+              {t.message}
+            </div>
+          )
+        })}
       </div>
     </ToastContext.Provider>
   )

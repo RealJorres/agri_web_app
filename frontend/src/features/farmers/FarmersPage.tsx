@@ -5,13 +5,14 @@ import { Link, useNavigate } from 'react-router'
 
 import { Button } from '@/components/ui/Button'
 import { DataTable } from '@/components/ui/DataTable'
-import { Alert, PageHeader, StatusBadge } from '@/components/ui/display'
+import { Alert, Avatar, FilterBar, PageHeader, StatusBadge } from '@/components/ui/display'
 import { SelectInput } from '@/components/ui/fields'
 import { useToast } from '@/components/ui/useToast'
 import { download } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/context'
 import { errorMessage } from '@/lib/forms'
 import { useBarangays, useMunicipalities } from '@/lib/reference'
+import { useDebounced } from '@/lib/useDebounced'
 import { useTableParams } from '@/lib/useTableParams'
 
 import { useFarmers, type Farmer, type FarmerListParams } from './api'
@@ -25,9 +26,12 @@ const columns: ColumnDef<Farmer>[] = [
     cell: ({ row }) => (
       <Link
         to={`/farmers/${row.original.id}`}
-        className="font-medium text-brand-800 hover:underline"
+        className="group inline-flex items-center gap-2.5 font-semibold text-ink"
       >
-        {row.original.display_name}
+        <Avatar name={row.original.display_name} />
+        <span className="group-hover:text-brand-700 group-hover:underline">
+          {row.original.display_name}
+        </span>
       </Link>
     ),
   },
@@ -60,20 +64,6 @@ const columns: ColumnDef<Farmer>[] = [
     cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString('en-PH'),
   },
 ]
-
-/** Debounce a value so search requests are not sent on every keystroke. */
-function useDebounced<T>(value: T, ms = 350): T {
-  const [debounced, setDebounced] = useState(value)
-  useEffect(() => {
-    const handle = window.setTimeout(() => {
-      setDebounced(value)
-    }, ms)
-    return () => {
-      window.clearTimeout(handle)
-    }
-  }, [value, ms])
-  return debounced
-}
 
 export default function FarmersPage() {
   const navigate = useNavigate()
@@ -137,14 +127,14 @@ export default function FarmersPage() {
           </>
         }
       />
-      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <FilterBar className="sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-1 sm:col-span-2 lg:col-span-1">
-          <label htmlFor="farmer-search" className="block text-sm font-medium">
+          <label htmlFor="farmer-search" className="block text-[13px] font-semibold">
             Search
           </label>
           <div className="relative">
             <Search
-              className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted"
+              className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted"
               aria-hidden="true"
             />
             <input
@@ -155,7 +145,7 @@ export default function FarmersPage() {
                 setSearch(e.target.value)
               }}
               placeholder="Name or RSBSA no."
-              className="block w-full rounded-md border border-slate-300 py-2 pl-8 pr-3 text-sm"
+              className="block min-h-10 w-full rounded-lg border border-line-strong bg-surface py-2 pl-9 pr-3 text-sm shadow-xs transition placeholder:text-muted hover:border-muted focus:border-brand-600 focus:ring-3 focus:ring-brand-600/15 focus:outline-none"
             />
           </div>
         </div>
@@ -200,7 +190,7 @@ export default function FarmersPage() {
           <option value="needs_review">Needs review</option>
           <option value="inactive">Inactive</option>
         </SelectInput>
-      </div>
+      </FilterBar>
       {farmers.isError ? (
         <Alert tone="error">{errorMessage(farmers.error)}</Alert>
       ) : (

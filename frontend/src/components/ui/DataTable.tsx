@@ -8,7 +8,7 @@ import {
 import clsx from 'clsx'
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
 
-import { Spinner } from './Spinner'
+import { Skeleton } from './Spinner'
 
 export const PAGE_SIZE = 50
 
@@ -62,11 +62,11 @@ export function DataTable<T>({
   const last = Math.min(page * PAGE_SIZE, total)
 
   return (
-    <div className="rounded-lg border border-line bg-surface shadow-sm">
+    <div className="surface-card overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-line text-sm">
+        <table className="min-w-full text-sm">
           <caption className="sr-only">{caption}</caption>
-          <thead className="bg-slate-50">
+          <thead className="border-b border-line bg-sunken">
             {table.getHeaderGroups().map((group) => (
               <tr key={group.id}>
                 {group.headers.map((header) => {
@@ -91,22 +91,22 @@ export function DataTable<T>({
                       aria-sort={
                         dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : undefined
                       }
-                      className="whitespace-nowrap px-4 py-2.5 text-left font-semibold text-ink"
+                      className="whitespace-nowrap px-5 py-3 text-left text-xs font-semibold text-muted"
                     >
                       {canSort ? (
                         <button
                           type="button"
                           onClick={toggle}
-                          className="inline-flex items-center gap-1 hover:text-brand-800"
+                          className="group inline-flex items-center gap-1 transition hover:text-ink"
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
                           {dir === 'asc' ? (
-                            <ArrowUp className="h-3.5 w-3.5" aria-hidden="true" />
+                            <ArrowUp className="h-3.5 w-3.5 text-brand-700" aria-hidden="true" />
                           ) : dir === 'desc' ? (
-                            <ArrowDown className="h-3.5 w-3.5" aria-hidden="true" />
+                            <ArrowDown className="h-3.5 w-3.5 text-brand-700" aria-hidden="true" />
                           ) : (
                             <ArrowUpDown
-                              className="h-3.5 w-3.5 text-slate-400"
+                              className="h-3.5 w-3.5 opacity-40 transition group-hover:opacity-100"
                               aria-hidden="true"
                             />
                           )}
@@ -120,16 +120,23 @@ export function DataTable<T>({
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className="divide-y divide-line/70">
             {loading ? (
-              <tr>
-                <td colSpan={columns.length} className="px-4 py-10 text-center text-brand-700">
-                  <Spinner label="Loading…" />
-                </td>
-              </tr>
+              [0, 1, 2, 3, 4].map((i) => (
+                <tr key={i}>
+                  <td colSpan={columns.length} className="px-5 py-3.5">
+                    {i === 0 ? (
+                      <span className="sr-only" role="status">
+                        Loading…
+                      </span>
+                    ) : null}
+                    <Skeleton className="h-4 w-full max-w-md" />
+                  </td>
+                </tr>
+              ))
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-10 text-center text-muted">
+                <td colSpan={columns.length} className="px-5 py-14 text-center text-muted">
                   {empty}
                 </td>
               </tr>
@@ -138,12 +145,15 @@ export function DataTable<T>({
                 <tr
                   key={row.id}
                   className={clsx(
-                    onRowClick && 'cursor-pointer hover:bg-brand-50 focus-within:bg-brand-50',
+                    'transition-colors',
+                    onRowClick
+                      ? 'cursor-pointer hover:bg-brand-50 focus-within:bg-brand-50'
+                      : 'hover:bg-sunken/70',
                   )}
                   onClick={onRowClick ? () => onRowClick(row.original) : undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="whitespace-nowrap px-4 py-2.5 text-ink">
+                    <td key={cell.id} className="whitespace-nowrap px-5 py-3 text-ink">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
@@ -155,7 +165,7 @@ export function DataTable<T>({
       </div>
       <nav
         aria-label="Pagination"
-        className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-4 py-2 text-sm"
+        className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-2.5 text-[13px]"
       >
         <span className="text-muted">
           {total === 0 ? '0 results' : `${String(first)}–${String(last)} of ${String(total)}`}
@@ -163,7 +173,7 @@ export function DataTable<T>({
         <div className="flex items-center gap-1">
           <button
             type="button"
-            className="rounded p-1.5 hover:bg-slate-100 disabled:opacity-40"
+            className="rounded-lg p-1.5 ring-1 ring-inset ring-line transition hover:bg-sunken disabled:opacity-40"
             onClick={() => onPageChange(page - 1)}
             disabled={page <= 1}
             aria-label="Previous page"
@@ -175,7 +185,7 @@ export function DataTable<T>({
           </span>
           <button
             type="button"
-            className="rounded p-1.5 hover:bg-slate-100 disabled:opacity-40"
+            className="rounded-lg p-1.5 ring-1 ring-inset ring-line transition hover:bg-sunken disabled:opacity-40"
             onClick={() => onPageChange(page + 1)}
             disabled={page >= pages}
             aria-label="Next page"

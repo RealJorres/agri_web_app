@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
 import {
   Alert,
+  Avatar,
   Badge,
   Card,
   DefinitionList,
@@ -50,7 +51,12 @@ function FarmerDetail({ farmer }: { farmer: FarmerDetail }) {
   return (
     <>
       <PageHeader
-        title={farmer.display_name}
+        title={
+          <span className="inline-flex items-center gap-3">
+            <Avatar name={farmer.display_name} className="h-11 w-11 text-sm" />
+            {farmer.display_name}
+          </span>
+        }
         description={`${farmer.home_barangay.name}, ${farmer.municipality.name}`}
         actions={
           can('edit_records') ? (

@@ -10,7 +10,7 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/Button'
 import { DataTable } from '@/components/ui/DataTable'
 import { Dialog } from '@/components/ui/Dialog'
-import { Alert, PageHeader, StatusBadge } from '@/components/ui/display'
+import { Alert, Avatar, FilterBar, PageHeader, StatusBadge } from '@/components/ui/display'
 import { TextInput } from '@/components/ui/fields'
 import { api, unwrap, type Schemas } from '@/lib/api/client'
 import { applyServerErrors, errorMessage } from '@/lib/forms'
@@ -28,9 +28,12 @@ const columns: ColumnDef<User>[] = [
     cell: ({ row }) => (
       <Link
         to={`/admin/users/${row.original.id}`}
-        className="font-medium text-brand-800 hover:underline"
+        className="group inline-flex items-center gap-2.5 font-semibold text-ink"
       >
-        {row.original.full_name || row.original.email}
+        <Avatar name={row.original.full_name || row.original.email} />
+        <span className="group-hover:text-brand-700 group-hover:underline">
+          {row.original.full_name || row.original.email}
+        </span>
       </Link>
     ),
   },
@@ -82,7 +85,7 @@ export default function UsersPage() {
           </Button>
         }
       />
-      <div className="mb-4 max-w-sm">
+      <FilterBar className="sm:grid-cols-2 lg:grid-cols-3">
         <TextInput
           label="Search"
           type="search"
@@ -90,7 +93,7 @@ export default function UsersPage() {
           placeholder="Name or email"
           onChange={(e) => setFilter('q', e.target.value.trim() || null)}
         />
-      </div>
+      </FilterBar>
       {users.isError ? (
         <Alert tone="error">{errorMessage(users.error)}</Alert>
       ) : (
