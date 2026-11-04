@@ -89,6 +89,7 @@ export const RECORD_ROUTES: RouteDefinition[] = [
 
   read('/inventory-records', survey.listRecords),
   edit('post', '/inventory-records', survey.createRecord),
+  edit('post', '/inventory-entries', survey.createEntry),
   read('/inventory-records/:id', survey.getRecord),
   edit('put', '/inventory-records/:id', survey.updateRecord),
   edit('patch', '/inventory-records/:id', survey.updateRecord),

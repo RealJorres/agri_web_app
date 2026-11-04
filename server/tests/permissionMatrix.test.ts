@@ -252,6 +252,7 @@ const NOT_RECORD_LEVEL: Record<string, string> = {
   'GET /imports/:id': "the caller's own job: imports.template.test.ts",
   'GET /imports/:id/error-report': "the caller's own job: imports.template.test.ts",
   'POST /imports': 'a write: covered in imports.template.test.ts',
+  'POST /inventory-entries': 'a write: covered in entries.test.ts',
   'POST /imports/:id/commit': 'a write: covered in imports.template.test.ts',
   'GET /exports/farmers.xlsx': 'scope and capability covered in imports.template.test.ts',
   'GET /exports/inventory.xlsx': 'scope and capability covered in imports.template.test.ts',

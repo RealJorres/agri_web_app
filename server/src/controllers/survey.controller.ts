@@ -2,8 +2,11 @@ import type { Request, RequestHandler, Response } from 'express'
 
 import { pageOf, pageRequest } from '../lib/pagination.js'
 import * as selectors from '../selectors/survey.selectors.js'
+import { createEntry as saveEntry } from '../services/entry.service.js'
 import * as services from '../services/survey.service.js'
+import { camelKeys } from '../validators/common.js'
 import {
+  entryCreate,
   recordCreate,
   recordQuery,
   recordUpdate,
@@ -90,6 +93,26 @@ export async function createRecord(req: Request, res: Response): Promise<void> {
     standId,
     counts,
     remarks,
+  })
+  res.status(201).json(await selectors.getRecord(scopeOf(req), record._id))
+}
+
+export async function createEntry(req: Request, res: Response): Promise<void> {
+  const body = entryCreate.parse(req.body)
+  const { varieties, ...planting } = body.planting ?? {}
+  const { consent_given: consentGiven, ...farmer } = body.new_farmer ?? { home_barangay: '' }
+  const record = await saveEntry({
+    actor: actorOf(req),
+    roundId: body.survey_round,
+    farmerId: body.farmer,
+    newFarmer: body.new_farmer
+      ? { data: camelKeys(farmer), consentGiven: consentGiven ?? false }
+      : undefined,
+    barangayId: body.barangay,
+    sitio: body.sitio,
+    planting: { data: camelKeys(planting), varietyIds: varieties },
+    counts: body.counts,
+    remarks: body.remarks,
   })
   res.status(201).json(await selectors.getRecord(scopeOf(req), record._id))
 }

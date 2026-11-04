@@ -20,6 +20,7 @@ const AssociationDetailPage = lazy(() => import('@/features/associations/Associa
 const RoundsPage = lazy(() => import('@/features/surveys/RoundsPage'))
 const RoundDetailPage = lazy(() => import('@/features/surveys/RoundDetailPage'))
 const InventoryEntryPage = lazy(() => import('@/features/surveys/InventoryEntryPage'))
+const NewEntryPage = lazy(() => import('@/features/surveys/NewEntryPage'))
 const ReviewQueuePage = lazy(() => import('@/features/review/ReviewQueuePage'))
 const ImportsPage = lazy(() => import('@/features/imports/ImportsPage'))
 const ImportDetailPage = lazy(() => import('@/features/imports/ImportDetailPage'))
@@ -68,6 +69,14 @@ export const routes: RouteObject[] = [
           { path: 'associations/:id', element: page(<AssociationDetailPage />) },
           { path: 'rounds', element: page(<RoundsPage />) },
           { path: 'rounds/:id', element: page(<RoundDetailPage />) },
+          {
+            path: 'inventory/entry',
+            element: (
+              <RequireCapability anyOf={['edit_records']}>
+                {page(<NewEntryPage />)}
+              </RequireCapability>
+            ),
+          },
           { path: 'inventory/new', element: page(<InventoryEntryPage />) },
           { path: 'inventory/:id', element: page(<InventoryEntryPage />) },
           {

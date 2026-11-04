@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 import { RECORD_STATUSES, ROUND_STATUSES } from '../models/survey.models.js'
 import { decimal, filterChoice, filterId, id, integer, isoDate, text } from './common.js'
+import { plantingWrite } from './farm.validators.js'
+import { farmerWrite } from './registry.validators.js'
 
 const MAX_POSITIVE_INTEGER = 2_147_483_647
 
@@ -52,6 +54,25 @@ const recordFields = {
 
 export const recordCreate = z.object({ survey_round: id, crop_stand: id, ...recordFields })
 export const recordUpdate = z.object(recordFields)
+
+/** One row entered by hand: an existing farmer or a new one, with the farm, planting and counts. */
+export const entryCreate = z
+  .object({
+    survey_round: id,
+    farmer: id.optional(),
+    new_farmer: farmerWrite.optional(),
+    barangay: id.optional(),
+    sitio: text(100).optional(),
+    planting: plantingWrite.optional(),
+    ...recordFields,
+  })
+  .refine(
+    ({ farmer, new_farmer: newFarmer }) => (farmer === undefined) !== (newFarmer === undefined),
+    {
+      path: ['farmer'],
+      message: 'Choose a farmer or enter a new one.',
+    },
+  )
 
 // A body is optional on workflow actions, because a comment is only sometimes needed.
 export const transitionBody = z.preprocess(

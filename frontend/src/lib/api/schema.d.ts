@@ -817,6 +817,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/inventory-entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description One row entered by hand: creates what it needs, then a draft record, in one transaction. */
+        post: operations["inventory_entries_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/inventory-records/{id}": {
         parameters: {
             query?: never;
@@ -2125,6 +2142,23 @@ export interface components {
          * @enum {string}
          */
         ImportStatusEnum: "uploaded" | "validating" | "ready" | "committing" | "committed" | "failed";
+        /** @description Give either farmer or new_farmer. */
+        InventoryEntryRequest: {
+            /** Format: uuid */
+            survey_round: string;
+            /** Format: uuid */
+            farmer?: string;
+            new_farmer?: components["schemas"]["FarmerWriteRequest"];
+            /**
+             * Format: uuid
+             * @description Defaults to the farmer's home barangay.
+             */
+            barangay?: string;
+            sitio?: string;
+            planting?: components["schemas"]["PlantingWriteRequest"];
+            counts?: components["schemas"]["StageCountInputRequest"][];
+            remarks?: string;
+        };
         /**
          * @description Drops ``personal_fields`` unless the requester may view personal data (ADR-0010).
          *     Without a request in context, personal fields are always dropped (safe default).
@@ -4903,6 +4937,29 @@ export interface operations {
             content: {
                 "application/json": components["schemas"]["InventoryRecordWriteRequest"];
                 "multipart/form-data": components["schemas"]["InventoryRecordWriteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryRecord"];
+                };
+            };
+        };
+    };
+    inventory_entries_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InventoryEntryRequest"];
             };
         };
         responses: {

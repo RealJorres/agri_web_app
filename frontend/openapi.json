@@ -3781,6 +3781,42 @@
                 }
             }
         },
+        "/api/v1/inventory-entries": {
+            "post": {
+                "operationId": "inventory_entries_create",
+                "description": "One row entered by hand: creates what it needs, then a draft record, in one transaction.",
+                "tags": [
+                    "inventory-records"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InventoryEntryRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InventoryRecord"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/inventory-records/{id}": {
             "get": {
                 "operationId": "inventory_records_retrieve",
@@ -8473,6 +8509,48 @@
                 ],
                 "type": "string",
                 "description": "* `uploaded` - Uploaded\n* `validating` - Validating\n* `ready` - Ready to commit\n* `committing` - Committing\n* `committed` - Committed\n* `failed` - Failed"
+            },
+            "InventoryEntryRequest": {
+                "type": "object",
+                "description": "Give either farmer or new_farmer.",
+                "properties": {
+                    "survey_round": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "farmer": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "new_farmer": {
+                        "$ref": "#/components/schemas/FarmerWriteRequest"
+                    },
+                    "barangay": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Defaults to the farmer's home barangay."
+                    },
+                    "sitio": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "planting": {
+                        "$ref": "#/components/schemas/PlantingWriteRequest"
+                    },
+                    "counts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StageCountInputRequest"
+                        }
+                    },
+                    "remarks": {
+                        "type": "string",
+                        "maxLength": 2000
+                    }
+                },
+                "required": [
+                    "survey_round"
+                ]
             },
             "InventoryRecord": {
                 "type": "object",

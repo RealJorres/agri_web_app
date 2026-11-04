@@ -33,6 +33,26 @@ export function useCommodities() {
   })
 }
 
+export function useVarieties(commodity?: string) {
+  return useQuery({
+    queryKey: ['varieties', commodity],
+    queryFn: async () =>
+      unwrap(
+        await api.GET('/api/v1/varieties', { params: { query: { commodity: commodity ?? '' } } }),
+      ),
+    enabled: Boolean(commodity),
+    staleTime: STALE,
+  })
+}
+
+export function useMaterialSources() {
+  return useQuery({
+    queryKey: ['material-sources'],
+    queryFn: async () => unwrap(await api.GET('/api/v1/material-sources')),
+    staleTime: STALE,
+  })
+}
+
 export function useRounds(filters: { commodity?: string; status?: 'open' | 'closed' } = {}) {
   return useQuery({
     queryKey: ['survey-rounds', filters],

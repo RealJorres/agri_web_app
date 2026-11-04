@@ -9,7 +9,7 @@ export const PRIVACY_NOTICE =
   'see, correct or erase their data at any time.'
 
 const thisYear = new Date().getFullYear()
-const optionalYear = z
+export const optionalYear = z
   .string()
   .trim()
   .refine((v) => v === '' || (/^\d{4}$/.test(v) && Number(v) >= 1900 && Number(v) <= thisYear), {

@@ -42,6 +42,14 @@ export default function ImportsPage() {
       <PageHeader
         title="Imports"
         description="Upload a workbook, review the preview, then commit."
+        actions={
+          <Link
+            to="/inventory/entry"
+            className="inline-flex min-h-10 items-center rounded-lg bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-sm ring-1 ring-line-strong transition ring-inset hover:bg-sunken"
+          >
+            Enter one record instead
+          </Link>
+        }
       />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6">
