@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import clsx from 'clsx'
 import { BadgeCheck, ClipboardPen, Landmark, Sprout, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -12,6 +11,7 @@ import { TextInput } from '@/components/ui/fields'
 import { ApiError } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/context'
 
+import { DemoAccountList } from './DemoAccountList'
 import { parseDemoAccounts } from './demoAccounts'
 
 const schema = z.object({
@@ -33,7 +33,6 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const [error, setError] = useState<string | null>(null)
-  const [chosen, setChosen] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
@@ -132,43 +131,13 @@ export default function LoginPage() {
             </form>
           </div>
           {DEMO_ACCOUNTS.length > 0 ? (
-            <section aria-label="Demo accounts" className="mt-7 border-t border-line-strong pt-5">
-              <h2 className="text-sm font-bold">Demo accounts</h2>
-              <p className="mt-0.5 text-xs text-muted">
-                One per role. All farmers here are made up.
-              </p>
-              <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {DEMO_ACCOUNTS.map((account) => (
-                  <li
-                    key={account.email}
-                    className={clsx(
-                      'surface-card flex items-center justify-between gap-2 rounded-xl! px-3 py-2 transition',
-                      chosen === account.email && 'ring-2 ring-brand-600',
-                    )}
-                  >
-                    <div className="min-w-0 text-xs leading-snug">
-                      <p className="font-semibold text-ink">{account.role}</p>
-                      <p className="break-all text-muted">{account.email}</p>
-                      <p className="break-all font-mono text-[11px] text-muted">
-                        {account.password}
-                      </p>
-                    </div>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      aria-label={`Use the ${account.role} account`}
-                      onClick={() => {
-                        setValue('email', account.email, { shouldValidate: true })
-                        setValue('password', account.password, { shouldValidate: true })
-                        setChosen(account.email)
-                      }}
-                    >
-                      Use
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <DemoAccountList
+              accounts={DEMO_ACCOUNTS}
+              onUse={(account) => {
+                setValue('email', account.email, { shouldValidate: true })
+                setValue('password', account.password, { shouldValidate: true })
+              }}
+            />
           ) : null}
         </div>
       </main>
